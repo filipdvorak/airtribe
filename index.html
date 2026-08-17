@@ -700,11 +700,39 @@ function nazevAkce(ev){ return (ev && ev.nazev || "").trim() || "Akce bez názvu
 
 /** Kliknutí (nebo tabulátor) označí celý obsah pole — psaní ho tak hned přepíše
     a nemusí se nic mazat. Po zaostření se pole chová normálně. */
+var OBNOVA = false;   // true = zaostřujeme programově, pole se nemá označovat
+
+/** Překreslí obsah tak, aby stránka „neuskočila“:
+    zapamatuje si zaostřené pole, jeho polohu na obrazovce a pozici kurzoru,
+    po překreslení ho vrátí a případný posun obsahu nahoře dorovná scrollem. */
+function prekresli(akce){
+  var akt = document.activeElement;
+  var id  = (akt && akt.id) ? akt.id : null;
+  var zac = null, kon = null;
+  try{ if(akt && akt.selectionStart != null){ zac = akt.selectionStart; kon = akt.selectionEnd; } }catch(e){}
+  var pred = (akt && akt.getBoundingClientRect) ? akt.getBoundingClientRect().top : null;
+
+  akce();
+
+  var novy = id ? document.getElementById(id) : null;
+  if(!novy) return;
+  if(novy !== document.activeElement){
+    OBNOVA = true;
+    try{ novy.focus({preventScroll:true}); }catch(e){ novy.focus(); }
+    try{ if(zac != null) novy.setSelectionRange(zac, kon); }catch(e){}
+    OBNOVA = false;
+  }
+  if(pred != null){
+    var rozdil = novy.getBoundingClientRect().top - pred;
+    if(Math.abs(rozdil) > 0.5) window.scrollBy(0, rozdil);
+  }
+}
+
 function oznacitPriKliknuti(inp){
   if(!inp || inp.__auto) return;
   inp.__auto = true;
   var nove = false;
-  inp.addEventListener("focus", function(){ nove = true; try{ inp.select(); }catch(e){} });
+  inp.addEventListener("focus", function(){ if(OBNOVA) return; nove = true; try{ inp.select(); }catch(e){} });
   inp.addEventListener("mouseup", function(e){ if(nove){ nove = false; e.preventDefault(); } });
   inp.addEventListener("blur", function(){ nove = false; });
 }
@@ -966,17 +994,17 @@ function renderEditor(){
            document.getElementById("matrixEditWrap").innerHTML = ""; return; }
 
   var h = '<div class="field"><label>Název akce</label><div class="fh">Zobrazí se ostatním jako záložka.</div>'
-        + '<input type="text" data-f="nazev" value="'+esc(ev.nazev)+'" placeholder="např. Vrcovice 2027"></div>';
+        + '<input type="text" id="fld_nazev" data-f="nazev" value="'+esc(ev.nazev)+'" placeholder="např. Vrcovice 2027"></div>';
   AMOUNTS.forEach(function(a){
     // Nevyplněná částka zůstane prázdná — nula se nepředvyplňuje, aby ji nebylo nutné mazat.
     h += '<div class="field"><label>'+esc(a.label)+' ('+esc(DATA.mena)+')</label>'
       +  '<div class="fh">'+esc(a.popis)+'</div>'
-      +  '<input type="number" step="0.01" inputmode="decimal" data-f="'+a.key+'"'
+      +  '<input type="number" step="0.01" inputmode="decimal" id="fld_'+a.key+'" data-f="'+a.key+'"'
       +  ' value="'+(ev[a.key] ? ev[a.key] : "")+'" placeholder="0"></div>';
   });
   h += '<div class="field"><label>Odměna organizátora (% z výdělku)</label>'
     +  '<div class="fh">Platí pro všechny akce. Strhne se rovným dílem ostatním účastníkům.</div>'
-    +  '<input type="number" step="0.1" data-g="bonusOrganizatoraProcent" value="'+DATA.bonusOrganizatoraProcent+'"></div>';
+    +  '<input type="number" step="0.1" id="fld_pct" data-g="bonusOrganizatoraProcent" value="'+DATA.bonusOrganizatoraProcent+'"></div>';
   fh.innerHTML = h;
 
   oznacitVse("evFields");
@@ -985,7 +1013,7 @@ function renderEditor(){
       if(inp.dataset.g) DATA[inp.dataset.g] = Number(inp.value)||0;
       else if(inp.dataset.f === "nazev"){ ev.nazev = inp.value; renderTabs(); }
       else ev[inp.dataset.f] = Number(inp.value)||0;
-      renderContent(false);
+      prekresli(function(){ renderContent(false); });
     };
   });
 
@@ -996,14 +1024,14 @@ function renderEditor(){
     DATA.lide.forEach(function(p,pi){
       var f = ev.ucastnici[p] || blankFlags();
       t += '<div class="pcard"><div class="pchead">'
-        +  '<input type="text" data-person="'+pi+'" value="'+esc(p)+'" placeholder="jméno">'
+        +  '<input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'" placeholder="jméno">'
         +  '<button class="btn danger" data-del="'+pi+'" title="Odebrat">✕</button></div><div class="tgs">'
         +  FLAGS.map(function(x){
              if(x.key === "pasazerInterni" && f.interniRidic)
                return '<label class="tg on locked" title="Řidič se do dělení počítá automaticky">'
                     + '<input type="checkbox" checked disabled>'+x.ikona+' '+esc(x.label)+' (automaticky)</label>';
              return '<label class="tg'+(f[x.key]?" on":"")+'">'
-                  + '<input type="checkbox" data-p="'+esc(p)+'" data-k="'+x.key+'"'+(f[x.key]?" checked":"")+'>'
+                  + '<input type="checkbox" id="cb_'+pi+'_'+x.key+'" data-p="'+esc(p)+'" data-k="'+x.key+'"'+(f[x.key]?" checked":"")+'>'
                   + x.ikona+' '+esc(x.label)+'</label>';
            }).join("")
         +  '</div></div>';
@@ -1017,12 +1045,12 @@ function renderEditor(){
 
     DATA.lide.forEach(function(p,pi){
       var f = ev.ucastnici[p] || blankFlags();
-      t += '<tr><td><input type="text" data-person="'+pi+'" value="'+esc(p)+'"></td>'
+      t += '<tr><td><input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'"></td>'
         +  FLAGS.map(function(x){
              if(x.key === "pasazerInterni" && f.interniRidic)
                return '<td><input type="checkbox" checked disabled title="Řidič se do dělení počítá automaticky">'
                     + '<span class="autolbl">automaticky</span></td>';
-             return '<td><input type="checkbox" data-p="'+esc(p)+'" data-k="'+x.key+'" title="'+esc(x.label)+'"'
+             return '<td><input type="checkbox" id="cb_'+pi+'_'+x.key+'" data-p="'+esc(p)+'" data-k="'+x.key+'" title="'+esc(x.label)+'"'
                   + (f[x.key] ? " checked":"") + '></td>';
            }).join("")
         +  '<td><button class="btn danger" data-del="'+pi+'" title="Odebrat">✕</button></td></tr>';
@@ -1040,7 +1068,9 @@ function renderEditor(){
       DATA.akce[state.akce].ucastnici[cb.dataset.p][cb.dataset.k] = cb.checked;
       var lbl = cb.closest ? cb.closest(".tg") : null;
       if(lbl) lbl.classList.toggle("on", cb.checked);
-      if(cb.dataset.k === "interniRidic") renderAll(false); else renderContent(false);
+      prekresli(function(){
+        if(cb.dataset.k === "interniRidic") renderAll(false); else renderContent(false);
+      });
     };
   });
   oznacitVse("matrixEditWrap");
@@ -1050,7 +1080,7 @@ function renderEditor(){
       if(!nn || (DATA.lide.indexOf(nn) !== -1 && nn !== old)){ inp.value = old; toast("Jméno musí být vyplněné a jedinečné."); return; }
       DATA.lide[i] = nn;
       DATA.akce.forEach(function(a){ a.ucastnici[nn] = a.ucastnici[old] || blankFlags(); delete a.ucastnici[old]; });
-      renderAll(false);
+      prekresli(function(){ renderAll(false); });
     };
   });
   Array.prototype.forEach.call(m.querySelectorAll('button[data-del]'), function(b){
