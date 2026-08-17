@@ -18,8 +18,9 @@ oddílu je rozbalená vždy jen jedna položka — otevřením další se předc
 nemohou změnit — v tomhle zobrazení nejsou žádná editovatelná pole.
 
 Po otevření se ukáže naposledy vytvořená akce. V přilepeném pruhu nahoře je vidět vždy
-jen právě vybraná akce a vedle ní vlevo tlačítko ☰. To vysune od levého okraje panel
-se seznamem všech akcí i s datem a výdělkem; zavře se křížkem, kliknutím vedle nebo Escapem.
+jen právě vybraná akce s jejím datem a vedle ní vlevo tlačítko ☰. To vysune od levého
+okraje panel se seznamem všech akcí i s datem a výdělkem; zavře se křížkem, kliknutím
+vedle nebo Escapem.
 
 Zobrazuje se jen to, co má obsah: kdo na akci nebyl, se v seznamu neobjeví, a nulové
 náklady se vynechají i s celou sekcí. Na mobilu se místo široké tabulky použije seznam
@@ -33,10 +34,11 @@ Přidej `?edit` na konec adresy:
 https://vystoupeni.vercel.app/?edit
 ```
 
-Můžeš měnit název, datum a výdělek, zaškrtávat, kdo se účastnil, přidávat a mazat lidi
-i akce a duplikovat akci jako šablonu. Čísla se přepočítají okamžitě. Přejmenovat akci jde
-i rovnou v seznamu pod ☰ — tužka u ní otevře pole pro nový název, takže na ni nemusíš
-nejdřív přepínat.
+Můžeš měnit název, datum a výdělek, zaškrtávat, kdo se účastnil, nastavit procento pro
+organizátora a přidávat či mazat lidi. Čísla se přepočítají okamžitě. Tlačítka **+ Nová
+akce**, **⧉ Duplikovat akci** a **🗑 Smazat akci** jsou hned nad shrnujícími kartami.
+Přejmenovat akci jde i rovnou v seznamu pod ☰ — tužka u ní otevře pole pro nový název,
+takže na ni nemusíš nejdřív přepínat.
 
 Jízdy a náklady se zadávají po jednotlivých položkách ve dvou sbalovacích oddílech, takže
 nezabírají místo, když je zrovna nepotřebuješ:
@@ -90,6 +92,23 @@ označený jako řidič, nebo u interního nákladu chybí ten, kdo ho zaplatil 
 a rozdíl v kontrole to ukáže.
 
 Všechny částky jsou počítané a zobrazované přesně na haléře.
+
+---
+
+## Profilové obrázky
+
+Vedle jména se ve výplatách kreslí kolečko s prvním písmenem. Když chceš místo písmene
+fotku, stačí v `index.html` doplnit jméno a adresu obrázku do připraveného seznamu:
+
+```js
+var FOTKY = {
+  "Filip": "fotky/filip.jpg",
+  "Jenda": "https://example.com/jenda.png"
+};
+```
+
+Adresa může být soubor uložený v repozitáři vedle `index.html` i odkaz na internet.
+Obrázek se sám vyřízne a vyplní celou výšku řádku; kdo v seznamu není, má dál písmeno.
 
 ---
 

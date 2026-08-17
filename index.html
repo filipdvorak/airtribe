@@ -68,6 +68,9 @@
   .tab:active{transform:scale(.97)}
   .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:650;
        box-shadow:0 2px 8px rgba(59,91,219,.28)}
+  .tab .tnm{font-weight:inherit}
+  .tab .tdat{margin-left:9px;padding-left:9px;border-left:1px solid currentColor;
+       font-size:12.5px;font-weight:500;opacity:.72;font-variant-numeric:tabular-nums}
   /* hamburger vlevo od nejnovější akce */
   .hamb{flex:none;width:42px;height:38px;display:grid;place-items:center;padding:0;cursor:pointer;
     background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;
@@ -201,22 +204,29 @@
   ul.payouts{list-style:none;margin:0;padding:0}
   ul.payouts li{border-bottom:1px solid var(--line)}
   ul.payouts li:last-child{border-bottom:0}
-  .row-head{display:flex;align-items:center;flex-wrap:wrap;gap:13px;width:100%;padding:14px 19px;
+  /* Avatar sahá přes celou výšku řádku — i když se pod jméno zabalí štítky. */
+  .row-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;
+            grid-template-areas:"av who amt chev";
+            align-items:center;column-gap:13px;row-gap:6px;width:100%;padding:14px 19px;
             background:none;border:0;font:inherit;color:inherit;cursor:pointer;text-align:left;
             transition:background .2s var(--ease)}
+  .row-head.sestitky{grid-template-areas:"av who amt chev" "av tags tags tags"}
   .row-head:hover{background:var(--panel-2)}
-  .avatar{flex:none;width:36px;height:36px;border-radius:11px;background:var(--accent-soft);color:var(--accent-ink);
-          display:grid;place-items:center;font-weight:700;font-size:14.5px}
-  .who{flex:1;min-width:0}
+  .avatar{grid-area:av;align-self:stretch;width:40px;min-height:40px;overflow:hidden;
+          border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);
+          display:grid;place-items:center;font-weight:700;font-size:15px}
+  .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+  .avatar.foto{background:var(--panel-2)}
+  .who{grid-area:who;min-width:0}
   .who .nm{font-weight:600;font-size:15px}
-  .tags{display:flex;flex-wrap:wrap;gap:5px;flex-basis:100%;margin:-4px 0 0 47px;order:9}
+  .tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:5px;min-width:0}
   .tag{font-size:11px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
        padding:1.5px 8px;border-radius:999px;white-space:nowrap}
   .tag.org{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink);font-weight:600}
-  .amount{font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.018em}
-  .chev{flex:none;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
+  .amount{grid-area:amt;font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.018em}
+  .chev{grid-area:chev;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
   [aria-expanded="true"] > .chev{transform:rotate(90deg)}
-  .detail-inner{padding:14px 19px 18px 68px;background:var(--panel-2);border-top:1px solid var(--line-2)}
+  .detail-inner{padding:14px 19px 18px 72px;background:var(--panel-2);border-top:1px solid var(--line-2)}
 
   .steps{width:100%;border-collapse:collapse;font-size:13.5px}
   .steps td{padding:9px 0;border-bottom:1px solid var(--line-2);vertical-align:top}
@@ -335,6 +345,7 @@
   .okbox a{color:var(--accent-ink)}
   .btn.danger:hover{border-color:var(--neg);color:var(--neg)}
   .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;padding:17px 19px}
+  .fields.jedno{grid-template-columns:minmax(0,340px);padding-top:4px}
   .fields .field{display:flex;flex-direction:column;background:var(--panel-2);border:1px solid var(--line);
     border-radius:13px;padding:12px 13px 13px;transition:border-color .18s var(--ease)}
   .fields .field:focus-within{border-color:var(--accent)}
@@ -355,6 +366,7 @@
        background:var(--panel-2);color:var(--ink);width:120px}
   .autolbl{display:block;font-size:9.5px;color:var(--muted-2);margin-top:2px;letter-spacing:.02em}
   .toolrow{display:flex;flex-wrap:wrap;gap:9px;padding:0 19px 17px}
+  .toolbar-top{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
   code{font-family:var(--mono);font-size:.9em;background:var(--panel-2);border:1px solid var(--line);padding:1px 5px;border-radius:5px}
   .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);
     padding:12px 19px;border-radius:11px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;
@@ -402,9 +414,9 @@
     .phead{padding:13px 15px 11px}
     .phead h2{font-size:15px}
     .phead p{font-size:12.5px}
-    .row-head{padding:13px 15px;gap:11px}
+    .row-head{padding:13px 15px;column-gap:11px}
     .amount{font-size:18px}
-    .tags{margin:-2px 0 0 45px}
+    .tab .tdat{margin-left:8px;padding-left:8px;font-size:12px}
     .detail-inner{padding:0 15px 16px}
     .steps{font-size:13px}
     .steps td.run{display:none}
@@ -450,6 +462,14 @@
     <nav class="tabs" id="tabs" role="tablist" aria-label="Akce"></nav>
   </div>
 
+  <div class="edit-only">
+    <div class="toolbar-top">
+      <button class="btn" id="btnAddEvent">+ Nová akce</button>
+      <button class="btn" id="btnDupEvent">⧉ Duplikovat akci</button>
+      <button class="btn danger" id="btnDelEvent">🗑 Smazat akci</button>
+    </div>
+  </div>
+
   <div id="content"></div>
 
   <!-- ================= EDITOR ================= -->
@@ -457,11 +477,6 @@
     <div class="panel">
       <div class="phead"><span class="pic">⚙️</span><h2>Nastavení akce</h2></div>
       <div class="fields" id="evFields"></div>
-      <div class="toolrow">
-        <button class="btn" id="btnAddEvent">+ Nová akce</button>
-        <button class="btn" id="btnDupEvent">⧉ Duplikovat akci</button>
-        <button class="btn danger" id="btnDelEvent">🗑 Smazat akci</button>
-      </div>
     </div>
 
     <div class="panel skl" id="panDoprava">
@@ -493,6 +508,7 @@
       <div class="phead"><span class="pic">👥</span><h2>Kdo se čeho účastní</h2></div>
       <div id="matrixEditWrap"></div>
       <div class="xstrip" id="expEdit"></div>
+      <div class="fields jedno" id="orgFields"></div>
       <div class="toolrow"><button class="btn" id="btnAddPerson">+ Přidat člověka</button></div>
     </div>
 
@@ -567,7 +583,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-17",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -579,7 +595,7 @@
   ],
   "akce": [
     {
-      "nazev": "Vrcovice + Kubata",
+      "nazev": "Vrcovice + Kubata 2026",
       "datum": "2026-06-13",
       "vydelek": 9000,
       "jizdy": [
@@ -649,49 +665,26 @@
       }
     },
     {
-      "nazev": "Slavnosti mrkve",
-      "datum": "2026-08-15",
-      "vydelek": 4000,
-      "jizdy": [
-        {
-          "typ": "interni",
-          "nazev": "",
-          "castka": 100,
-          "ridici": [
-            "Miloš"
-          ],
-          "pasazeri": [
-            "Patrik"
-          ]
-        }
-      ],
-      "naklady": [
-        {
-          "typ": "interni",
-          "nazev": "Airtrack",
-          "castka": 100,
-          "prijemce": "Miloš",
-          "platci": [
-            "Filip",
-            "Patrik"
-          ]
-        }
-      ],
+      "nazev": "Slavnosti mrkve 2026",
+      "datum": "",
+      "vydelek": 0,
+      "jizdy": [],
+      "naklady": [],
       "ucastnici": {
         "Filip": {
-          "ucastnik": true,
-          "organizator": true
+          "ucastnik": false,
+          "organizator": false
         },
         "Jenda": {
           "ucastnik": false,
           "organizator": false
         },
         "Patrik": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Miloš": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Kája": {
@@ -728,7 +721,7 @@ var FLAGS = [
 /* Doprava a náklady se zadávají jako jednotlivé položky s vlastní částkou a lidmi. */
 var DOPRAVA = {
   jizdaInterni: { key:"jizdaInterni", label:"Naše auto", ikona:"🚗",
-    popis:"Někdo z kapely jel vlastním autem. Dostane zpátky částku za tuhle jízdu (když u ní řídilo víc lidí, dělí se mezi ně) a zároveň se <b>počítá mezi ty, kdo se na ní skládají</b>. Peníze neodcházejí ven ze skupiny, jen se přesunou.",
+    popis:"Někdo z týmu jel vlastním autem. Dostane zpátky částku za tuhle jízdu (když u ní řídilo víc lidí, dělí se mezi ně) a zároveň se <b>počítá mezi ty, kdo se na ní skládají</b>. Peníze neodcházejí ven ze skupiny, jen se přesunou.",
     vzorec:"řidič: + částka ÷ počet řidičů   |   každý v autě: − částka ÷ počet lidí v autě" },
   jizdaExterni: { key:"jizdaExterni", label:"Cizí doprava", ikona:"🚐",
     popis:"Cesta s někým cizím, komu se platí — autobus, taxík, půjčovna. Cena se dělí rovným dílem mezi označené pasažéry a <b>odchází ven ze skupiny</b>.",
@@ -753,7 +746,7 @@ Object.keys(NAKLADY_TYPY).forEach(function(k){ FMAP["n_"+k] = NAKLADY_TYPY[k]; }
 
 var AMOUNTS = [
   { key:"vydelek", label:"Výdělek z akce",
-    popis:"Kolik kapela za vystoupení dostala celkem. Z téhle částky se všechno počítá." }
+    popis:"Kolik skupina za vystoupení dostala celkem. Z téhle částky se všechno počítá." }
 ];
 
 /* =========================================================
@@ -1024,6 +1017,20 @@ function compute(ev, lide, pct){
            kRozdeleni:kRozdeleni, soucet:soucet, rozdil:kRozdeleni - soucet, varovani:w };
 }
 
+/* ─────────────── PROFILOVÉ OBRÁZKY ───────────────
+   Chceš u někoho místo písmena fotku? Doplň sem jeho jméno (přesně jak je
+   napsané v seznamu lidí) a adresu obrázku — nic dalšího se nemění:
+
+     var FOTKY = { "Filip": "fotky/filip.jpg", "Jenda": "https://…/jenda.png" };
+
+   Adresa může být soubor v repozitáři vedle index.html ("fotky/filip.jpg")
+   i odkaz na internet. Obrázek se sám zarovná a vyplní celou výšku řádku.
+   Kdo tady uvedený není, má dál kolečko s prvním písmenem jména.
+   ──────────────────────────────────────────────── */
+var FOTKY = {
+  // "Filip": "fotky/filip.jpg",
+};
+
 /* =========================================================
    Pomocné
    ========================================================= */
@@ -1033,10 +1040,25 @@ function fmt(n){ return nf.format(z(n)) + " " + DATA.mena; }
 function fmtS(n){ n=z(n); return (n>0?"+ ":n<0?"− ":"") + nf.format(Math.abs(n)) + " " + DATA.mena; }
 function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function ini(n){ return String(n).trim().charAt(0).toUpperCase() || "?"; }
+/** kolečko s písmenem, nebo profilový obrázek, když je pro dané jméno v FOTKY */
+function avatar(jmeno){
+  var url = FOTKY[jmeno];
+  return '<span class="avatar'+(url ? " foto" : "")+'" aria-hidden="true">'
+       + (url ? '<img src="'+esc(url)+'" alt="" loading="lazy">' : esc(ini(jmeno)))
+       + '</span>';
+}
 /** kolik lidí je u akce označeno jako účastník */
 function pocetUcastniku(ev){
   if(!ev || !ev.ucastnici) return 0;
   return DATA.lide.filter(function(p){ return (ev.ucastnici[p]||{}).ucastnik; }).length;
+}
+
+/** datum akce krátce, „13. 6. 2026“ — do úzké lišty nad obsahem */
+function datumKratke(ev){
+  if(!ev || !ev.datum) return "";
+  var d = new Date(ev.datum + "T12:00:00");
+  if(isNaN(d)) return ev.datum;
+  return d.getDate() + ". " + (d.getMonth()+1) + ". " + d.getFullYear();
 }
 
 /** datum akce ve tvaru „14. června 2027“; prázdné zůstane prázdné */
@@ -1162,8 +1184,11 @@ function renderTabs(){
   if(DATA.akce.length > 1)
     html += '<button class="hamb" id="evBtn" type="button" aria-expanded="false" aria-haspopup="dialog"'
          +  ' title="Vybrat akci" aria-label="Vybrat akci"><i></i></button>';
+  var akt = DATA.akce[state.akce], dk = datumKratke(akt);
   html += '<button class="tab" role="tab" data-i="'+state.akce+'" aria-selected="true">'
-       +  esc(nazevAkce(DATA.akce[state.akce])) + '</button>';
+       +  '<span class="tnm">'+esc(nazevAkce(akt))+'</span>'
+       +  (dk ? '<span class="tdat">'+esc(dk)+'</span>' : '')
+       +  '</button>';
   el.innerHTML = html;
 
   vykresliNabidku();
@@ -1314,8 +1339,9 @@ function renderContent(animate){
       + (r.flags.organizator ? '<span class="tag org">⭐ organizátor</span>' : "");
     var open = (state.otevreny === i);
 
-    h += '<li><button class="row-head" data-x="det'+i+'" data-group="vyplaty" data-row="'+i+'" aria-expanded="'+open+'">'
-      +  '<span class="avatar">'+esc(ini(r.jmeno))+'</span>'
+    h += '<li><button class="row-head'+(tags?" sestitky":"")+'" data-x="det'+i+'" data-group="vyplaty"'
+      +  ' data-row="'+i+'" aria-expanded="'+open+'">'
+      +  avatar(r.jmeno)
       +  '<span class="who"><span class="nm">'+esc(r.jmeno)+'</span></span>'
       +  '<span class="amount num">'+fmt(r.vysledek)+'</span>'
       +  '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>'
@@ -1442,13 +1468,20 @@ function renderEditor(){
       +  '<input type="number" step="0.01" inputmode="decimal" id="fld_'+a.key+'" data-f="'+a.key+'"'
       +  ' value="'+(ev[a.key] ? ev[a.key] : "")+'" placeholder="0"></div>';
   });
-  h += '<div class="field"><label>Odměna organizátora (% z výdělku)</label>'
-    +  '<div class="fh">Platí pro všechny akce. Strhne se rovným dílem ostatním účastníkům.</div>'
-    +  '<input type="number" step="0.1" id="fld_pct" data-g="bonusOrganizatoraProcent" value="'+DATA.bonusOrganizatoraProcent+'"></div>';
   fh.innerHTML = h;
 
+  // Procento pro organizátora patří k zaškrtávání organizátora, proto stojí u matice lidí.
+  var of = document.getElementById("orgFields");
+  if(of) of.innerHTML =
+       '<div class="field"><label>⭐ Odměna organizátora (% z výdělku)</label>'
+     + '<div class="fh">Platí pro všechny akce. Organizátorovi se přičte, ostatním účastníkům'
+     + ' se rovným dílem strhne — celkový součet se nemění.</div>'
+     + '<input type="number" step="0.1" id="fld_pct" data-g="bonusOrganizatoraProcent"'
+     + ' value="'+DATA.bonusOrganizatoraProcent+'"></div>';
+
   oznacitVse("evFields");
-  Array.prototype.forEach.call(fh.querySelectorAll("input"), function(inp){
+  oznacitVse("orgFields");
+  Array.prototype.forEach.call(document.querySelectorAll("#evFields input, #orgFields input"), function(inp){
     inp.oninput = function(){
       if(inp.dataset.g) DATA[inp.dataset.g] = Number(inp.value)||0;
       else if(inp.dataset.f === "nazev"){ ev.nazev = inp.value; renderTabs(); }
