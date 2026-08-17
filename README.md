@@ -16,9 +16,9 @@ Otevřou odkaz a vidí u každé akce, kolik komu vychází. Po kliknutí na jm�
 rozpad částky krok po kroku, u každého kroku je **i** s vysvětlením a vzorcem. Nic
 nemohou změnit — v tomhle zobrazení nejsou žádná editovatelná pole.
 
-Po otevření se ukáže naposledy vytvořená akce. Přepínač je přilepený k hornímu okraji:
-vidíš v něm nejnovější akci (a tu právě vybranou), starší se schovávají pod tlačítkem
-s ikonou ☰ vlevo, které je vysune do popředí jako seznam s výdělkem u každé akce.
+Po otevření se ukáže naposledy vytvořená akce. V přilepeném pruhu nahoře je vidět vždy
+jen právě vybraná akce a vedle ní vlevo tlačítko ☰. To vysune od levého okraje panel
+se seznamem všech akcí i s výdělky; zavře se křížkem, kliknutím vedle nebo Escapem.
 
 Zobrazuje se jen to, co má obsah: kdo na akci nebyl, se v seznamu neobjeví, a nulové
 náklady se vynechají i s celou sekcí. Na mobilu se místo široké tabulky použije seznam
