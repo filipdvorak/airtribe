@@ -68,8 +68,36 @@
   .tab:active{transform:scale(.97)}
   .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:650;
        box-shadow:0 2px 8px rgba(59,91,219,.28)}
-  .tab.tabmore{background:var(--panel-2);color:var(--muted);border-style:dashed;font-size:13px;font-weight:600}
-  .tab.tabmore:hover{color:var(--accent);border-color:var(--accent)}
+  /* hamburger vlevo od nejnovější akce */
+  .hamb{flex:none;width:42px;height:38px;display:grid;place-items:center;padding:0;cursor:pointer;
+    background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;
+    transition:background .2s var(--ease),color .2s var(--ease),border-color .2s var(--ease)}
+  .hamb:hover{border-color:var(--accent);color:var(--accent)}
+  .hamb i{display:block;width:17px;height:2px;border-radius:2px;background:currentColor;
+    box-shadow:0 -5.5px 0 currentColor,0 5.5px 0 currentColor}
+  .hamb[aria-expanded="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  @media (prefers-color-scheme: dark){.hamb[aria-expanded="true"]{color:#0e1014}}
+
+  /* seznam starších akcí — vysune se do popředí */
+  .evmenu{position:absolute;left:20px;top:100%;margin-top:8px;z-index:60;padding:6px;
+    min-width:min(330px,calc(100vw - 44px));max-width:calc(100vw - 44px);
+    max-height:min(62vh,430px);overflow-y:auto;
+    background:var(--panel);border:1px solid var(--line);border-radius:15px;
+    box-shadow:0 20px 44px -14px rgba(16,18,25,.34),0 2px 6px rgba(16,18,25,.06);
+    opacity:0;transform:translateY(-6px) scale(.985);pointer-events:none;visibility:hidden;
+    transition:opacity .2s var(--ease),transform .2s var(--ease),visibility .2s}
+  .evmenu.open{opacity:1;transform:none;pointer-events:auto;visibility:visible}
+  @media (prefers-color-scheme: dark){.evmenu{box-shadow:0 20px 44px -14px rgba(0,0,0,.7)}}
+  .evmenu .hd{padding:9px 12px 7px;font-size:11px;text-transform:uppercase;letter-spacing:.055em;
+    color:var(--muted);font-weight:700}
+  .evitem{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border:0;background:none;
+    font:inherit;font-size:14px;color:var(--ink);text-align:left;border-radius:11px;cursor:pointer;
+    transition:background .16s var(--ease)}
+  .evitem:hover{background:var(--panel-2)}
+  .evitem[aria-current="true"]{background:var(--accent-soft);color:var(--accent-ink);font-weight:650}
+  .evitem .cis{flex:none;width:22px;color:var(--muted-2);font-size:12px;font-variant-numeric:tabular-nums}
+  .evitem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .evitem .vd{flex:none;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
   @media (prefers-color-scheme: dark){.tab[aria-selected="true"]{color:#0e1014;box-shadow:none}}
 
   /* ======== karty ======== */
@@ -292,6 +320,7 @@
     .sub{font-size:13.5px}
     .badge{font-size:11.5px;padding:5px 10px;margin-top:12px}
     .stickytop{margin:16px -12px 14px;padding:9px 12px 10px}
+    .evmenu{left:12px}
     .tabs{gap:6px}
     .tab{padding:9px 14px;font-size:13.5px}
     .cards{grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
@@ -349,6 +378,7 @@
       <button class="btn ghost" id="btnLeave">Zavřít editaci</button>
     </div>
     <nav class="tabs" id="tabs" role="tablist" aria-label="Akce"></nav>
+    <div class="evmenu" id="evMenu" role="menu" aria-label="Starší akce"></div>
   </div>
 
   <div id="content"></div>
@@ -751,16 +781,7 @@ function info(key, extra){
 }
 
 // Při otevření se ukazuje naposledy vytvořená akce (v datech je poslední v řadě).
-var STARSI_KEY = "vystoupeni.starsi";
-function starsiUlozeno(){
-  try{ var v = localStorage.getItem(STARSI_KEY); return v === null ? null : v === "1"; }catch(e){ return null; }
-}
-var state = {
-  akce: Math.max(0, DATA.akce.length - 1),
-  otevrene: {},
-  // starší akce jsou ve výchozím stavu schované, jakmile by se přepínač přestal vejít
-  starsi: starsiUlozeno() !== null ? starsiUlozeno() : (DATA.akce.length <= 3)
-};
+var state = { akce: Math.max(0, DATA.akce.length - 1), otevrene:{} };
 var EDIT = /(^|[?&])edit(=|&|$)/.test(location.search);
 
 /** úzká obrazovka → jiné rozvržení tabulek (rozhoduje se při vykreslení) */
@@ -791,31 +812,23 @@ document.addEventListener("click", function(e){
    ========================================================= */
 function renderTabs(){
   var el = document.getElementById("tabs");
-  // pořadí od nejstarší po nejnovější; vybraná se jen posune do zorného pole
+  // Na liště je jen nejnovější akce (a případně ta právě vybraná).
+  // Zbytek se skrývá pod hamburgerem vlevo, který je vysune do popředí.
   var posledni = DATA.akce.length - 1;
-  var vsechny  = DATA.akce.map(function(_,i){ return i; });
-  var vypsat   = state.starsi ? vsechny
-               : vsechny.filter(function(i){ return i === posledni || i === state.akce; });
-  var skryto   = vsechny.length - vypsat.length;
+  var vypsat = [posledni];
+  if(state.akce !== posledni) vypsat.unshift(state.akce);
 
-  var html = vypsat.map(function(i){
+  var html = "";
+  if(DATA.akce.length > 1)
+    html += '<button class="hamb" id="evBtn" type="button" aria-expanded="false" aria-haspopup="menu"'
+         +  ' title="Starší akce" aria-label="Starší akce"><i></i></button>';
+  html += vypsat.map(function(i){
     return '<button class="tab" role="tab" data-i="'+i+'" aria-selected="'+(i===state.akce)+'">'
          + esc(nazevAkce(DATA.akce[i])) + '</button>';
   }).join("");
-
-  if(DATA.akce.length > 1){
-    html += state.starsi
-      ? '<button class="tab tabmore" id="tabToggle" title="Nechat jen nejnovější akci">⌃ Skrýt starší</button>'
-      : '<button class="tab tabmore" id="tabToggle" title="Zobrazit všechny akce">⌄ Starší akce ('+skryto+')</button>';
-  }
   el.innerHTML = html;
 
-  var tg = document.getElementById("tabToggle");
-  if(tg) tg.onclick = function(){
-    state.starsi = !state.starsi;
-    try{ localStorage.setItem(STARSI_KEY, state.starsi ? "1" : "0"); }catch(e){}
-    renderTabs();
-  };
+  vykresliNabidku();
   Array.prototype.forEach.call(el.querySelectorAll(".tab[data-i]"), function(b){
     b.onclick = function(){
       if(+b.dataset.i === state.akce) return;
@@ -824,7 +837,68 @@ function renderTabs(){
   });
   var sel = el.querySelector('.tab[aria-selected="true"]');
   if(sel) el.scrollLeft = Math.max(0, sel.offsetLeft - 14);
+
+  var bt = document.getElementById("evBtn");
+  if(bt) bt.onclick = function(e){ e.stopPropagation(); prepniNabidku(); };
 }
+
+/** seznam starších akcí (od nejnovější) ve vysouvací nabídce */
+function vykresliNabidku(){
+  var m = document.getElementById("evMenu");
+  if(!m) return;
+  var posledni = DATA.akce.length - 1;
+  var starsi = [];
+  for(var i = posledni - 1; i >= 0; i--) starsi.push(i);
+  if(!starsi.length){ m.innerHTML = ""; return; }
+
+  m.innerHTML = '<div class="hd">Starší akce</div>' + starsi.map(function(i){
+    var ev = DATA.akce[i];
+    return '<button class="evitem" type="button" role="menuitem" data-go="'+i+'"'
+         + (i === state.akce ? ' aria-current="true"' : '') + '>'
+         + '<span class="cis">'+(i+1)+'.</span>'
+         + '<span class="nm">'+esc(nazevAkce(ev))+'</span>'
+         + '<span class="vd">'+(ev.vydelek ? fmt(ev.vydelek) : "—")+'</span></button>';
+  }).join("");
+
+  Array.prototype.forEach.call(m.querySelectorAll("[data-go]"), function(b){
+    b.onclick = function(){
+      var i = +b.dataset.go;
+      zavriNabidku();
+      if(i === state.akce) return;
+      state.akce = i; state.otevrene = {}; renderAll(true);
+    };
+  });
+}
+
+function zavriNabidku(){
+  var m = document.getElementById("evMenu"), b = document.getElementById("evBtn");
+  if(m) m.classList.remove("open");
+  if(b) b.setAttribute("aria-expanded", "false");
+}
+function prepniNabidku(){
+  var m = document.getElementById("evMenu"), b = document.getElementById("evBtn");
+  if(!m || !b) return;
+  var otevrit = !m.classList.contains("open");
+  m.classList.toggle("open", otevrit);
+  b.setAttribute("aria-expanded", String(otevrit));
+  if(otevrit){
+    var prvni = m.querySelector(".evitem");
+    if(prvni) setTimeout(function(){ prvni.focus({preventScroll:true}); }, 210);
+  }
+}
+
+// zavření kliknutím jinam nebo klávesou Esc
+document.addEventListener("click", function(e){
+  var m = document.getElementById("evMenu");
+  if(!m || !m.classList.contains("open")) return;
+  if(m.contains(e.target)) return;
+  var b = document.getElementById("evBtn");
+  if(b && b.contains(e.target)) return;
+  zavriNabidku();
+});
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape") zavriNabidku();
+});
 
 function renderContent(animate){
   var host = document.getElementById("content");
