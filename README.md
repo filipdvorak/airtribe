@@ -33,11 +33,20 @@ Přidej `?edit` na konec adresy:
 https://vystoupeni.vercel.app/?edit
 ```
 
-Můžeš měnit název, datum, výdělek a náklady, přidávat libovolný počet jízd (naše auto
-i cizí doprava) a u každé určit částku, řidiče a osádku, zaškrtávat, kdo se účastnil,
-přidávat a mazat lidi i akce a duplikovat akci jako šablonu. Čísla se přepočítají okamžitě.
-Přejmenovat jde i rovnou v seznamu pod ☰ — tužka u akce otevře pole pro nový název,
-takže nemusíš na akci nejdřív přepínat.
+Můžeš měnit název, datum a výdělek, zaškrtávat, kdo se účastnil, přidávat a mazat lidi
+i akce a duplikovat akci jako šablonu. Čísla se přepočítají okamžitě. Přejmenovat akci jde
+i rovnou v seznamu pod ☰ — tužka u ní otevře pole pro nový název, takže na ni nemusíš
+nejdřív přepínat.
+
+Jízdy a náklady se zadávají po jednotlivých položkách ve dvou sbalovacích oddílech, takže
+nezabírají místo, když je zrovna nepotřebuješ:
+
+- **Doprava** — libovolný počet jízd, u každé částka, řidiči a osádka. *Naše auto* i *cizí
+  doprava*.
+- **Náklady** — libovolný počet výdajů, každý s vlastním názvem. Vybíráš ze tří typů podle
+  toho, kam peníze putují (viz níže).
+
+U každé položky je štítek s typem a vedle něj **i** s vysvětlením a vzorcem.
 
 Změny zatím žijí jen v tvém prohlížeči. Zveřejníš je tlačítkem **💾 Uložit na web** —
 aplikace zapíše data přímo do repozitáře na GitHubu a na stejné adrese se do ~20 vteřin
@@ -54,26 +63,30 @@ a **Odkaz s daty** na rychlou jednorázovou ukázku.
 Pro každou akci, v tomto pořadí:
 
 1. **Základ** — výdělek se rozdělí rovným dílem mezi účastníky.
-2. **Jízdy** — každá cesta se zadává zvlášť, s vlastní částkou a osádkou, takže dvě auta
-   s různými náklady se spočítají odděleně.
-   *Naše auto:* řidič dostane částku zpátky (při více řidičích se dělí mezi ně) a zároveň
-   se na ní podílí — do dělení se započítá automaticky. Peníze zůstávají uvnitř skupiny.
-   *Cizí doprava:* cena se dělí mezi označené pasažéry a odchází ven ze skupiny.
-4. **Individuální externí náklad** platí každý označený sám za sebe.
-5. **Hromadný externí náklad** si označení rozdělí rovným dílem.
-6. **Interní hromadný náklad** se strhne označeným plátcům a v plné výši připadne
-   označenému příjemci — typicky když někdo zaplatil něco za skupinu ze svého.
-7. **Organizátor** dostane navíc procento z výdělku (výchozí 5 %). Tahle částka se rovným
+
+2. **Jízdy** — každá cesta se počítá zvlášť, takže dvě auta s různými náklady se nemíchají.
+   - *Naše auto* — řidič dostane částku zpátky (při více řidičích se dělí mezi ně) a zároveň
+     se na ní podílí; do dělení se započítá automaticky. Peníze **zůstávají uvnitř skupiny**.
+   - *Cizí doprava* — cena se dělí mezi označené pasažéry a **odchází ven**.
+
+3. **Náklady** — každý výdaj má svůj název, částku a lidi. Typ určuje, co se s penězi stane:
+   - *Interní náklad* — částku zaplatil jeden z účastníků ze svého a vybraní se mu na ni
+     složí ze svých podílů. Peníze se jen **přesunou uvnitř skupiny**.
+   - *Externí individuální náklad* — pevná částka, kterou platí každý označený sám za sebe.
+     Nedělí se: kolik je označených, tolikrát částka **odejde ven**.
+   - *Externí hromadný náklad* — jedna společná částka placená ven, kterou si označení
+     rozdělí rovným dílem. Taky **odchází ven**.
+
+4. **Organizátor** dostane navíc procento z výdělku (výchozí 5 %). Tahle částka se rovným
    dílem strhne ostatním účastníkům, takže celkový součet zůstává stejný.
 
-Cizí doprava a body 3 až 5 jsou peníze, které **odcházejí ven ze skupiny** — o ně je
-k rozdělení méně. Naše jízdy a body 6 a 7 se jen **přesouvají mezi lidmi** a celkovou
-částku nemění. Sekce
-*Kam peníze jdou* to odděluje a sekce *Kontrola* ověřuje, že „výdělek − náklady ven"
-přesně sedí na součet všech výplat.
+Co **odchází ven ze skupiny** (cizí doprava, oba externí náklady), o to je k rozdělení méně.
+Co se jen **přesouvá mezi lidmi** (naše jízdy, interní náklad, odměna organizátora), celkovou
+částku nemění. Sekce *Kam peníze jdou* to odděluje a jmenovitě vypisuje, koho se co týká;
+sekce *Kontrola* ověřuje, že „výdělek − náklady ven" přesně sedí na součet všech výplat.
 
 Když se v označení objeví nesmysl — třeba se někdo veze naším autem, ale nikdo není
-označený jako řidič, nebo u interního nákladu chybí příjemce — aplikace na to upozorní
+označený jako řidič, nebo u interního nákladu chybí ten, kdo ho zaplatil — aplikace na to upozorní
 a rozdíl v kontrole to ukáže.
 
 Všechny částky jsou počítané a zobrazované přesně na haléře.
