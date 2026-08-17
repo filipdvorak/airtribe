@@ -28,7 +28,10 @@ se do ~20 vteřin objeví nový obsah. Nic se nestahuje ani nepřetahuje.
 Otevřou odkaz a vidí přehled akcí, kolik komu vychází a rozpad každé částky.
 Nemají jak cokoli změnit — v běžném zobrazení nejsou žádná editovatelná pole.
 
-Po otevření se vždy ukáže **naposledy vytvořená akce** a záložky jsou řazené od nejnovější.
+Přepínač akcí je **přilepený k hornímu okraji**, takže je po ruce i po odscrollování.
+Akce jsou v něm od nejstarší po nejnovější, ale po otevření stránky se vždy vybere
+**naposledy vytvořená** a pruh se k ní sám posune.
+
 Na mobilu se rozvržení mění: široká tabulka zaškrtnutí se nahradí seznamem funkcí s počty
 (u koho konkrétně, je vidět ze štítků u jmen), nepoužité funkce jsou schované pod jedním
 tlačítkem a nikde se nic neposouvá do strany. V editaci je každý člověk jedna kartička
@@ -51,6 +54,9 @@ Tam můžeš:
 - přidávat a mazat lidi i akce, duplikovat akci jako šablonu.
 
 Změny se nejdřív jen počítají v tvém prohlížeči. Zveřejníš je jedním ze dvou způsobů:
+
+V modré liště jsou jen dvě tlačítka — **Uložit na web** a **Zavřít editaci**. Zbytek
+(stažení souboru, odkaz s daty, kopie dat) je v panelech níže.
 
 1. **💾 Uložit na web** — hlavní způsob. Zapíše data přímo do repozitáře přes GitHub API,
    hosting je sám vyzvedne. Vyžaduje jednorázové připojení tokenu (viz NASAZENI.md).
