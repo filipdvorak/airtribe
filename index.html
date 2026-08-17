@@ -621,7 +621,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-17",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -703,49 +703,26 @@
       }
     },
     {
-      "nazev": "Slavnosti mrkve",
-      "datum": "2026-08-15",
-      "vydelek": 4000,
-      "jizdy": [
-        {
-          "typ": "interni",
-          "nazev": "",
-          "castka": 100,
-          "ridici": [
-            "Miloš"
-          ],
-          "pasazeri": [
-            "Patrik"
-          ]
-        }
-      ],
-      "naklady": [
-        {
-          "typ": "interni",
-          "nazev": "Airtrack",
-          "castka": 100,
-          "prijemce": "Miloš",
-          "platci": [
-            "Patrik",
-            "Filip"
-          ]
-        }
-      ],
+      "nazev": "Slavnosti mrkve 2026",
+      "datum": "",
+      "vydelek": 0,
+      "jizdy": [],
+      "naklady": [],
       "ucastnici": {
         "Filip": {
-          "ucastnik": true,
-          "organizator": true
+          "ucastnik": false,
+          "organizator": false
         },
         "Jenda": {
           "ucastnik": false,
           "organizator": false
         },
         "Patrik": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Miloš": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Kája": {
@@ -929,6 +906,23 @@ function privlastnovaci(jmeno){
   return j + "ovo";
 }
 
+/** „Miloš" → „Miloše" (4. pád, tedy „pro Miloše"). Když si nejsme jistí, vrátíme "". */
+function akuzativ(jmeno){
+  var j = String(jmeno || "").trim();
+  if(!j) return "";
+  var posl = j.charAt(j.length-1).toLowerCase();
+  if(posl === "a") return j.slice(0, -1) + "u";          // Jenda → Jendu, Kája → Káju
+  if("íyýieou".indexOf(posl) !== -1) return "";          // Jiří, Nový, Bobo — radši neskloňujeme
+  if("šžčřcj".indexOf(posl) !== -1) return j + "e";      // Miloš → Miloše, Ondřej → Ondřeje
+  return j + "a";                                        // Filip → Filipa, Martin → Martina
+}
+
+/** „pro Miloše", a když jméno neumíme skloňovat, tak bezpečné „příjemce: Jiří" */
+function proKoho(jmeno){
+  var a = akuzativ(jmeno);
+  return a ? "pro " + a : "příjemce: " + jmeno;
+}
+
 /** spojí tvary do výčtu: „a", „a a b", „a, b a c" */
 function vyctem(pole){
   if(pole.length < 2) return pole[0] || "";
@@ -993,8 +987,8 @@ function compute(ev, lide, pct){
     var prijemce = (n.typ === "interni" && je(n.prijemce)) ? n.prijemce : "";
     var naOsobu = n.typ === "externiIndiv" ? n.castka
                 : (platci.length ? n.castka / platci.length : 0);
-    return { def:n, typ:n.typ, nazev:nazevNakladu(n), castka:n.castka,
-             platci:platci, prijemce:prijemce, naOsobu:naOsobu,
+    return { def:n, typ:n.typ, nazev:nazevNakladu(n), vlastni:!!(n.nazev || "").trim(),
+             castka:n.castka, platci:platci, prijemce:prijemce, naOsobu:naOsobu,
              celkem: n.typ === "externiIndiv" ? n.castka * platci.length : n.castka };
   });
 
@@ -1030,20 +1024,22 @@ function compute(ev, lide, pct){
 
     naklady.forEach(function(nk){
       if(!nk.castka) return;
+      // Bez vlastního názvu je název nákladu jen jeho typ — ten se do věty nelepí.
+      var sNazvem = function(zaklad){ return nk.vlastni ? zaklad + " — " + nk.nazev : zaklad; };
       if(nk.typ === "interni" && nk.prijemce === p && nk.platci.length)
-        push("n_interni", "Vrácení nákladu — " + nk.nazev, "složili se " + nk.platci.join(", "),
+        push("n_interni", sNazvem("Vrácení nákladu"), "složili se " + nk.platci.join(", "),
              nk.castka, "plus");
       if(nk.platci.indexOf(p) !== -1){
         if(nk.typ === "externiIndiv")
           push("n_externiIndiv", nk.nazev, "pevná částka za jednoho člověka", -nk.castka, "minus");
         else if(nk.typ === "externiHromadny")
-          push("n_externiHromadny", "Podíl na nákladu — " + nk.nazev,
+          push("n_externiHromadny", sNazvem("Podíl na nákladu"),
                fmt(nk.castka)+" ÷ "+nk.platci.length+" "+sklon(nk.platci.length,"osobu","osoby","osob"),
                -nk.naOsobu, "minus");
         else if(nk.prijemce)
-          push("n_interni", "Podíl na nákladu — " + nk.nazev,
+          push("n_interni", sNazvem("Příspěvek na náklad"),
                fmt(nk.castka)+" ÷ "+nk.platci.length+" "+sklon(nk.platci.length,"plátce","plátce","plátců")
-               + " pro " + nk.prijemce,
+               + " · " + proKoho(nk.prijemce),
                -nk.naOsobu, "minus");
       }
     });
@@ -1102,16 +1098,16 @@ function compute(ev, lide, pct){
   jizdy.forEach(function(jz){
     if(!jz.castka) return;
     if(jz.typ === "interni" && jz.platci.length && !jz.ridici.length)
-      w.push("U jízdy <b>"+esc(jz.nazev)+"</b> se někdo veze, ale <b>není u ní nikdo označený jako řidič</b>. Stržené peníze by nikomu nepřipadly.");
+      w.push("<b>"+esc(jz.nazev)+"</b> — někdo se veze, ale <b>nikdo tam není označený jako řidič</b>. Stržené peníze by nikomu nepřipadly.");
     if(!jz.platci.length)
-      w.push("Jízda <b>"+esc(jz.nazev)+"</b> má zadanou částku, ale <b>nikoho, kdo by se vezl</b>.");
+      w.push("<b>"+esc(jz.nazev)+"</b> — je zadaná částka, ale <b>nikdo, kdo by se vezl</b>.");
   });
   naklady.forEach(function(nk){
     if(!nk.castka) return;
     if(!nk.platci.length)
-      w.push("Náklad <b>"+esc(nk.nazev)+"</b> má zadanou částku, ale <b>nikoho, kdo by ho platil</b>.");
+      w.push("<b>"+esc(nk.nazev)+"</b> — je zadaná částka, ale <b>nikdo, kdo by ji platil</b>.");
     else if(nk.typ === "interni" && !nk.prijemce)
-      w.push("U nákladu <b>"+esc(nk.nazev)+"</b> chybí <b>ten, kdo ho zaplatil</b>. Stržená částka by se ztratila.");
+      w.push("<b>"+esc(nk.nazev)+"</b> — chybí <b>ten, kdo náklad zaplatil</b>. Stržená částka by se ztratila.");
   });
   if(ev.vydelek > 0 && nU === 0)
     w.push("Akce má zadaný výdělek, ale <b>žádného účastníka</b>.");
@@ -1503,7 +1499,7 @@ function renderContent(animate){
   });
   R.uvnNakl.forEach(function(nk){
     uvnitr.push(crow("n_interni", nk.nazev, nk.castka,
-      "zaplatil " + nk.prijemce + " · skládají se: " + nk.platci.join(", ")));
+      "zaplatil " + nk.prijemce + " · skládají se na to: " + nk.platci.join(", ")));
   });
   if(R.uvnitr.bonus)
     uvnitr.push(crow("organizator", "Odměna organizátora", R.uvnitr.bonus,

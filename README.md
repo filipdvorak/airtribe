@@ -52,8 +52,8 @@ nezabírají místo, když je zrovna nepotřebuješ:
 - **Doprava** — libovolný počet jízd, u každé částka, řidiči a osádka. *Naše auto* i *cizí
   doprava*. Název naší jízdy se odvodí od řidiče a skloní se podle věty: u řidiče se ukáže
   *řídil svoje auto*, u ostatních *vezl se Milošovým autem* (při více řidičích
-  *Milošovým a Patrikovým autem*). Když chceš vlastní název, prostě ho přepiš — pak se
-  píše s dvojtečkou a neskloňuje.
+  *Milošovým a Patrikovým autem*) — a stejně i v rozpadu částky. Když chceš vlastní název,
+  prostě ho přepiš; pak se píše s dvojtečkou a neskloňuje.
 - **Náklady** — libovolný počet výdajů, každý s vlastním názvem. Vybíráš ze tří typů podle
   toho, kam peníze putují (viz níže).
 
@@ -95,6 +95,9 @@ Co **odchází ven ze skupiny** (cizí doprava, oba externí náklady), o to je 
 Co se jen **přesouvá mezi lidmi** (naše jízdy, interní náklad, odměna organizátora), celkovou
 částku nemění. Sekce *Kam peníze jdou* to odděluje a jmenovitě vypisuje, koho se co týká;
 sekce *Kontrola* ověřuje, že „výdělek − náklady ven" přesně sedí na součet všech výplat.
+
+Jména se v textu skloňují podle věty — *pro Miloše*, *pro Jendu*, *Milošovým autem*.
+U jmen, která by šlo ohnout špatně (třeba na **-í**), aplikace radši zvolí bezpečný opis.
 
 Když se v označení objeví nesmysl — třeba se někdo veze naším autem, ale nikdo není
 označený jako řidič, nebo u interního nákladu chybí ten, kdo ho zaplatil — aplikace na to upozorní
