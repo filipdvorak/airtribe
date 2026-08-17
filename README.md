@@ -28,6 +28,12 @@ se do ~20 vteřin objeví nový obsah. Nic se nestahuje ani nepřetahuje.
 Otevřou odkaz a vidí přehled akcí, kolik komu vychází a rozpad každé částky.
 Nemají jak cokoli změnit — v běžném zobrazení nejsou žádná editovatelná pole.
 
+Po otevření se vždy ukáže **naposledy vytvořená akce** a záložky jsou řazené od nejnovější.
+Na mobilu se rozvržení mění: široká tabulka zaškrtnutí se nahradí seznamem funkcí s počty
+(u koho konkrétně, je vidět ze štítků u jmen), nepoužité funkce jsou schované pod jedním
+tlačítkem a nikde se nic neposouvá do strany. V editaci je každý člověk jedna kartička
+s pojmenovanými přepínači místo devítisloupcové tabulky.
+
 ### Ty (editace)
 
 Na konec adresy přidej `?edit`:
@@ -38,7 +44,9 @@ https://vystoupeni.vercel.app/?edit
 
 Tam můžeš:
 
-- měnit výdělek a všechny náklady,
+- měnit výdělek a všechny náklady — kliknutí do pole označí celý obsah, takže psaní ho
+  hned přepíše a nemusíš nic mazat. Nevyplněná částka zůstává prázdná, nula se nikde
+  nepředvyplňuje (jen odměna organizátora je vždy vyplněná),
 - zaškrtávat, kdo se účastnil, kdo řídil, kdo se s kým vezl,
 - přidávat a mazat lidi i akce, duplikovat akci jako šablonu.
 

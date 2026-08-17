@@ -76,6 +76,21 @@ vygeneruješ nový a znovu ho vložíš — nic jiného se nemění.
 Kdyby GitHub nefungoval nebo token nechtěl použít, zůstává i původní cesta:
 **⬇ Stáhnout aktualizovaný web** a soubor nahrát ručně přes *Add file → Upload files*.
 
+## Když chceš upravit kód aplikace
+
+Data žijí **uvnitř** `index.html`, takže nahrání nové verze kódu přepíše i je. Aby ses o ně
+nepřipravil:
+
+1. Otevři web s `?edit` → sekce **Přenos dat do nové verze aplikace** → **Zkopírovat data**
+   a text si někam ulož.
+2. Nahraj na GitHub nový `index.html`.
+3. Znovu otevři `?edit` → **Vložit data z jiné verze** → vlož text → **Načíst data**.
+4. Zkontroluj čísla a klikni **💾 Uložit na web**.
+
+Pokud novou verzi kódu připravuje někdo jiný (třeba Claude), jde to i obráceně: pošli mu
+aktuální `index.html` z repozitáře a dostaneš zpátky verzi, která už tvoje data obsahuje —
+pak jen nahraješ soubor a nic nepřenášíš.
+
 ## Časté otázky
 
 **Uvidí ostatní editaci?** `?edit` musí do adresy někdo napsat ručně — a i kdyby to udělal,
