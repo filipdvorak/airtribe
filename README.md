@@ -34,11 +34,16 @@ Přidej `?edit` na konec adresy:
 https://vystoupeni.vercel.app/?edit
 ```
 
-Můžeš měnit název, datum a výdělek, zaškrtávat, kdo se účastnil, nastavit procento pro
-organizátora a přidávat či mazat lidi. Čísla se přepočítají okamžitě. Tlačítka **+ Nová
-akce**, **⧉ Duplikovat akci** a **🗑 Smazat akci** jsou hned nad shrnujícími kartami.
-Přejmenovat akci jde i rovnou v seznamu pod ☰ — tužka u ní otevře pole pro nový název,
-takže na ni nemusíš nejdřív přepínat.
+Můžeš měnit název, datum a výdělek, zaškrtávat, kdo se čeho účastnil, a přidávat či mazat
+lidi. Čísla se přepočítají okamžitě. Tlačítka **+ Nová akce**, **⧉ Duplikovat akci**
+a **🗑 Smazat akci** jsou hned nad shrnujícími kartami. Přejmenovat akci jde i rovnou
+v seznamu pod ☰ — tužka u ní otevře pole pro nový název, takže na ni nemusíš nejdřív
+přepínat.
+
+Oddíly jdou v tom pořadí, v jakém se data obvykle zadávají: **Nastavení akce** →
+**Kdo se čeho účastní** → **Doprava** → **Náklady**. Kliknutím na nadpis sloupce
+(*Účastník*, *Organizátor*; na mobilu na štítek pod kartami lidí) se rozbalí vysvětlivka
+s vzorcem — a u organizátora spolu s ní i pole na jeho procento z výdělku.
 
 Jízdy a náklady se zadávají po jednotlivých položkách ve dvou sbalovacích oddílech, takže
 nezabírají místo, když je zrovna nepotřebuješ:
