@@ -50,8 +50,10 @@ Jízdy a náklady se zadávají po jednotlivých položkách ve dvou sbalovacíc
 nezabírají místo, když je zrovna nepotřebuješ:
 
 - **Doprava** — libovolný počet jízd, u každé částka, řidiči a osádka. *Naše auto* i *cizí
-  doprava*. Název naší jízdy se odvodí od řidiče (*Milošovo auto*, *Milošovo a Patrikovo
-  auto*); když chceš jiný, prostě ho přepiš.
+  doprava*. Název naší jízdy se odvodí od řidiče a skloní se podle věty: u řidiče se ukáže
+  *řídil svoje auto*, u ostatních *vezl se Milošovým autem* (při více řidičích
+  *Milošovým a Patrikovým autem*). Když chceš vlastní název, prostě ho přepiš — pak se
+  píše s dvojtečkou a neskloňuje.
 - **Náklady** — libovolný počet výdajů, každý s vlastním názvem. Vybíráš ze tří typů podle
   toho, kam peníze putují (viz níže).
 

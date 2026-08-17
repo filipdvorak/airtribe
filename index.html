@@ -621,7 +621,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-17",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -703,49 +703,26 @@
       }
     },
     {
-      "nazev": "Slavnosti mrkve",
-      "datum": "2026-08-15",
-      "vydelek": 4000,
-      "jizdy": [
-        {
-          "typ": "interni",
-          "nazev": "",
-          "castka": 100,
-          "ridici": [
-            "Miloš"
-          ],
-          "pasazeri": [
-            "Patrik"
-          ]
-        }
-      ],
-      "naklady": [
-        {
-          "typ": "interni",
-          "nazev": "Airtrack",
-          "castka": 100,
-          "prijemce": "Miloš",
-          "platci": [
-            "Filip",
-            "Patrik"
-          ]
-        }
-      ],
+      "nazev": "Slavnosti mrkve 2026",
+      "datum": "",
+      "vydelek": 0,
+      "jizdy": [],
+      "naklady": [],
       "ucastnici": {
         "Filip": {
-          "ucastnik": true,
-          "organizator": true
+          "ucastnik": false,
+          "organizator": false
         },
         "Jenda": {
           "ucastnik": false,
           "organizator": false
         },
         "Patrik": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Miloš": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Kája": {
@@ -929,26 +906,35 @@ function privlastnovaci(jmeno){
   return j + "ovo";
 }
 
-/** název naší jízdy odvozený od řidičů — „Milošovo auto", „Filipovo a Patrikovo auto" */
-function odvozenyNazevJizdy(ridici){
-  var kdo = (ridici || []).filter(Boolean);
-  if(!kdo.length) return "Naše auto";
-  var tvary = kdo.map(privlastnovaci);
-  if(tvary.indexOf("") !== -1)                       // některé jméno neumíme přechýlit
-    return kdo.length === 1 ? "auto: " + kdo[0] : "auto: " + kdo.join(", ");
-  var spojene = tvary.length === 1 ? tvary[0]
-              : tvary.slice(0, -1).join(", ") + " a " + tvary[tvary.length-1];
-  return spojene + " auto";
+/** spojí tvary do výčtu: „a", „a a b", „a, b a c" */
+function vyctem(pole){
+  if(pole.length < 2) return pole[0] || "";
+  return pole.slice(0, -1).join(", ") + " a " + pole[pole.length-1];
 }
 
-/** název jízdy pro zobrazení; vlastní název má vždy přednost.
+/** Tvary názvu jízdy: 1. pád („Milošovo auto") a 7. pád („Milošovým autem").
+    Když jsme název nevymysleli my (vlastní název, cizí jméno), 7. pád neskloňujeme
+    a necháme ho prázdný — text se pak napíše s dvojtečkou.
     ridici (nepovinné) = jen ti řidiči, kteří na akci opravdu jsou. */
-function nazevJizdy(j, ridici){
+function tvaryJizdy(j, ridici){
   var vlastni = (j.nazev || "").trim();
-  if(vlastni) return vlastni;
-  if(j.typ === "externi") return "Cizí doprava";
-  return odvozenyNazevJizdy(ridici && ridici.length ? ridici : j.ridici);
+  if(vlastni) return { nazev: vlastni, sedmy: "", odvozeny: false };
+  if(j.typ === "externi") return { nazev: "Cizí doprava", sedmy: "cizí dopravou", odvozeny: true };
+
+  var kdo = ((ridici && ridici.length ? ridici : j.ridici) || []).filter(Boolean);
+  if(!kdo.length) return { nazev: "Naše auto", sedmy: "naším autem", odvozeny: true };
+
+  var tvary = kdo.map(privlastnovaci);
+  if(tvary.indexOf("") !== -1)                       // některé jméno neumíme přechýlit
+    return { nazev: "auto: " + kdo.join(", "), sedmy: "autem: " + kdo.join(", "), odvozeny: true };
+
+  // „Milošovo" → „Milošovým", „auto" → „autem"
+  var sedme = tvary.map(function(t){ return t.slice(0, -1) + "ým"; });
+  return { nazev: vyctem(tvary) + " auto", sedmy: vyctem(sedme) + " autem", odvozeny: true };
 }
+
+/** název jízdy pro zobrazení */
+function nazevJizdy(j, ridici){ return tvaryJizdy(j, ridici).nazev; }
 /** název nákladu pro zobrazení */
 function nazevNakladu(n){
   return (n.nazev || "").trim() || (NAKLADY_TYPY[n.typ] ? NAKLADY_TYPY[n.typ].label : "Náklad");
@@ -971,7 +957,9 @@ function compute(ev, lide, pct){
     var ridici = (j.typ === "interni" ? j.ridici : []).filter(je);
     var vAute  = j.pasazeri.filter(je);
     if(j.typ === "interni") ridici.forEach(function(r){ if(vAute.indexOf(r) === -1) vAute.push(r); });
-    return { def:j, nazev:nazevJizdy(j, ridici), typ:j.typ, castka:j.castka, ridici:ridici, platci:vAute,
+    var tv = tvaryJizdy(j, ridici);
+    return { def:j, nazev:tv.nazev, sedmy:tv.sedmy, odvozeny:tv.odvozeny,
+             typ:j.typ, castka:j.castka, ridici:ridici, platci:vAute,
              naOsobu: vAute.length ? j.castka / vAute.length : 0,
              naRidice: ridici.length ? j.castka / ridici.length : 0 };
   });
@@ -1003,14 +991,17 @@ function compute(ev, lide, pct){
 
     jizdy.forEach(function(jz){
       if(!jz.castka) return;
-      if(jz.typ === "interni" && jz.ridici.indexOf(p) !== -1)
-        push("jizdaInterni", "Náhrada za jízdu — " + jz.nazev,
+      var jeRidic = (jz.typ === "interni" && jz.ridici.indexOf(p) !== -1);
+      if(jeRidic)
+        push("jizdaInterni",
+             jz.odvozeny ? "Náhrada za jízdu svým autem" : "Náhrada za jízdu — " + jz.nazev,
              jz.ridici.length > 1 ? fmt(jz.castka)+" ÷ "+jz.ridici.length+" řidiči" : "proplacené náklady na cestu",
              jz.naRidice, "plus");
       if(jz.platci.indexOf(p) !== -1)
-        push(jz.typ === "interni" ? "jizdaInterni" : "jizdaExterni", "Podíl na jízdě — " + jz.nazev,
+        push(jz.typ === "interni" ? "jizdaInterni" : "jizdaExterni",
+             jz.sedmy ? "Podíl na jízdě " + jz.sedmy : "Podíl na jízdě — " + jz.nazev,
              fmt(jz.castka)+" ÷ "+jz.platci.length+" "+sklon(jz.platci.length,"člověka","lidi","lidí")
-             + (jz.typ === "interni" && jz.ridici.indexOf(p) !== -1 ? " (řidič se počítá také)" : ""),
+             + (jeRidic ? " (řidič se počítá také)" : ""),
              -jz.naOsobu, "minus");
     });
 
@@ -1047,8 +1038,11 @@ function compute(ev, lide, pct){
     var role = [];
     jizdy.forEach(function(jz){
       if(!jz.castka && !jz.platci.length) return;
-      if(jz.typ === "interni" && jz.ridici.indexOf(p) !== -1) role.push("🚗 řídil: " + jz.nazev);
-      else if(jz.platci.indexOf(p) !== -1) role.push("🧍 vezl se: " + jz.nazev);
+      if(jz.typ === "interni" && jz.ridici.indexOf(p) !== -1)
+        // vlastní název neskloňujeme, ale „svoje auto" sedí vždycky
+        role.push("🚗 " + (jz.odvozeny ? "řídil svoje auto" : "řídil: " + jz.nazev));
+      else if(jz.platci.indexOf(p) !== -1)
+        role.push("🧍 " + (jz.sedmy ? "vezl se " + jz.sedmy : "vezl se: " + jz.nazev));
     });
     naklady.forEach(function(nk){
       var ik = NAKLADY_TYPY[nk.typ].ikona;
