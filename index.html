@@ -541,7 +541,13 @@
         </div>
       </div></div>
     </div>
+  </div>
 
+  <!-- Kontrola stojí za zadávacími oddíly — v editaci se do ní kouká naposled.
+       Ve čtecím režimu je editor skrytý, takže vyjde hned za „Kam peníze jdou". -->
+  <div id="kontrola"></div>
+
+  <div class="edit-only">
     <div class="panel skl tichy">
       <button class="phead sklhd" type="button" data-skl="bUlozeni" aria-expanded="false">
         <span class="pic">💾</span><h2>Uložení na web</h2><span class="sklchev">›</span></button>
@@ -1347,7 +1353,8 @@ document.addEventListener("keydown", function(e){
 function renderContent(animate){
   var host = document.getElementById("content");
   var ev = DATA.akce[state.akce];
-  if(!ev){ host.innerHTML = '<div class="panel"><div class="empty">Zatím tu není žádná akce.</div></div>'; return; }
+  if(!ev){ host.innerHTML = '<div class="panel"><div class="empty">Zatím tu není žádná akce.</div></div>';
+           renderKontrola(null, null); return; }
 
   var R = compute(ev, DATA.lide, DATA.bonusOrganizatoraProcent);
   var h = "";
@@ -1358,6 +1365,7 @@ function renderContent(animate){
     host.innerHTML = h + '<div class="panel"><div class="empty"><strong>'+esc(nazevAkce(ev))+'</strong><br>'
       + 'Zatím bez výdělku a účastníků.' + (EDIT ? ' Doplň je níže.' : '') + '</div></div>';
     if(animate) host.classList.add("fade-in");
+    renderKontrola(R, null);
     return;
   }
 
@@ -1441,9 +1449,20 @@ function renderContent(animate){
     h += '</div>';
   }
 
-  /* ---- kontrola ---- */
+  host.innerHTML = h;
+  if(animate){ host.classList.remove("fade-in"); void host.offsetWidth; host.classList.add("fade-in"); }
+  renderKontrola(R, ev);
+}
+
+/** Kontrola — „výdělek − náklady ven" musí sedět na součet výplat */
+function renderKontrola(R, ev){
+  var host = document.getElementById("kontrola");
+  if(!host) return;
+  if(!ev || (ev.vydelek === 0 && R.nU === 0)){ host.innerHTML = ""; return; }
+
   var ok = Math.abs(R.rozdil) < 5e-9;
-  h += '<div class="panel"><div class="phead"><span class="pic">🧮</span><h2>Kontrola</h2></div>'
+  host.innerHTML =
+       '<div class="panel"><div class="phead"><span class="pic">🧮</span><h2>Kontrola</h2></div>'
     +  '<div class="scroll"><table class="grid calc"><tbody>'
     +  '<tr><td>Výdělek</td><td class="n num">'+fmt(ev.vydelek)+'</td></tr>'
     +  (R.ven.celkem
@@ -1453,12 +1472,8 @@ function renderContent(animate){
     +  '<tr><td>Součet všech výplat</td><td class="n num">'+fmt(R.soucet)+'</td></tr>'
     +  '</tbody><tfoot><tr><td>Rozdíl</td><td class="n num" style="color:'+(ok?"var(--pos)":"var(--neg)")+'">'
     +  (ok ? "0,00 "+DATA.mena+" ✓" : fmt(R.rozdil))+'</td></tr></tfoot></table></div>'
-    +  (ok ? '' : '<p class="hint">Rozdíl není nulový — podívej se na upozornění nahoře.</p>')
+    +  (ok ? '' : '<p class="hint">Rozdíl není nulový — podívej se na upozornění nahoře u výplat.</p>')
     +  '</div>';
-
-  host.innerHTML = h;
-  if(animate){ host.classList.remove("fade-in"); void host.offsetWidth; host.classList.add("fade-in"); }
-
 }
 
 function card(l,v,s,acc){

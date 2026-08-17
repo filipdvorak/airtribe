@@ -41,7 +41,8 @@ v seznamu pod ☰ — tužka u ní otevře pole pro nový název, takže na ni n
 přepínat.
 
 Oddíly jdou v tom pořadí, v jakém se data obvykle zadávají: **Nastavení akce** →
-**Kdo se čeho účastní** → **Doprava** → **Náklady**. Kliknutím na nadpis sloupce
+**Kdo se čeho účastní** → **Doprava** → **Náklady** → **Kontrola** (na tu se kouká
+naposled — musí v ní vyjít nula). Kliknutím na nadpis sloupce
 (*Účastník*, *Organizátor*; na mobilu na štítek pod kartami lidí) se rozbalí vysvětlivka
 s vzorcem — a u organizátora spolu s ní i pole na jeho procento z výdělku.
 
