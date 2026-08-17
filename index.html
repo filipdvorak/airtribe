@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rozdělování peněz z vystoupení</title>
+<meta name="description" content="Přehled rozdělení výdělku z vystoupení mezi účastníky.">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<style>
+  :root{
+    --bg:#f5f6f8; --panel:#ffffff; --panel-2:#f8f9fb; --ink:#14161b; --muted:#636a78; --muted-2:#8a91a0;
+    --line:#e2e5ec; --line-2:#eef0f4;
+    --accent:#3b5bdb; --accent-soft:#eef1ff; --accent-ink:#2f49b3;
+    --pos:#1f7a4d; --neg:#b3261e;
+    --warn:#8a5a00; --warn-bg:#fff8e6; --warn-line:#f0dda8;
+    --radius:16px;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --ease:cubic-bezier(.32,.72,0,1);
+    --dur:.34s;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1014; --panel:#161920; --panel-2:#1b1f28; --ink:#e9ebf0; --muted:#9aa2b1; --muted-2:#79808f;
+      --line:#272c37; --line-2:#20242d;
+      --accent:#8ba4f7; --accent-soft:#1c2336; --accent-ink:#a9bcff;
+      --pos:#5fd99a; --neg:#ff9b93;
+      --warn:#e8c169; --warn-bg:#2a2312; --warn-line:#4d3f18;
+    }
+  }
+  @media (prefers-reduced-motion: reduce){ :root{ --dur:.001s } *{animation-duration:.001s !important} }
+
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:30px 20px 90px}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ======== plynulé rozbalování ======== */
+  .collapse{display:grid;grid-template-rows:0fr;opacity:0;
+            transition:grid-template-rows var(--dur) var(--ease), opacity calc(var(--dur)*.7) ease}
+  .collapse > .inner{overflow:hidden;min-height:0}
+  .collapse.open{grid-template-rows:1fr;opacity:1}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none}}
+  .fade-in{animation:fadeUp .34s var(--ease) both}
+
+  /* ======== hlavička ======== */
+  h1{font-size:25px;line-height:1.22;margin:0 0 7px;letter-spacing:-.015em}
+  .sub{color:var(--muted);font-size:14.5px;margin:0}
+  .badge{display:inline-flex;align-items:center;gap:7px;margin-top:14px;font-size:12.5px;color:var(--muted);
+         background:var(--panel);border:1px solid var(--line);padding:6px 12px;border-radius:999px}
+  .badge svg{width:13px;height:13px;opacity:.75;flex:none}
+
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 20px}
+  .tab{appearance:none;font:inherit;font-size:14px;cursor:pointer;background:var(--panel);color:var(--ink);
+       border:1px solid var(--line);padding:9px 16px;border-radius:999px;
+       transition:background .22s var(--ease),color .22s var(--ease),border-color .22s var(--ease),transform .16s var(--ease)}
+  .tab:hover{border-color:var(--accent)}
+  .tab:active{transform:scale(.97)}
+  .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  @media (prefers-color-scheme: dark){.tab[aria-selected="true"]{color:#0e1014}}
+
+  /* ======== karty ======== */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px}
+  .card .lbl{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;font-weight:600}
+  .card .val{font-size:21px;font-weight:650;letter-spacing:-.015em}
+  .card .sub2{font-size:12px;color:var(--muted-2);margin-top:3px}
+  .card.accent{background:var(--accent-soft);border-color:transparent}
+  .card.accent .lbl,.card.accent .val{color:var(--accent-ink)}
+
+  /* ======== panely ======== */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+  .phead{padding:15px 19px 13px;border-bottom:1px solid var(--line-2)}
+  .phead h2{font-size:15.5px;margin:0;font-weight:650;letter-spacing:-.01em}
+  .phead p{margin:4px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+
+  /* ======== postup výpočtu (legenda) ======== */
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:11px;font-size:11.5px;color:var(--muted)}
+  .flow .st{background:var(--panel-2);border:1px solid var(--line);padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .flow .ar{color:var(--accent);font-weight:700}
+
+  /* ======== výplaty ======== */
+  ul.payouts{list-style:none;margin:0;padding:0}
+  ul.payouts li{border-bottom:1px solid var(--line-2)}
+  ul.payouts li:last-child{border-bottom:0}
+  .row-head{display:flex;align-items:center;flex-wrap:wrap;gap:13px;width:100%;padding:14px 19px;
+            background:none;border:0;font:inherit;color:inherit;cursor:pointer;text-align:left;
+            transition:background .2s var(--ease)}
+  .row-head:hover{background:var(--panel-2)}
+  .avatar{flex:none;width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);
+          display:grid;place-items:center;font-weight:700;font-size:14px}
+  .who{flex:1;min-width:0}
+  .who .nm{font-weight:600;font-size:15px}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;flex-basis:100%;margin:-4px 0 0 47px;order:9}
+  .tag{font-size:11px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
+       padding:1.5px 8px;border-radius:999px;white-space:nowrap}
+  .tag.org{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink);font-weight:600}
+  .amount{font-size:19px;font-weight:650;white-space:nowrap;letter-spacing:-.015em}
+  .chev{flex:none;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
+  [aria-expanded="true"] > .chev{transform:rotate(90deg)}
+  .detail-inner{padding:0 19px 18px 66px;background:var(--panel-2)}
+
+  .steps{width:100%;border-collapse:collapse;font-size:13.5px}
+  .steps td{padding:9px 0;border-bottom:1px solid var(--line-2);vertical-align:top}
+  .steps td.amt{text-align:right;white-space:nowrap;width:1%;padding-left:14px}
+  .steps td.run{text-align:right;white-space:nowrap;width:1%;padding-left:16px;color:var(--muted-2);font-size:12.5px}
+  .steps .note{color:var(--muted);font-size:12px;margin-top:2px;line-height:1.45}
+  .steps tr.final td{border-bottom:0;padding-top:12px;font-weight:700;font-size:15.5px;border-top:2px solid var(--line)}
+  .steps tr.final td.run{font-weight:400}
+  .steps tr.xrow td{padding:0;border-bottom:1px solid var(--line-2)}
+  .plus{color:var(--pos);font-weight:600} .minus{color:var(--neg);font-weight:600}
+  .inactive .amount,.inactive .who .nm{color:var(--muted-2);font-weight:500}
+
+  /* ======== tlačítko ⓘ a vysvětlivka ======== */
+  .qm{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--muted-2);
+      width:17px;height:17px;border-radius:50%;font:inherit;font-size:10.5px;font-weight:700;line-height:1;
+      cursor:pointer;padding:0;display:inline-grid;place-items:center;vertical-align:1px;margin-left:6px;
+      transition:color .18s var(--ease),border-color .18s var(--ease),background .18s var(--ease),transform .18s var(--ease)}
+  .qm:hover{color:var(--accent);border-color:var(--accent)}
+  .qm[aria-expanded="true"]{background:var(--accent);border-color:var(--accent);color:#fff;transform:rotate(180deg)}
+  @media (prefers-color-scheme: dark){.qm[aria-expanded="true"]{color:#0e1014}}
+  .xcard{margin:0 0 10px;padding:11px 13px;border-radius:11px;background:var(--accent-soft);
+         font-size:12.8px;line-height:1.6;color:var(--muted)}
+  .xcard b{color:var(--ink)}
+  .xcard .formula{display:inline-block;margin-top:7px;font-family:var(--mono);font-size:12px;
+                  background:var(--panel);border:1px solid var(--line);padding:5px 9px;border-radius:8px;color:var(--ink)}
+  .steps .xcard{margin:2px 0 10px}
+
+  /* ======== tabulky ======== */
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table.grid{width:100%;border-collapse:collapse;font-size:13.5px}
+  table.grid th,table.grid td{padding:10px 13px;border-bottom:1px solid var(--line-2);text-align:right;white-space:nowrap}
+  table.grid th:first-child,table.grid td:first-child{text-align:left;position:sticky;left:0;background:var(--panel);z-index:1}
+  table.grid thead th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:650}
+  table.grid tbody tr:last-child td{border-bottom:0}
+  table.grid tbody tr:hover td,table.grid tbody tr:hover td:first-child{background:var(--panel-2)}
+
+  table.matrix th.col{padding:0;vertical-align:bottom;min-width:74px;max-width:96px}
+  th.col .hbtn{appearance:none;background:none;border:0;font:inherit;color:var(--muted);cursor:pointer;width:100%;
+       padding:10px 7px;display:block;text-align:center;white-space:normal;line-height:1.3;font-size:10.5px;
+       text-transform:uppercase;letter-spacing:.03em;font-weight:650;border-radius:9px;
+       transition:background .2s var(--ease),color .2s var(--ease)}
+  th.col .hbtn:hover{background:var(--panel-2);color:var(--accent)}
+  th.col .hbtn[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent-ink)}
+  th.col .hbtn .ic{font-size:14px;display:block;margin-bottom:3px;text-transform:none}
+  table.matrix td.mk{text-align:center;font-size:15px;padding-left:8px;padding-right:8px}
+  table.matrix tfoot td{border-top:2px solid var(--line);border-bottom:0;padding-top:11px;color:var(--muted);font-size:12px}
+  table.matrix .yes{color:var(--pos);font-weight:700}
+  table.matrix .auto{color:var(--pos);font-weight:700;opacity:.5}
+  table.matrix .no{color:var(--line);user-select:none}
+  @media (prefers-color-scheme: dark){table.matrix .no{color:#333947}}
+  table.matrix tr.off td:first-child{color:var(--muted-2)}
+  .xstrip{padding:0 19px 16px}
+
+  table.calc td.n{text-align:right}
+  table.calc tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:0;padding-top:12px}
+
+  /* ======== kam peníze jdou ======== */
+  .sect{padding:14px 19px 2px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:650}
+  .crow{padding:10px 19px;border-bottom:1px solid var(--line-2)}
+  .crow:last-of-type{border-bottom:0}
+  .cline{display:flex;align-items:baseline;gap:12px}
+  .cline .nm{flex:1;min-width:0}
+  .cline .note{color:var(--muted);font-size:12px;margin-top:1px}
+  .cline .v{white-space:nowrap;font-weight:600}
+  .ctot{display:flex;gap:12px;padding:12px 19px;border-top:2px solid var(--line);font-weight:700}
+  .ctot .nm{flex:1}
+
+  .notice{background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn);border-radius:12px;
+          padding:12px 15px;font-size:13.5px;margin:0 0 14px;line-height:1.55}
+  .empty{padding:38px 19px;text-align:center;color:var(--muted)}
+  .hint{padding:0 19px 16px;color:var(--muted);font-size:12.5px;line-height:1.6}
+  footer.foot{margin-top:28px;color:var(--muted-2);font-size:12.5px;text-align:center;line-height:1.7}
+
+  /* ======== editor ======== */
+  .edit-only{display:none}
+  body.editing .edit-only{display:block}
+  body.editing .edit-bar{display:flex}
+  .edit-bar{display:none;position:sticky;top:0;z-index:30;align-items:center;gap:9px;flex-wrap:wrap;
+    background:var(--accent);color:#fff;padding:11px 16px;border-radius:14px;margin-bottom:22px;font-size:13.5px;
+    box-shadow:0 6px 18px rgba(59,91,219,.22)}
+  @media (prefers-color-scheme: dark){.edit-bar{color:#0e1014;box-shadow:none}}
+  .edit-bar .spacer{flex:1}
+  .btn{appearance:none;font:inherit;font-size:13px;font-weight:600;cursor:pointer;background:var(--panel);color:var(--ink);
+       border:1px solid var(--line);padding:8px 14px;border-radius:10px;
+       transition:border-color .18s var(--ease),color .18s var(--ease),background .18s var(--ease),transform .14s var(--ease)}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn:active{transform:scale(.97)}
+  .btn.ghost{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.4);color:inherit}
+  .btn.ghost:hover{background:rgba(255,255,255,.3);color:inherit}
+  .btn.ghost.strong{background:#fff;color:var(--accent);border-color:#fff}
+  .btn.ghost.strong:hover{background:#fff;color:var(--accent);filter:brightness(.94)}
+  @media (prefers-color-scheme: dark){
+    .btn.ghost.strong{background:#0e1014;color:var(--accent);border-color:#0e1014}
+    .btn.ghost.strong:hover{background:#0e1014;color:var(--accent)}
+  }
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+  .btn.busy{position:relative;color:transparent !important}
+  .btn.busy::after{content:"";position:absolute;inset:0;margin:auto;width:14px;height:14px;border-radius:50%;
+    border:2px solid currentColor;border-top-color:transparent;color:var(--accent);animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .ghstate{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:16px 19px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot.on{background:var(--pos)} .dot.off{background:var(--muted-2)}
+  .ghstate .lbl{flex:1;min-width:180px;font-size:13.5px}
+  .ghstate .lbl b{font-family:var(--mono);font-size:12.5px;font-weight:600}
+  .steplist{margin:0;padding:0 19px 4px 40px;font-size:12.8px;color:var(--muted);line-height:1.7}
+  .steplist li{margin-bottom:5px}
+  .steplist b{color:var(--ink)}
+  .warnbox{margin:0 19px 16px;padding:11px 14px;border-radius:11px;background:var(--warn-bg);
+           border:1px solid var(--warn-line);color:var(--warn);font-size:12.5px;line-height:1.6}
+  .okbox{margin:0 19px 16px;padding:11px 14px;border-radius:11px;background:var(--accent-soft);
+         font-size:12.8px;line-height:1.6;color:var(--muted)}
+  .okbox a{color:var(--accent-ink)}
+  .btn.danger:hover{border-color:var(--neg);color:var(--neg)}
+  .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px;padding:17px 19px}
+  .field label{font-size:12.5px;color:var(--ink);font-weight:600;display:block;margin-bottom:3px}
+  .field .fh{font-size:11.5px;color:var(--muted);line-height:1.45;margin-bottom:6px}
+  .field input{font:inherit;font-size:14px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);
+               background:var(--panel-2);color:var(--ink);width:100%;transition:border-color .18s var(--ease)}
+  .field input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+  .matrix-edit td{text-align:center}
+  .matrix-edit td:first-child{text-align:left}
+  .matrix-edit input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;transition:transform .14s var(--ease)}
+  .matrix-edit input[type=checkbox]:active{transform:scale(.88)}
+  .matrix-edit input[type=checkbox]:disabled{cursor:not-allowed;opacity:.45}
+  .matrix-edit input[type=text]{font:inherit;font-size:13.5px;padding:6px 9px;border-radius:8px;border:1px solid var(--line);
+       background:var(--panel-2);color:var(--ink);width:120px}
+  .autolbl{display:block;font-size:9.5px;color:var(--muted-2);margin-top:2px;letter-spacing:.02em}
+  .toolrow{display:flex;flex-wrap:wrap;gap:9px;padding:0 19px 17px}
+  code{font-family:var(--mono);font-size:.9em;background:var(--panel-2);border:1px solid var(--line);padding:1px 5px;border-radius:5px}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);
+    padding:12px 19px;border-radius:11px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;
+    transition:opacity .26s var(--ease),transform .26s var(--ease);z-index:60;box-shadow:0 8px 26px rgba(0,0,0,.25);
+    max-width:90vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (max-width:600px){
+    .wrap{padding:20px 13px 60px}
+    h1{font-size:21px}
+    .detail-inner{padding-left:19px}
+    .amount{font-size:17.5px}
+  }
+  @media print{
+    body{background:#fff}
+    .tabs,.edit-bar,.badge,.qm{display:none !important}
+    .panel{break-inside:avoid;border-color:#ccc}
+    .collapse{grid-template-rows:1fr !important;opacity:1 !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="edit-bar">
+    <strong>✏️ Editační režim</strong>
+    <span>— změny zatím vidíš jen ty.</span>
+    <span class="spacer"></span>
+    <button class="btn ghost strong" id="btnPublish">💾 Uložit na web</button>
+    <button class="btn ghost" id="btnExport">⬇ Stáhnout aktualizovaný web</button>
+    <button class="btn ghost" id="btnLink">🔗 Odkaz s daty</button>
+    <button class="btn ghost" id="btnJson">{ } Kopírovat data</button>
+    <button class="btn ghost" id="btnLeave">Zavřít editaci</button>
+  </div>
+
+  <header>
+    <h1 id="appTitle">Rozdělování peněz z vystoupení</h1>
+    <p class="sub" id="appSub"></p>
+    <span class="badge" id="roBadge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Pouze pro čtení — data zde nikdo nemůže změnit
+    </span>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <div id="content"></div>
+
+  <!-- ================= EDITOR ================= -->
+  <div class="edit-only">
+    <div class="panel">
+      <div class="phead"><h2>Nastavení akce</h2><p>Částky pro vybranou akci. Vše se přepočítá okamžitě.</p></div>
+      <div class="fields" id="evFields"></div>
+      <div class="toolrow">
+        <button class="btn" id="btnAddEvent">+ Nová akce</button>
+        <button class="btn" id="btnDupEvent">⧉ Duplikovat akci</button>
+        <button class="btn danger" id="btnDelEvent">🗑 Smazat akci</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="phead"><h2>Kdo se čeho účastní</h2><p>Klikni na název sloupce a rozbalí se, co přesně dělá.</p></div>
+      <div class="scroll"><table class="grid matrix matrix-edit" id="matrixEdit"></table></div>
+      <div class="xstrip" id="expEdit"></div>
+      <div class="toolrow"><button class="btn" id="btnAddPerson">+ Přidat člověka</button></div>
+    </div>
+
+    <div class="panel">
+      <div class="phead"><h2>Uložení na web</h2>
+        <p id="ghLead">Ulož změny rovnou z prohlížeče — nic se nestahuje ani nepřetahuje.</p></div>
+      <div id="ghBox"></div>
+    </div>
+
+    <div class="panel">
+      <div class="phead"><h2>Náhradní způsoby</h2></div>
+      <p class="hint">
+        <b>⬇ Stáhnout aktualizovaný web</b> — dostaneš nový <code>index.html</code> se zapsanými daty a nahraješ ho ručně.
+        Hodí se, když nechceš používat token nebo je GitHub nedostupný.<br><br>
+        <b>🔗 Odkaz s daty</b> — data zakódovaná přímo v odkazu. Kdo ho otevře, uvidí tuhle verzi bez nahrávání čehokoli.
+        Odkaz je pokaždé jiný, takže na trvalé sdílení se nehodí — jen na rychlé „podívej, takhle by to vyšlo“.<br><br>
+        <b>Editaci</b> otevřeš kdykoli přidáním <code>?edit</code> na konec adresy. Ostatní bez toho vidí jen čtení.
+      </p>
+    </div>
+  </div>
+
+  <footer class="foot"><span id="footNote"></span></footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ====== DATA (tuto sekci přepisuje editační režim) ====== -->
+<script id="data" type="application/json">
+{
+  "titul": "Rozdělování peněz z vystoupení",
+  "podtitul": "Přehled, kolik z které akce komu náleží a proč.",
+  "mena": "Kč",
+  "aktualizovano": "",
+  "bonusOrganizatoraProcent": 5,
+  "lide": ["Filip", "Jenda", "Patrik", "Miloš", "Kája", "Martin"],
+  "akce": [
+    {
+      "nazev": "Vrcovice + Kubata 2026",
+      "vydelek": 9000,
+      "nakladInterniRidic": 100,
+      "nakladExterniRidic": 300,
+      "nakladIndividualni": 45,
+      "nakladHromadny": 0,
+      "nakladInterniHromadny": 0,
+      "ucastnici": {
+        "Filip":  { "ucastnik": true,  "interniRidic": false, "pasazerInterni": false, "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": true  },
+        "Jenda":  { "ucastnik": true,  "interniRidic": false, "pasazerInterni": true,  "pasazerExterni": true,  "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Patrik": { "ucastnik": true,  "interniRidic": false, "pasazerInterni": true,  "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Miloš":  { "ucastnik": true,  "interniRidic": true,  "pasazerInterni": false, "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Kája":   { "ucastnik": false, "interniRidic": false, "pasazerInterni": false, "pasazerExterni": false, "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Martin": { "ucastnik": false, "interniRidic": false, "pasazerInterni": false, "pasazerExterni": false, "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false }
+      }
+    },
+    {
+      "nazev": "Slavnosti mrkve 2026",
+      "vydelek": 0,
+      "nakladInterniRidic": 0,
+      "nakladExterniRidic": 0,
+      "nakladIndividualni": 0,
+      "nakladHromadny": 0,
+      "nakladInterniHromadny": 0,
+      "ucastnici": {}
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   Definice funkcí — popis je zdrojem všech vysvětlivek
+   ========================================================= */
+var FLAGS = [
+  { key:"ucastnik", label:"Účastník", short:"účastník", ikona:"👤",
+    popis:"Základní přepínač. Kdo je označený, dělí se s ostatními o výdělek rovným dílem. Kdo označený není, na akci nebyl — nic nedostává ani neplatí a všechny ostatní přepínače se u něj ignorují.",
+    vzorec:"základ = výdělek ÷ počet účastníků" },
+
+  { key:"interniRidic", label:"Interní řidič", short:"interní řidič", ikona:"🚗",
+    popis:"Někdo z kapely jel vlastním autem. Dostane zpátky částku <b>Náklady interního řidiče</b> (když řídilo víc lidí, dělí se mezi ně). Zároveň se <b>automaticky počítá mezi pasažéry</b>, takže i on platí svůj podíl — nemusíš ho nikde zaškrtávat zvlášť. Peníze neodcházejí ven ze skupiny, jen se přesunou.",
+    vzorec:"+ náklady interního řidiče ÷ počet řidičů  (a zároveň − svůj podíl jako pasažér)" },
+
+  { key:"pasazerInterni", label:"Pasažér interního řidiče", short:"vezl se s naším", ikona:"🧍",
+    popis:"Kdo se vezl s naším řidičem, složí se mu na náklady. Částka se dělí rovným dílem mezi všechny, kdo autem jeli — <b>včetně samotného řidiče</b>, ten se přidá automaticky.",
+    vzorec:"− náklady interního řidiče ÷ (pasažéři + řidič)" },
+
+  { key:"pasazerExterni", label:"Pasažér externího řidiče", short:"vezl se externě", ikona:"🚐",
+    popis:"Cesta s někým cizím, komu se platí. Cena se dělí rovným dílem mezi označené pasažéry. Tyhle peníze <b>odcházejí ven ze skupiny</b>, takže snižují celkovou částku k rozdělení.",
+    vzorec:"− náklady externího řidiče ÷ počet pasažérů" },
+
+  { key:"individualniNaklad", label:"Individuální externí náklad", short:"individ. náklad", ikona:"🧾",
+    popis:"Pevná částka, kterou platí každý označený sám za sebe — třeba vlastní jízdenka nebo vstupné. Nedělí se; kolik je označených lidí, tolikrát částka odejde ven ze skupiny.",
+    vzorec:"− individuální externí náklad (za každého označeného)" },
+
+  { key:"hromadnyNaklad", label:"Hromadný externí náklad", short:"hromadný náklad", ikona:"🏷️",
+    popis:"Jedna společná částka placená ven ze skupiny, kterou si označení rozdělí rovným dílem — třeba společná faktura nebo poplatek.",
+    vzorec:"− hromadný externí náklad ÷ počet označených" },
+
+  { key:"interniPlatce", label:"Přispívá na interní hromadný náklad", short:"přispívá interně", ikona:"➖",
+    popis:"<b>Převod peněz uvnitř skupiny.</b> Zadaná částka se rovným dílem strhne všem označeným plátcům a v plné výši připadne označenému příjemci. Ven ze skupiny nic neodchází.",
+    vzorec:"− interní hromadný náklad ÷ počet plátců" },
+
+  { key:"interniPrijemce", label:"Příjemce interního hromadného nákladu", short:"příjemce interního", ikona:"➕",
+    popis:"Druhá strana předchozí funkce — ten, komu peníze od plátců připadnou. Typicky člověk, který něco zaplatil za skupinu ze svého. Když je příjemců víc, dělí se částka mezi ně.",
+    vzorec:"+ interní hromadný náklad ÷ počet příjemců" },
+
+  { key:"organizator", label:"Organizátor", short:"organizátor", ikona:"⭐",
+    popis:"Odměna za domluvení a zorganizování akce. Organizátor dostane navíc nastavené procento z výdělku. Tahle částka se rovným dílem strhne <b>ostatním účastníkům</b>, takže celkový součet zůstává stejný. Když je organizátorů víc, dělí se odměna mezi ně.",
+    vzorec:"+ procento × výdělek ÷ počet organizátorů   |   ostatní: − táž částka ÷ počet ostatních" }
+];
+var FMAP = {}; FLAGS.forEach(function(f){ FMAP[f.key] = f; });
+
+var AMOUNTS = [
+  { key:"vydelek", label:"Výdělek z akce", flag:"ucastnik",
+    popis:"Kolik kapela za vystoupení dostala celkem. Z téhle částky se všechno počítá." },
+  { key:"nakladInterniRidic", label:"Náklady interního řidiče", flag:"interniRidic",
+    popis:"Kolik dostane zpět ten z kapely, kdo jel vlastním autem. Složí se na to všichni, kdo autem jeli, včetně něj. Při více řidičích se náhrada dělí mezi ně." },
+  { key:"nakladExterniRidic", label:"Náklady externího řidiče", flag:"pasazerExterni",
+    popis:"Cena za cizího dopravce. Rozdělí se mezi označené pasažéry a odejde ven ze skupiny." },
+  { key:"nakladIndividualni", label:"Individuální externí náklad (na osobu)", flag:"individualniNaklad",
+    popis:"Pevná částka za jednoho člověka. Zaplatí ji každý, kdo má políčko označené." },
+  { key:"nakladHromadny", label:"Hromadný externí náklad (celkem)", flag:"hromadnyNaklad",
+    popis:"Jedna společná částka placená ven, kterou si označení rozdělí rovným dílem." },
+  { key:"nakladInterniHromadny", label:"Interní hromadný náklad (celkem)", flag:"interniPlatce",
+    popis:"Částka, která se strhne označeným plátcům a připadne označenému příjemci. Zůstává uvnitř skupiny." }
+];
+
+/* =========================================================
+   Data
+   ========================================================= */
+function blankFlags(){ var o={}; FLAGS.forEach(function(f){ o[f.key]=false; }); return o; }
+
+function normalize(d){
+  d = d || {};
+  d.titul    = d.titul || "Rozdělování peněz z vystoupení";
+  d.podtitul = d.podtitul || "";
+  d.mena     = d.mena || "Kč";
+  d.aktualizovano = d.aktualizovano || "";
+  d.bonusOrganizatoraProcent = (typeof d.bonusOrganizatoraProcent === "number") ? d.bonusOrganizatoraProcent : 5;
+  d.lide = Array.isArray(d.lide) ? d.lide.slice() : [];
+  d.akce = Array.isArray(d.akce) ? d.akce : [];
+  d.akce.forEach(function(ev){
+    ev.nazev = ev.nazev || "Bez názvu";
+    AMOUNTS.forEach(function(a){ ev[a.key] = Number(ev[a.key]) || 0; });
+    ev.ucastnici = ev.ucastnici || {};
+    d.lide.forEach(function(p){
+      var cur = ev.ucastnici[p] || {}, out = blankFlags();
+      FLAGS.forEach(function(f){ out[f.key] = !!cur[f.key]; });
+      ev.ucastnici[p] = out;
+    });
+  });
+  return d;
+}
+
+function fromHash(){
+  var m = /[#&]d=([^&]+)/.exec(location.hash || "");
+  if(!m) return null;
+  try{
+    var bin = atob(m[1].replace(/-/g,"+").replace(/_/g,"/"));
+    var by = new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) by[i]=bin.charCodeAt(i);
+    return JSON.parse(new TextDecoder().decode(by));
+  }catch(e){ return null; }
+}
+
+var HASH_DATA = fromHash();
+var DATA = normalize(HASH_DATA || JSON.parse(document.getElementById("data").textContent));
+
+/* =========================================================
+   Výpočet
+   ========================================================= */
+// Řidič se do dělení nákladů na jízdu započítává vždy — i bez zaškrtnutí pasažéra.
+function jedeAutem(f){ return !!(f.pasazerInterni || f.interniRidic); }
+
+function compute(ev, lide, pct){
+  var fl = function(p){ return ev.ucastnici[p] || blankFlags(); };
+  var akt = lide.filter(function(p){ return fl(p).ucastnik; });
+
+  var c = {};
+  FLAGS.forEach(function(f){ c[f.key] = akt.filter(function(p){ return fl(p)[f.key]; }).length; });
+  // efektivní počet lidí dělících se o náklady interního řidiče (pasažéři ∪ řidiči)
+  c.pasazerInterni = akt.filter(function(p){ return jedeAutem(fl(p)); }).length;
+
+  var nU = akt.length, nOrg = c.organizator, nNeOrg = nU - nOrg;
+  var bonus = nOrg > 0 ? ev.vydelek * (pct/100) : 0;
+
+  var radky = lide.map(function(p){
+    var f = fl(p);
+    if(!f.ucastnik) return { jmeno:p, ucastnik:false, vysledek:0, kroky:[], flags:f };
+
+    var kroky = [], run = 0;
+    function push(key, popis, detail, castka, typ){
+      run += castka;
+      kroky.push({ key:key, popis:popis, detail:detail, castka:castka, typ:typ, bezici:run });
+    }
+
+    push("ucastnik", "Základní podíl",
+         "výdělek " + fmt(ev.vydelek) + " ÷ " + nU + " " + sklon(nU,"účastníka","účastníky","účastníků"),
+         nU ? ev.vydelek/nU : 0, "base");
+
+    if(f.interniRidic && c.interniRidic && ev.nakladInterniRidic)
+      push("interniRidic", "Náhrada za jízdu vlastním autem",
+           c.interniRidic > 1 ? fmt(ev.nakladInterniRidic)+" ÷ "+c.interniRidic+" řidiči" : "proplacené náklady interního řidiče",
+           ev.nakladInterniRidic/c.interniRidic, "plus");
+
+    if(jedeAutem(f) && c.pasazerInterni && ev.nakladInterniRidic)
+      push("pasazerInterni", "Podíl na nákladech interního řidiče",
+           fmt(ev.nakladInterniRidic)+" ÷ "+c.pasazerInterni+" "+sklon(c.pasazerInterni,"člověka v autě","lidi v autě","lidí v autě")
+           + (f.interniRidic ? " (řidič se počítá také)" : ""),
+           -ev.nakladInterniRidic/c.pasazerInterni, "minus");
+
+    if(f.pasazerExterni && c.pasazerExterni && ev.nakladExterniRidic)
+      push("pasazerExterni", "Podíl na externím dopravci",
+           fmt(ev.nakladExterniRidic)+" ÷ "+c.pasazerExterni+" "+sklon(c.pasazerExterni,"pasažér","pasažéry","pasažérů"),
+           -ev.nakladExterniRidic/c.pasazerExterni, "minus");
+
+    if(f.individualniNaklad && ev.nakladIndividualni)
+      push("individualniNaklad", "Individuální externí náklad", "pevná částka za jednoho člověka",
+           -ev.nakladIndividualni, "minus");
+
+    if(f.hromadnyNaklad && c.hromadnyNaklad && ev.nakladHromadny)
+      push("hromadnyNaklad", "Podíl na hromadném externím nákladu",
+           fmt(ev.nakladHromadny)+" ÷ "+c.hromadnyNaklad+" "+sklon(c.hromadnyNaklad,"osobu","osoby","osob"),
+           -ev.nakladHromadny/c.hromadnyNaklad, "minus");
+
+    if(f.interniPlatce && c.interniPlatce && ev.nakladInterniHromadny)
+      push("interniPlatce", "Příspěvek na interní hromadný náklad",
+           fmt(ev.nakladInterniHromadny)+" ÷ "+c.interniPlatce+" "+sklon(c.interniPlatce,"plátce","plátce","plátců"),
+           -ev.nakladInterniHromadny/c.interniPlatce, "minus");
+
+    if(f.interniPrijemce && c.interniPrijemce && ev.nakladInterniHromadny)
+      push("interniPrijemce", "Vyrovnání interního hromadného nákladu",
+           fmt(ev.nakladInterniHromadny)+(c.interniPrijemce>1?" ÷ "+c.interniPrijemce+" příjemci":" od ostatních"),
+           ev.nakladInterniHromadny/c.interniPrijemce, "plus");
+
+    if(bonus > 0){
+      if(f.organizator)
+        push("organizator", "Odměna organizátora",
+             pct+" % z výdělku"+(nOrg>1?" ÷ "+nOrg+" organizátoři":""), bonus/nOrg, "plus");
+      else if(nNeOrg > 0)
+        push("organizator", "Příspěvek organizátorovi",
+             pct+" % z výdělku ÷ "+nNeOrg+" "+sklon(nNeOrg,"ostatního","ostatní","ostatních"), -bonus/nNeOrg, "minus");
+    }
+
+    return { jmeno:p, ucastnik:true, vysledek:run, kroky:kroky, flags:f };
+  });
+
+  var ven = {
+    externi:  c.pasazerExterni > 0 ? ev.nakladExterniRidic : 0,
+    individ:  ev.nakladIndividualni * c.individualniNaklad,
+    hromadne: c.hromadnyNaklad > 0 ? ev.nakladHromadny : 0
+  };
+  ven.celkem = ven.externi + ven.individ + ven.hromadne;
+
+  var uvnitr = {
+    ridic:   (c.interniRidic > 0 && c.pasazerInterni > 0) ? ev.nakladInterniRidic : 0,
+    hromadn: (c.interniPlatce > 0 && c.interniPrijemce > 0) ? ev.nakladInterniHromadny : 0,
+    bonus:   bonus
+  };
+
+  var soucet = radky.reduce(function(a,r){ return a + r.vysledek; }, 0);
+  var kRozdeleni = ev.vydelek - ven.celkem;
+
+  var w = [];
+  lide.forEach(function(p){
+    var f = fl(p); if(f.ucastnik) return;
+    var jine = FLAGS.filter(function(x){ return x.key!=="ucastnik" && f[x.key]; });
+    if(jine.length) w.push("<b>"+esc(p)+"</b> má zaškrtnuté „"+esc(jine[0].label)+"“, ale není označen jako účastník — do výpočtu se proto nezapočítává.");
+  });
+  if(ev.nakladInterniRidic && c.pasazerInterni > 0 && c.interniRidic === 0)
+    w.push("Někdo se veze naším autem, ale <b>nikdo není označen jako interní řidič</b>. Stržené peníze by nikomu nepřipadly a součet by nesouhlasil.");
+  if(ev.nakladInterniHromadny && c.interniPlatce > 0 && c.interniPrijemce === 0)
+    w.push("U interního hromadného nákladu jsou označeni plátci, ale <b>chybí příjemce</b>. Stržená částka by se ztratila — označ někoho jako příjemce.");
+  if(ev.nakladInterniHromadny && c.interniPrijemce > 0 && c.interniPlatce === 0)
+    w.push("U interního hromadného nákladu je označen příjemce, ale <b>nikdo nepřispívá</b>. Vyplacená částka by vznikla z ničeho — označ plátce.");
+  if(ev.vydelek > 0 && nU === 0)
+    w.push("Akce má zadaný výdělek, ale <b>žádného účastníka</b>.");
+
+  return { radky:radky, pocty:c, nU:nU, ven:ven, uvnitr:uvnitr,
+           kRozdeleni:kRozdeleni, soucet:soucet, rozdil:kRozdeleni - soucet, varovani:w };
+}
+
+/* =========================================================
+   Pomocné
+   ========================================================= */
+var nf = new Intl.NumberFormat("cs-CZ",{minimumFractionDigits:2,maximumFractionDigits:2});
+function z(n){ return Math.abs(n) < 5e-9 ? 0 : n; }
+function fmt(n){ return nf.format(z(n)) + " " + DATA.mena; }
+function fmtS(n){ n=z(n); return (n>0?"+ ":n<0?"− ":"") + nf.format(Math.abs(n)) + " " + DATA.mena; }
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function ini(n){ return String(n).trim().charAt(0).toUpperCase() || "?"; }
+function sklon(n,a,b,c){ return n===1?a:(n>=2&&n<=4?b:c); }
+
+/** obsah vysvětlivky pro danou funkci */
+function xcard(key, extra){
+  var f = FMAP[key]; if(!f) return "";
+  return '<div class="xcard">'+(extra?extra+' ':'')+f.popis
+       + '<br><span class="formula">'+esc(f.vzorec)+'</span></div>';
+}
+/** ⓘ tlačítko + skrytý plynulý panel */
+var uid = 0;
+function info(key, extra){
+  var id = "x"+(++uid);
+  return { btn:'<button class="qm" type="button" data-x="'+id+'" aria-expanded="false" aria-label="Vysvětlivka">i</button>',
+           box:'<div class="collapse" id="'+id+'"><div class="inner">'+xcard(key, extra)+'</div></div>' };
+}
+
+var state = { akce:0, otevrene:{} };
+var EDIT = /(^|[?&])edit(=|&|$)/.test(location.search);
+
+/** rozbalování — jeden posluchač pro celý dokument */
+document.addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("[data-x]") : null;
+  if(!b) return;
+  e.preventDefault();
+  var box = document.getElementById(b.dataset.x);
+  if(!box) return;
+  var open = !box.classList.contains("open");
+  // v jedné skupině (hlavičky tabulky) necháme otevřenou jen jednu
+  if(b.dataset.group){
+    document.querySelectorAll('[data-group="'+b.dataset.group+'"]').forEach(function(o){
+      if(o !== b){ o.setAttribute("aria-expanded","false");
+        var ob = document.getElementById(o.dataset.x); if(ob) ob.classList.remove("open"); }
+    });
+  }
+  box.classList.toggle("open", open);
+  b.setAttribute("aria-expanded", String(open));
+});
+
+/* =========================================================
+   Vykreslení
+   ========================================================= */
+function renderTabs(){
+  var el = document.getElementById("tabs");
+  el.innerHTML = DATA.akce.map(function(ev,i){
+    return '<button class="tab" role="tab" data-i="'+i+'" aria-selected="'+(i===state.akce)+'">'+esc(ev.nazev)+'</button>';
+  }).join("");
+  Array.prototype.forEach.call(el.querySelectorAll(".tab"), function(b){
+    b.onclick = function(){
+      if(+b.dataset.i === state.akce) return;
+      state.akce = +b.dataset.i; state.otevrene = {}; renderAll(true);
+    };
+  });
+}
+
+function renderContent(animate){
+  var host = document.getElementById("content");
+  var ev = DATA.akce[state.akce];
+  if(!ev){ host.innerHTML = '<div class="panel"><div class="empty">Zatím tu není žádná akce.</div></div>'; return; }
+
+  var R = compute(ev, DATA.lide, DATA.bonusOrganizatoraProcent);
+  var h = "";
+
+  R.varovani.forEach(function(x){ h += '<p class="notice">⚠️ '+x+'</p>'; });
+
+  if(ev.vydelek === 0 && R.nU === 0){
+    host.innerHTML = h + '<div class="panel"><div class="empty"><strong>'+esc(ev.nazev)+'</strong><br>'
+      + 'Akce je připravená, ale zatím nemá zadaný výdělek ani účastníky.</div></div>';
+    if(animate) host.classList.add("fade-in");
+    return;
+  }
+
+  /* ---- karty ---- */
+  h += '<div class="cards">'
+    +  card("Výdělek", fmt(ev.vydelek), "celkem za vystoupení")
+    +  card("Náklady ven", fmt(R.ven.celkem), "odchází mimo skupinu")
+    +  card("K rozdělení", fmt(R.kRozdeleni), "zůstává lidem", true)
+    +  card("Účastníků", String(R.nU), "dělí se o základ")
+    +  '</div>';
+
+  /* ---- výplaty ---- */
+  h += '<div class="panel"><div class="phead"><h2>Kolik komu vychází</h2>'
+    +  '<p>Klikni na jméno a rozbalí se, jak se k částce došlo. U každého kroku je <b>i</b> s vysvětlením.</p>'
+    +  '<div class="flow">'
+    +  ['Základ','+ náhrada řidiči','− doprava','− externí náklady','± interní převod','± organizátor','= výsledek']
+         .map(function(s,i){ return (i?'<span class="ar">→</span>':'')+'<span class="st">'+s+'</span>'; }).join("")
+    +  '</div></div><ul class="payouts">';
+
+  R.radky.forEach(function(r,i){
+    if(!r.ucastnik){
+      h += '<li class="inactive"><div class="row-head" style="cursor:default">'
+        +  '<span class="avatar" style="background:var(--panel-2);color:var(--muted-2)">'+esc(ini(r.jmeno))+'</span>'
+        +  '<span class="who"><span class="nm">'+esc(r.jmeno)+'</span></span>'
+        +  '<span class="amount">—</span><span style="width:15px"></span>'
+        +  '<span class="tags"><span class="tag">nebyl na akci</span></span></div></li>';
+      return;
+    }
+    var tags = FLAGS.filter(function(f){ return f.key!=="ucastnik" && r.flags[f.key]; })
+      .map(function(f){ return '<span class="tag'+(f.key==="organizator"?" org":"")+'">'+(f.key==="organizator"?"⭐ ":"")+esc(f.short)+'</span>'; }).join("");
+    var open = !!state.otevrene[i];
+
+    h += '<li><button class="row-head" data-x="det'+i+'" data-row="'+i+'" aria-expanded="'+open+'">'
+      +  '<span class="avatar">'+esc(ini(r.jmeno))+'</span>'
+      +  '<span class="who"><span class="nm">'+esc(r.jmeno)+'</span></span>'
+      +  '<span class="amount num">'+fmt(r.vysledek)+'</span>'
+      +  '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>'
+      +  (tags?'<span class="tags">'+tags+'</span>':'')
+      +  '</button>'
+      +  '<div class="collapse'+(open?" open":"")+'" id="det'+i+'"><div class="inner"><div class="detail-inner">'
+      +  '<table class="steps"><tbody>';
+
+    r.kroky.forEach(function(k,ki){
+      var cls = k.typ==="plus" ? "plus" : k.typ==="minus" ? "minus" : "";
+      var inf = info(k.key);
+      h += '<tr><td>'+esc(k.popis)+inf.btn+'<div class="note">'+k.detail+'</div></td>'
+        +  '<td class="amt num '+cls+'">'+(k.typ==="base"?fmt(k.castka):fmtS(k.castka))+'</td>'
+        +  '<td class="run num">'+(ki?fmt(k.bezici):"")+'</td></tr>'
+        +  '<tr class="xrow"><td colspan="3">'+inf.box+'</td></tr>';
+    });
+    h += '<tr class="final"><td>Výsledek</td><td class="amt num">'+fmt(r.vysledek)+'</td><td class="run"></td></tr>'
+      +  '</tbody></table></div></div></div></li>';
+  });
+  h += '</ul></div>';
+
+  /* ---- přehledová matice ---- */
+  var boxes = [];
+  h += '<div class="panel"><div class="phead"><h2>Přehled zaškrtnutí</h2>'
+    +  '<p>Co přesně bylo u koho označeno. Klikni na název sloupce a rozbalí se, co ta funkce dělá.</p></div>'
+    +  '<div class="scroll"><table class="grid matrix"><thead><tr><th>Člověk</th>'
+    +  FLAGS.map(function(f){
+         var id = "hc_"+f.key;
+         boxes.push('<div class="collapse" id="'+id+'"><div class="inner">'+xcard(f.key)+'</div></div>');
+         return '<th class="col"><button class="hbtn" type="button" data-x="'+id+'" data-group="mx" aria-expanded="false">'
+              + '<span class="ic">'+f.ikona+'</span>'+esc(f.label)+'</button></th>';
+       }).join("")
+    +  '</tr></thead><tbody>';
+
+  DATA.lide.forEach(function(p){
+    var f = ev.ucastnici[p] || blankFlags();
+    h += '<tr class="'+(f.ucastnik?"":"off")+'"><td>'+esc(p)+'</td>'
+      +  FLAGS.map(function(x){
+           if(!f.ucastnik && x.key!=="ucastnik") return '<td class="mk"><span class="no">·</span></td>';
+           if(x.key === "pasazerInterni" && f.ucastnik && f.interniRidic && !f.pasazerInterni)
+             return '<td class="mk"><span class="auto" title="automaticky — řidič se dělí také">✓</span></td>';
+           return '<td class="mk">'+(f[x.key]?'<span class="yes">✓</span>':'<span class="no">·</span>')+'</td>';
+         }).join("") + '</tr>';
+  });
+  h += '</tbody><tfoot><tr><td>Počet označených</td>'
+    +  FLAGS.map(function(x){ return '<td class="mk num">'+R.pocty[x.key]+'</td>'; }).join("")
+    +  '</tr></tfoot></table></div><div class="xstrip">'+boxes.join("")+'</div></div>';
+
+  /* ---- kam peníze jdou ---- */
+  h += '<div class="panel"><div class="phead"><h2>Kam peníze jdou</h2>'
+    +  '<p>Jen část nákladů opravdu opouští skupinu. Zbytek se mezi lidmi jen přesouvá.</p></div>'
+    +  '<div class="sect">Odchází ven ze skupiny — snižuje částku k rozdělení</div>'
+    +  crow("pasazerExterni","Externí dopravce", R.ven.externi,
+           R.pocty.pasazerExterni ? "dělí "+R.pocty.pasazerExterni+" "+sklon(R.pocty.pasazerExterni,"pasažér","pasažéři","pasažérů") : "nikdo se nevezl")
+    +  crow("individualniNaklad","Individuální externí náklady", R.ven.individ,
+           R.pocty.individualniNaklad+"× "+fmt(ev.nakladIndividualni))
+    +  crow("hromadnyNaklad","Hromadné externí náklady", R.ven.hromadne,
+           R.pocty.hromadnyNaklad ? "dělí "+R.pocty.hromadnyNaklad+" "+sklon(R.pocty.hromadnyNaklad,"osoba","osoby","osob") : "nevyužito")
+    +  '<div class="ctot"><span class="nm">Celkem ven</span><span class="num">'+fmt(R.ven.celkem)+'</span></div>'
+    +  '<div class="sect">Přesouvá se uvnitř skupiny — součet se nemění</div>'
+    +  crow("interniRidic","Náhrada internímu řidiči", R.uvnitr.ridic,
+           R.pocty.interniRidic ? "skládá se "+R.pocty.pasazerInterni+" "+sklon(R.pocty.pasazerInterni,"člověk","lidé","lidí")+" v autě (i řidič)" : "nevyužito")
+    +  crow("interniPlatce","Interní hromadný náklad", R.uvnitr.hromadn,
+           R.pocty.interniPlatce ? "od "+R.pocty.interniPlatce+" "+sklon(R.pocty.interniPlatce,"plátce","plátců","plátců")+" pro "+R.pocty.interniPrijemce : "nevyužito")
+    +  crow("organizator","Odměna organizátora", R.uvnitr.bonus,
+           R.pocty.organizator ? DATA.bonusOrganizatoraProcent+" % z výdělku" : "nevyužito")
+    +  '</div>';
+
+  /* ---- kontrola ---- */
+  var ok = Math.abs(R.rozdil) < 5e-9;
+  h += '<div class="panel"><div class="phead"><h2>Kontrola</h2>'
+    +  '<p>„Výdělek − náklady ven“ se musí přesně rovnat součtu všech výplat. Interní přesuny součet nemění.</p></div>'
+    +  '<div class="scroll"><table class="grid calc"><tbody>'
+    +  '<tr><td>Výdělek</td><td class="n num">'+fmt(ev.vydelek)+'</td></tr>'
+    +  '<tr><td>− náklady ven ze skupiny</td><td class="n num">'+fmt(R.ven.celkem)+'</td></tr>'
+    +  '<tr><td>= k rozdělení mezi lidi</td><td class="n num">'+fmt(R.kRozdeleni)+'</td></tr>'
+    +  '<tr><td>Součet všech výplat</td><td class="n num">'+fmt(R.soucet)+'</td></tr>'
+    +  '</tbody><tfoot><tr><td>Rozdíl</td><td class="n num" style="color:'+(ok?"var(--pos)":"var(--neg)")+'">'
+    +  (ok ? "0,00 "+DATA.mena+" ✓" : fmt(R.rozdil))+'</td></tr></tfoot></table></div>'
+    +  (ok ? '' : '<p class="hint">Rozdíl není nulový — podívej se na upozornění nahoře.</p>')
+    +  '</div>';
+
+  host.innerHTML = h;
+  if(animate){ host.classList.remove("fade-in"); void host.offsetWidth; host.classList.add("fade-in"); }
+
+  Array.prototype.forEach.call(host.querySelectorAll(".row-head[data-row]"), function(b){
+    b.addEventListener("click", function(){ state.otevrene[b.dataset.row] = b.getAttribute("aria-expanded") === "true"; });
+  });
+}
+
+function card(l,v,s,acc){
+  return '<div class="card'+(acc?" accent":"")+'"><div class="lbl">'+esc(l)+'</div>'
+       + '<div class="val num">'+esc(v)+'</div><div class="sub2">'+esc(s)+'</div></div>';
+}
+function crow(key,label,value,note){
+  var inf = info(key);
+  return '<div class="crow"><div class="cline"><span class="nm">'+esc(label)+inf.btn
+       + '<div class="note">'+esc(note)+'</div></span><span class="v num">'+fmt(value)+'</span></div>'
+       + inf.box + '</div>';
+}
+
+function renderHeader(){
+  document.getElementById("appTitle").textContent = DATA.titul;
+  document.getElementById("appSub").textContent = DATA.podtitul;
+  document.title = DATA.titul;
+  document.getElementById("roBadge").hidden = EDIT;
+  var stamp = "";
+  if(DATA.aktualizovano){
+    var dt = new Date(DATA.aktualizovano);
+    stamp = " • Naposledy aktualizováno " + (isNaN(dt) ? DATA.aktualizovano
+          : dt.toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"}));
+  }
+  document.getElementById("footNote").textContent =
+    "Částky jsou uvedené přesně na haléře." + stamp + (HASH_DATA ? " • Verze dat z odkazu." : "");
+}
+
+/* =========================================================
+   Editor
+   ========================================================= */
+function renderEditor(){
+  if(!EDIT) return;
+  var ev = DATA.akce[state.akce];
+  var fh = document.getElementById("evFields");
+  if(!ev){ fh.innerHTML = '<p class="hint">Žádná akce — vytvoř novou tlačítkem níže.</p>';
+           document.getElementById("matrixEdit").innerHTML = ""; return; }
+
+  var h = '<div class="field"><label>Název akce</label><div class="fh">Zobrazí se ostatním jako záložka.</div>'
+        + '<input type="text" data-f="nazev" value="'+esc(ev.nazev)+'"></div>';
+  AMOUNTS.forEach(function(a){
+    h += '<div class="field"><label>'+esc(a.label)+' ('+esc(DATA.mena)+')</label>'
+      +  '<div class="fh">'+esc(a.popis)+'</div>'
+      +  '<input type="number" step="0.01" data-f="'+a.key+'" value="'+ev[a.key]+'"></div>';
+  });
+  h += '<div class="field"><label>Odměna organizátora (% z výdělku)</label>'
+    +  '<div class="fh">Platí pro všechny akce. Strhne se rovným dílem ostatním účastníkům.</div>'
+    +  '<input type="number" step="0.1" data-g="bonusOrganizatoraProcent" value="'+DATA.bonusOrganizatoraProcent+'"></div>';
+  fh.innerHTML = h;
+
+  Array.prototype.forEach.call(fh.querySelectorAll("input"), function(inp){
+    inp.oninput = function(){
+      if(inp.dataset.g) DATA[inp.dataset.g] = Number(inp.value)||0;
+      else if(inp.dataset.f === "nazev"){ ev.nazev = inp.value || "Bez názvu"; renderTabs(); }
+      else ev[inp.dataset.f] = Number(inp.value)||0;
+      renderContent(false);
+    };
+  });
+
+  var t = '<thead><tr><th>Člověk</th>'
+        + FLAGS.map(function(f){
+            return '<th class="col"><button class="hbtn" type="button" data-x="ce_'+f.key+'" data-group="mxe" aria-expanded="false">'
+                 + '<span class="ic">'+f.ikona+'</span>'+esc(f.label)+'</button></th>';
+          }).join("") + '<th></th></tr></thead><tbody>';
+
+  DATA.lide.forEach(function(p,pi){
+    var f = ev.ucastnici[p] || blankFlags();
+    t += '<tr><td><input type="text" data-person="'+pi+'" value="'+esc(p)+'"></td>'
+      +  FLAGS.map(function(x){
+           if(x.key === "pasazerInterni" && f.interniRidic)
+             return '<td><input type="checkbox" checked disabled title="Řidič se do dělení počítá automaticky">'
+                  + '<span class="autolbl">automaticky</span></td>';
+           return '<td><input type="checkbox" data-p="'+esc(p)+'" data-k="'+x.key+'" title="'+esc(x.label)+'"'
+                + (f[x.key] ? " checked":"") + '></td>';
+         }).join("")
+      +  '<td><button class="btn danger" data-del="'+pi+'" title="Odebrat">✕</button></td></tr>';
+  });
+
+  var m = document.getElementById("matrixEdit");
+  m.innerHTML = t + '</tbody>';
+  document.getElementById("expEdit").innerHTML =
+    FLAGS.map(function(f){ return '<div class="collapse" id="ce_'+f.key+'"><div class="inner">'+xcard(f.key)+'</div></div>'; }).join("");
+
+  Array.prototype.forEach.call(m.querySelectorAll('input[type=checkbox]:not(:disabled)'), function(cb){
+    cb.onchange = function(){
+      DATA.akce[state.akce].ucastnici[cb.dataset.p][cb.dataset.k] = cb.checked;
+      if(cb.dataset.k === "interniRidic") renderAll(false); else renderContent(false);
+    };
+  });
+  Array.prototype.forEach.call(m.querySelectorAll('input[data-person]'), function(inp){
+    inp.onchange = function(){
+      var i = +inp.dataset.person, old = DATA.lide[i], nn = (inp.value||"").trim();
+      if(!nn || (DATA.lide.indexOf(nn) !== -1 && nn !== old)){ inp.value = old; toast("Jméno musí být vyplněné a jedinečné."); return; }
+      DATA.lide[i] = nn;
+      DATA.akce.forEach(function(a){ a.ucastnici[nn] = a.ucastnici[old] || blankFlags(); delete a.ucastnici[old]; });
+      renderAll(false);
+    };
+  });
+  Array.prototype.forEach.call(m.querySelectorAll('button[data-del]'), function(b){
+    b.onclick = function(){
+      var i = +b.dataset.del, nm = DATA.lide[i];
+      DATA.lide.splice(i,1);
+      DATA.akce.forEach(function(a){ delete a.ucastnici[nm]; });
+      renderAll(false);
+    };
+  });
+}
+
+function renderAll(animate){ DATA = normalize(DATA); renderHeader(); renderTabs(); renderContent(animate); renderEditor(); }
+
+/* =========================================================
+   Export
+   ========================================================= */
+function newEvent(src){
+  var ev = { nazev: src ? src.nazev+" (kopie)" : "Nová akce", ucastnici:{} };
+  AMOUNTS.forEach(function(a){ ev[a.key] = src ? src[a.key] : 0; });
+  if(src) DATA.lide.forEach(function(p){ ev.ucastnici[p] = Object.assign({}, src.ucastnici[p]); });
+  DATA.akce.push(ev); state.akce = DATA.akce.length-1; state.otevrene = {}; renderAll(true);
+}
+
+function serialize(){
+  var d = new Date();
+  DATA.aktualizovano = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  return JSON.stringify({
+    titul:DATA.titul, podtitul:DATA.podtitul, mena:DATA.mena,
+    aktualizovano:DATA.aktualizovano,
+    bonusOrganizatoraProcent:DATA.bonusOrganizatoraProcent,
+    lide:DATA.lide, akce:DATA.akce
+  }, null, 2);
+}
+
+function toast(msg){
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 2800);
+}
+
+function copy(text, ok){
+  function fb(){
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast(ok); }
+    catch(e){ toast("Kopírování se nezdařilo — data jsou v konzoli."); console.log(text); }
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function(){ toast(ok); }, fb);
+  else fb();
+}
+
+function shareLink(){
+  var by = new TextEncoder().encode(serialize()), bin = "";
+  by.forEach(function(b){ bin += String.fromCharCode(b); });
+  return location.origin + location.pathname + "#d=" + btoa(bin).replace(/\+/g,"-").replace(/\//g,"_");
+}
+
+/* =========================================================
+   Uložení na web přes GitHub
+   Konfigurace i token žijí POUZE v tomhle prohlížeči (localStorage),
+   nikdy se nezapisují do index.html ani do odkazu s daty.
+   ========================================================= */
+var GH_KEY = "vystoupeni.github";
+
+function ghLoad(){ try{ return JSON.parse(localStorage.getItem(GH_KEY) || "null"); }catch(e){ return null; } }
+function ghStore(c){ try{ localStorage.setItem(GH_KEY, JSON.stringify(c)); return true; }catch(e){ return false; } }
+function ghForget(){ try{ localStorage.removeItem(GH_KEY); }catch(e){} }
+
+function b64dec(s){
+  var bin = atob(String(s).replace(/\s/g,"")), by = new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++) by[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(by);
+}
+function b64enc(str){
+  var by = new TextEncoder().encode(str), bin = "";
+  by.forEach(function(b){ bin += String.fromCharCode(b); });
+  return btoa(bin);
+}
+
+function ghFetch(cfg, path, opts){
+  opts = opts || {};
+  opts.headers = {
+    "Authorization": "Bearer " + cfg.token,
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+  return fetch("https://api.github.com/repos/" + cfg.repo + path, opts);
+}
+
+function ghChyba(status){
+  if(status === 401) return "Token je neplatný nebo mu vypršela platnost. Vygeneruj na GitHubu nový.";
+  if(status === 403) return "Token nemá právo zapisovat. Potřebuje oprávnění Contents: Read and write pro tenhle repozitář.";
+  if(status === 404) return "Repozitář nebo soubor se nenašel. Zkontroluj jméno repozitáře, větev a cestu k souboru.";
+  if(status === 409 || status === 422) return "Soubor se mezitím na GitHubu změnil. Načti stránku znovu a ulož znovu.";
+  return "GitHub odpověděl chybou " + status + ".";
+}
+
+/** načte aktuální index.html z repozitáře */
+function ghNacti(cfg){
+  return ghFetch(cfg, "/contents/" + encodeURI(cfg.path) + "?ref=" + encodeURIComponent(cfg.branch))
+    .then(function(r){
+      if(!r.ok) throw new Error(ghChyba(r.status));
+      return r.json();
+    })
+    .then(function(j){
+      if(!j.content) throw new Error("Soubor je moc velký na přímé čtení přes API.");
+      return { sha:j.sha, text:b64dec(j.content) };
+    });
+}
+
+/** zapíše nová data do index.html v repozitáři */
+function ghPublikuj(){
+  var cfg = ghLoad();
+  if(!cfg){ toast("Nejdřív připoj GitHub v sekci Uložení na web."); return Promise.resolve(); }
+
+  var btns = [document.getElementById("btnPublish"), document.getElementById("ghSaveBtn")].filter(Boolean);
+  btns.forEach(function(b){ b.classList.add("busy"); b.disabled = true; });
+
+  var novaData = serialize(); // orazítkuje i datum aktualizace
+
+  return ghNacti(cfg)
+    .then(function(f){
+      if(!/<script id="data" type="application\/json">[\s\S]*?<\/script>/.test(f.text))
+        throw new Error("V souboru na GitHubu nenajdu datový blok. Je " + cfg.path + " opravdu tahle aplikace?");
+      var out = f.text.replace(/(<script id="data" type="application\/json">)[\s\S]*?(<\/script>)/,
+        function(_,a,b){ return a + "\n" + novaData + "\n" + b; });
+      if(out === f.text) throw new Error("Nebylo co uložit — data jsou stejná jako na webu.");
+      return ghFetch(cfg, "/contents/" + encodeURI(cfg.path), {
+        method: "PUT",
+        body: JSON.stringify({
+          message: "Aktualizace dat z aplikace (" + DATA.aktualizovano + ")",
+          content: b64enc(out),
+          sha: f.sha,
+          branch: cfg.branch
+        })
+      });
+    })
+    .then(function(r){
+      if(!r.ok) throw new Error(ghChyba(r.status));
+      return r.json();
+    })
+    .then(function(j){
+      var url = j && j.commit && j.commit.html_url;
+      renderGh(url ? { ulozeno:true, odkaz:url } : { ulozeno:true });
+      toast("Uloženo. Web se aktualizuje do zhruba 20 vteřin.");
+    })
+    .catch(function(e){
+      var msg = (e && e.message) || "Uložení se nezdařilo.";
+      if(/Failed to fetch|NetworkError/i.test(msg)) msg = "Nepodařilo se spojit s GitHubem — zkontroluj připojení k internetu.";
+      renderGh({ chyba: msg });
+      toast("Uložení se nezdařilo.");
+    })
+    .then(function(){
+      btns.forEach(function(b){ b.classList.remove("busy"); b.disabled = false; });
+    });
+}
+
+function ghOtestuj(){
+  var cfg = ghLoad();
+  if(!cfg) return;
+  var b = document.getElementById("ghTestBtn");
+  if(b){ b.classList.add("busy"); b.disabled = true; }
+  ghNacti(cfg)
+    .then(function(){ renderGh({ test:"Spojení funguje — soubor se načetl a token má přístup." }); })
+    .catch(function(e){ renderGh({ chyba: e.message }); })
+    .then(function(){ if(b){ b.classList.remove("busy"); b.disabled = false; } });
+}
+
+function renderGh(stav){
+  var box = document.getElementById("ghBox");
+  if(!box) return;
+  stav = stav || {};
+  var cfg = ghLoad();
+  var h = "";
+
+  if(stav.chyba)  h += '<div class="warnbox">⚠️ ' + esc(stav.chyba) + '</div>';
+  if(stav.test)   h += '<div class="okbox">✓ ' + esc(stav.test) + '</div>';
+  if(stav.ulozeno) h += '<div class="okbox">✓ Uloženo do repozitáře. Web se na stejné adrese aktualizuje do zhruba 20 vteřin.'
+                      + (stav.odkaz ? ' <a href="'+esc(stav.odkaz)+'" target="_blank" rel="noopener">Zobrazit změnu na GitHubu</a>' : '') + '</div>';
+
+  if(cfg){
+    h += '<div class="ghstate"><span class="dot on"></span>'
+      +  '<span class="lbl">Připojeno k <b>' + esc(cfg.repo) + '</b> · větev <b>' + esc(cfg.branch) + '</b> · soubor <b>' + esc(cfg.path) + '</b></span>'
+      +  '<button class="btn" id="ghSaveBtn">💾 Uložit na web</button>'
+      +  '<button class="btn" id="ghTestBtn">Otestovat spojení</button>'
+      +  '<button class="btn danger" id="ghForgetBtn">Odpojit</button></div>'
+      +  '<p class="hint">Uložení zapíše nová data do souboru <code>' + esc(cfg.path) + '</code> v repozitáři. '
+      +  'Hosting si změny sám vyzvedne a ostatní uvidí aktuální obsah na tom samém odkazu.</p>';
+  }else{
+    h += '<div class="ghstate"><span class="dot off"></span>'
+      +  '<span class="lbl">Zatím nepřipojeno — vyplň údaje níže a ukládání půjde na jedno kliknutí.</span></div>'
+      +  '<ol class="steplist">'
+      +  '<li>Na GitHubu otevři <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens</b> a dej <b>Generate new token</b>.</li>'
+      +  '<li>V <b>Repository access</b> zvol <b>Only select repositories</b> a vyber svůj repozitář.</li>'
+      +  '<li>V <b>Permissions → Repository permissions</b> nastav <b>Contents</b> na <b>Read and write</b>. Nic jiného není potřeba.</li>'
+      +  '<li>Nastav expiraci, token vygeneruj a zkopíruj — GitHub ho ukáže jen jednou.</li>'
+      +  '</ol>'
+      +  '<div class="fields">'
+      +  '<div class="field"><label>Repozitář</label><div class="fh">Ve tvaru <code>jmeno/vystoupeni</code>.</div>'
+      +    '<input type="text" id="ghRepo" placeholder="jmeno/vystoupeni" autocomplete="off"></div>'
+      +  '<div class="field"><label>Větev</label><div class="fh">Obvykle <code>main</code>.</div>'
+      +    '<input type="text" id="ghBranch" value="main" autocomplete="off"></div>'
+      +  '<div class="field"><label>Cesta k souboru</label><div class="fh">Obvykle <code>index.html</code>.</div>'
+      +    '<input type="text" id="ghPath" value="index.html" autocomplete="off"></div>'
+      +  '<div class="field"><label>Token</label><div class="fh">Začíná <code>github_pat_</code>.</div>'
+      +    '<input type="password" id="ghToken" placeholder="github_pat_…" autocomplete="off"></div>'
+      +  '</div>'
+      +  '<div class="toolrow"><button class="btn" id="ghConnectBtn">Připojit a ověřit</button></div>'
+      +  '<div class="warnbox">Token se uloží <b>jen do tohoto prohlížeče</b> — nikdy se nezapíše do stránky ani do sdíleného odkazu, '
+      +  'takže se k němu ostatní přes web nedostanou. Na cizím nebo sdíleném počítači ho radši nepoužívej a po práci dej <b>Odpojit</b>. '
+      +  'Kdyby ti přece jen unikl, na GitHubu ho jedním kliknutím zrušíš.</div>';
+  }
+
+  box.innerHTML = h;
+
+  var el;
+  if((el = document.getElementById("ghSaveBtn")))   el.onclick = ghPublikuj;
+  if((el = document.getElementById("ghTestBtn")))   el.onclick = ghOtestuj;
+  if((el = document.getElementById("ghForgetBtn"))) el.onclick = function(){
+    if(!confirm("Odpojit GitHub a smazat token z tohoto prohlížeče?")) return;
+    ghForget(); renderGh(); toast("Odpojeno, token smazán z prohlížeče.");
+  };
+  if((el = document.getElementById("ghConnectBtn"))) el.onclick = function(){
+    var repo   = (document.getElementById("ghRepo").value || "").trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,"");
+    var branch = (document.getElementById("ghBranch").value || "main").trim();
+    var path   = (document.getElementById("ghPath").value || "index.html").trim().replace(/^\//,"");
+    var token  = (document.getElementById("ghToken").value || "").trim();
+    if(!/^[\w.-]+\/[\w.-]+$/.test(repo)) return renderGh({ chyba:"Repozitář zadej ve tvaru jmeno/vystoupeni." });
+    if(!token) return renderGh({ chyba:"Vyplň token." });
+
+    var cfg = { repo:repo, branch:branch, path:path, token:token };
+    el.classList.add("busy"); el.disabled = true;
+    ghNacti(cfg)
+      .then(function(f){
+        if(!/<script id="data" type="application\/json">/.test(f.text))
+          throw new Error("Soubor " + path + " se načetl, ale nevypadá jako tahle aplikace — zkontroluj cestu.");
+        if(!ghStore(cfg)) throw new Error("Prohlížeč nedovolil uložit nastavení (nemáš zapnuté blokování úložiště?).");
+        renderGh({ test:"Připojeno. Od teď stačí kliknout na Uložit na web." });
+      })
+      .catch(function(e){ renderGh({ chyba:e.message }); })
+      .then(function(){ el.classList.remove("busy"); el.disabled = false; });
+  };
+}
+
+function exportHtml(){
+  fetch(location.pathname + "?v=" + Date.now(), { cache:"no-store" })
+    .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+    .then(function(src){
+      var out = src.replace(/(<script id="data" type="application\/json">)[\s\S]*?(<\/script>)/,
+        function(_,a,b){ return a + "\n" + serialize() + "\n" + b; });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([out],{type:"text/html"}));
+      a.download = "index.html"; a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+      toast("Staženo — nahraj index.html místo původního souboru.");
+    })
+    .catch(function(){
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([serialize()],{type:"application/json"}));
+      a.download = "data.json"; a.click();
+      toast("Web nešel načíst, stáhla se aspoň data (data.json).");
+    });
+}
+
+/* =========================================================
+   Start
+   ========================================================= */
+if(EDIT) document.body.classList.add("editing");
+renderAll(false);
+
+if(EDIT){
+  document.getElementById("btnAddEvent").onclick = function(){ newEvent(null); };
+  document.getElementById("btnDupEvent").onclick = function(){ if(DATA.akce[state.akce]) newEvent(DATA.akce[state.akce]); };
+  document.getElementById("btnDelEvent").onclick = function(){
+    if(!DATA.akce.length) return;
+    if(!confirm("Opravdu smazat akci „"+DATA.akce[state.akce].nazev+"“?")) return;
+    DATA.akce.splice(state.akce,1); state.akce = Math.max(0,state.akce-1); renderAll(true);
+  };
+  document.getElementById("btnAddPerson").onclick = function(){
+    var n = "Nový", i = 2;
+    while(DATA.lide.indexOf(n) !== -1) n = "Nový "+(i++);
+    DATA.lide.push(n); renderAll(false);
+  };
+  document.getElementById("btnPublish").onclick = ghPublikuj;
+  document.getElementById("btnExport").onclick = exportHtml;
+  renderGh();
+  document.getElementById("btnLink").onclick = function(){ copy(shareLink(), "Odkaz zkopírován do schránky."); };
+  document.getElementById("btnJson").onclick  = function(){ copy(serialize(), "Data zkopírována do schránky."); };
+  document.getElementById("btnLeave").onclick = function(){ location.href = location.pathname; };
+}
+
+window.__vypocet = function(i){ return compute(DATA.akce[i||0], DATA.lide, DATA.bonusOrganizatoraProcent); };
+
+})();
+</script>
+</body>
+</html>
