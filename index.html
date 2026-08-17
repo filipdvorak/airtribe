@@ -204,19 +204,20 @@
   ul.payouts{list-style:none;margin:0;padding:0}
   ul.payouts li{border-bottom:1px solid var(--line)}
   ul.payouts li:last-child{border-bottom:0}
-  /* Avatar sahá přes celou výšku řádku — i když se pod jméno zabalí štítky. */
-  .row-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;
-            grid-template-areas:"av who amt chev";
+  /* Bez profilové fotky stojí u jména jen text. S fotkou sahá přes celou výšku řádku. */
+  .row-head{display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+            grid-template-areas:"who amt chev";
             align-items:center;column-gap:13px;row-gap:6px;width:100%;padding:14px 19px;
             background:none;border:0;font:inherit;color:inherit;cursor:pointer;text-align:left;
             transition:background .2s var(--ease)}
-  .row-head.sestitky{grid-template-areas:"av who amt chev" "av tags tags tags"}
+  .row-head.sestitky{grid-template-areas:"who amt chev" "tags tags tags"}
+  .row-head.sfoto{grid-template-columns:auto minmax(0,1fr) auto auto;
+            grid-template-areas:"av who amt chev"}
+  .row-head.sfoto.sestitky{grid-template-areas:"av who amt chev" "av tags tags tags"}
   .row-head:hover{background:var(--panel-2)}
   .avatar{grid-area:av;align-self:stretch;width:40px;min-height:40px;overflow:hidden;
-          border-radius:12px;background:var(--accent-soft);color:var(--accent-ink);
-          display:grid;place-items:center;font-weight:700;font-size:15px}
+          border-radius:12px;background:var(--panel-2);display:block}
   .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-  .avatar.foto{background:var(--panel-2)}
   .who{grid-area:who;min-width:0}
   .who .nm{font-weight:600;font-size:15px}
   .tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:5px;min-width:0}
@@ -226,7 +227,8 @@
   .amount{grid-area:amt;font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.018em}
   .chev{grid-area:chev;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
   [aria-expanded="true"] > .chev{transform:rotate(90deg)}
-  .detail-inner{padding:14px 19px 18px 72px;background:var(--panel-2);border-top:1px solid var(--line-2)}
+  .detail-inner{padding:14px 19px 18px;background:var(--panel-2);border-top:1px solid var(--line-2)}
+  .sfoto .detail-inner{padding-left:72px}
 
   .steps{width:100%;border-collapse:collapse;font-size:13.5px}
   .steps td{padding:9px 0;border-bottom:1px solid var(--line-2);vertical-align:top}
@@ -619,13 +621,15 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-17",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
     "Jenda",
     "Patrik",
-    "Miloš"
+    "Miloš",
+    "Kája",
+    "Martin"
   ],
   "akce": [
     {
@@ -635,7 +639,7 @@
       "jizdy": [
         {
           "typ": "interni",
-          "nazev": "Naše auto",
+          "nazev": "",
           "castka": 100,
           "ridici": [
             "Miloš"
@@ -647,7 +651,7 @@
         },
         {
           "typ": "externi",
-          "nazev": "Externí doprava",
+          "nazev": "",
           "castka": 300,
           "ridici": [],
           "pasazeri": [
@@ -687,53 +691,46 @@
         "Miloš": {
           "ucastnik": true,
           "organizator": false
+        },
+        "Kája": {
+          "ucastnik": false,
+          "organizator": false
+        },
+        "Martin": {
+          "ucastnik": false,
+          "organizator": false
         }
       }
     },
     {
-      "nazev": "Slavnosti mrkve",
-      "datum": "2026-08-15",
-      "vydelek": 4000,
-      "jizdy": [
-        {
-          "typ": "interni",
-          "nazev": "",
-          "castka": 100,
-          "ridici": [
-            "Miloš"
-          ],
-          "pasazeri": [
-            "Patrik"
-          ]
-        }
-      ],
-      "naklady": [
-        {
-          "typ": "interni",
-          "nazev": "Airtrack",
-          "castka": 100,
-          "prijemce": "Miloš",
-          "platci": [
-            "Patrik",
-            "Filip"
-          ]
-        }
-      ],
+      "nazev": "Slavnosti mrkve 2026",
+      "datum": "",
+      "vydelek": 0,
+      "jizdy": [],
+      "naklady": [],
       "ucastnici": {
         "Filip": {
-          "ucastnik": true,
-          "organizator": true
+          "ucastnik": false,
+          "organizator": false
         },
         "Jenda": {
           "ucastnik": false,
           "organizator": false
         },
         "Patrik": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Miloš": {
-          "ucastnik": true,
+          "ucastnik": false,
+          "organizator": false
+        },
+        "Kája": {
+          "ucastnik": false,
+          "organizator": false
+        },
+        "Martin": {
+          "ucastnik": false,
           "organizator": false
         }
       }
@@ -821,10 +818,10 @@ function normalize(d){
         if(c.pasazerExterni) pasExt.push(p);
       });
       if(Number(ev.nakladInterniRidic) || ridici.length || pasInt.length)
-        ev.jizdy.push({ typ:"interni", nazev:"Naše auto", castka:Number(ev.nakladInterniRidic)||0,
+        ev.jizdy.push({ typ:"interni", nazev:"", castka:Number(ev.nakladInterniRidic)||0,
                         ridici:ridici, pasazeri:pasInt });
       if(Number(ev.nakladExterniRidic) || pasExt.length)
-        ev.jizdy.push({ typ:"externi", nazev:"Externí doprava", castka:Number(ev.nakladExterniRidic)||0,
+        ev.jizdy.push({ typ:"externi", nazev:"", castka:Number(ev.nakladExterniRidic)||0,
                         ridici:[], pasazeri:pasExt });
     }
     delete ev.nakladInterniRidic; delete ev.nakladExterniRidic;
@@ -897,9 +894,37 @@ var DATA = normalize(HASH_DATA || JSON.parse(document.getElementById("data").tex
 /* =========================================================
    Výpočet
    ========================================================= */
-/** název jízdy pro zobrazení */
-function nazevJizdy(j){
-  return (j.nazev || "").trim() || (j.typ === "externi" ? "Cizí doprava" : "Naše auto");
+/** „Miloš" → „Milošovo", aby šlo napsat Milošovo auto. Když si nejsme jistí, vrátíme "". */
+function privlastnovaci(jmeno){
+  var j = String(jmeno || "").trim();
+  if(!j) return "";
+  var posl = j.charAt(j.length-1).toLowerCase();
+  // Jména na -í/-ý (Jiří, Nový) se skloňují jinak — ta radši necháme být.
+  if("íyýiou".indexOf(posl) !== -1) return "";
+  // Jenda → Jendovo, Ondra → Ondrovo
+  if(posl === "a" || posl === "e") return j.slice(0, -1) + "ovo";
+  return j + "ovo";
+}
+
+/** název naší jízdy odvozený od řidičů — „Milošovo auto", „Filipovo a Patrikovo auto" */
+function odvozenyNazevJizdy(ridici){
+  var kdo = (ridici || []).filter(Boolean);
+  if(!kdo.length) return "Naše auto";
+  var tvary = kdo.map(privlastnovaci);
+  if(tvary.indexOf("") !== -1)                       // některé jméno neumíme přechýlit
+    return kdo.length === 1 ? "auto: " + kdo[0] : "auto: " + kdo.join(", ");
+  var spojene = tvary.length === 1 ? tvary[0]
+              : tvary.slice(0, -1).join(", ") + " a " + tvary[tvary.length-1];
+  return spojene + " auto";
+}
+
+/** název jízdy pro zobrazení; vlastní název má vždy přednost.
+    ridici (nepovinné) = jen ti řidiči, kteří na akci opravdu jsou. */
+function nazevJizdy(j, ridici){
+  var vlastni = (j.nazev || "").trim();
+  if(vlastni) return vlastni;
+  if(j.typ === "externi") return "Cizí doprava";
+  return odvozenyNazevJizdy(ridici && ridici.length ? ridici : j.ridici);
 }
 /** název nákladu pro zobrazení */
 function nazevNakladu(n){
@@ -923,7 +948,7 @@ function compute(ev, lide, pct){
     var ridici = (j.typ === "interni" ? j.ridici : []).filter(je);
     var vAute  = j.pasazeri.filter(je);
     if(j.typ === "interni") ridici.forEach(function(r){ if(vAute.indexOf(r) === -1) vAute.push(r); });
-    return { def:j, nazev:nazevJizdy(j), typ:j.typ, castka:j.castka, ridici:ridici, platci:vAute,
+    return { def:j, nazev:nazevJizdy(j, ridici), typ:j.typ, castka:j.castka, ridici:ridici, platci:vAute,
              naOsobu: vAute.length ? j.castka / vAute.length : 0,
              naRidice: ridici.length ? j.castka / ridici.length : 0 };
   });
@@ -1066,7 +1091,7 @@ function compute(ev, lide, pct){
 
    Adresa může být soubor v repozitáři vedle index.html ("fotky/filip.jpg")
    i odkaz na internet. Obrázek se sám zarovná a vyplní celou výšku řádku.
-   Kdo tady uvedený není, má dál kolečko s prvním písmenem jména.
+   U koho tady nic není, stojí prostě jen jméno — žádná prázdná dlaždice.
    ──────────────────────────────────────────────── */
 var FOTKY = {
   // "Filip": "fotky/filip.jpg",
@@ -1080,13 +1105,10 @@ function z(n){ return Math.abs(n) < 5e-9 ? 0 : n; }
 function fmt(n){ return nf.format(z(n)) + " " + DATA.mena; }
 function fmtS(n){ n=z(n); return (n>0?"+ ":n<0?"− ":"") + nf.format(Math.abs(n)) + " " + DATA.mena; }
 function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
-function ini(n){ return String(n).trim().charAt(0).toUpperCase() || "?"; }
-/** kolečko s písmenem, nebo profilový obrázek, když je pro dané jméno v FOTKY */
+/** profilový obrázek — jen když je pro dané jméno v FOTKY, jinak u jména nic nestojí */
 function avatar(jmeno){
   var url = FOTKY[jmeno];
-  return '<span class="avatar'+(url ? " foto" : "")+'" aria-hidden="true">'
-       + (url ? '<img src="'+esc(url)+'" alt="" loading="lazy">' : esc(ini(jmeno)))
-       + '</span>';
+  return url ? '<span class="avatar" aria-hidden="true"><img src="'+esc(url)+'" alt="" loading="lazy"></span>' : "";
 }
 /** kolik lidí je u akce označeno jako účastník */
 function pocetUcastniku(ev){
@@ -1392,9 +1414,11 @@ function renderContent(animate){
       + (r.flags.organizator ? '<span class="tag org">⭐ organizátor</span>' : "");
     var open = (state.otevreny === i);
 
-    h += '<li><button class="row-head'+(tags?" sestitky":"")+'" data-x="det'+i+'" data-group="vyplaty"'
-      +  ' data-row="'+i+'" aria-expanded="'+open+'">'
-      +  avatar(r.jmeno)
+    var av = avatar(r.jmeno);
+    h += '<li'+(av?' class="sfoto"':'')+'>'
+      +  '<button class="row-head'+(tags?" sestitky":"")+(av?" sfoto":"")+'" data-x="det'+i+'"'
+      +  ' data-group="vyplaty" data-row="'+i+'" aria-expanded="'+open+'">'
+      +  av
       +  '<span class="who"><span class="nm">'+esc(r.jmeno)+'</span></span>'
       +  '<span class="amount num">'+fmt(r.vysledek)+'</span>'
       +  '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>'
@@ -1432,8 +1456,10 @@ function renderContent(animate){
   });
 
   R.uvnJizdy.forEach(function(jz){
+    // Řidič už bývá v názvu jízdy, tak ho v poznámce zmiňujeme jen u vlastního názvu.
+    var vlastni = !!(jz.def.nazev || "").trim();
     uvnitr.push(crow("jizdaInterni", jz.nazev, jz.castka,
-      "řídí " + jz.ridici.join(", ") + " · skládají se: " + jz.platci.join(", ")));
+      (vlastni ? "řídí " + jz.ridici.join(", ") + " · " : "") + "skládají se: " + jz.platci.join(", ")));
   });
   R.uvnNakl.forEach(function(nk){
     uvnitr.push(crow("n_interni", nk.nazev, nk.castka,
@@ -1441,7 +1467,8 @@ function renderContent(animate){
   });
   if(R.uvnitr.bonus)
     uvnitr.push(crow("organizator", "Odměna organizátora", R.uvnitr.bonus,
-      "pro " + R.organizatori.join(", ") + " · " + DATA.bonusOrganizatoraProcent + " % z výdělku"));
+      (R.organizatori.length > 1 ? "organizátoři: " : "organizátor: ") + R.organizatori.join(", ")
+      + " · " + DATA.bonusOrganizatoraProcent + " % z výdělku"));
 
   if(ven.length || uvnitr.length){
     h += '<div class="panel"><div class="phead"><span class="pic">🧾</span><h2>Kam peníze jdou</h2></div>';
@@ -1644,7 +1671,7 @@ function renderDoprava(){
     var h = '<div class="jcard"><div class="jhead">'
       + '<span class="jic">'+(j.typ==="externi" ? "🚐" : "🚗")+'</span>'
       + '<input type="text" id="jz_'+ji+'_nazev" data-j="'+ji+'" data-jf="nazev" value="'+esc(j.nazev)+'"'
-      + ' placeholder="'+(j.typ==="externi" ? "např. autobus" : "např. Milošovo auto")+'">'
+      + ' placeholder="'+esc(j.typ==="externi" ? "např. autobus" : nazevJizdy({typ:"interni",nazev:"",ridici:j.ridici}))+'">'
       + '<input type="number" step="0.01" inputmode="decimal" id="jz_'+ji+'_castka" data-j="'+ji+'" data-jf="castka"'
       + ' value="'+(j.castka ? j.castka : "")+'" placeholder="0" title="Částka v '+esc(DATA.mena)+'">'
       + '<button class="ikbtn" type="button" data-jdel="'+ji+'" title="Smazat jízdu">🗑</button></div>'
@@ -1692,6 +1719,7 @@ function renderDoprava(){
       var lbl = cb.closest ? cb.closest(".tg") : null;
       if(lbl) lbl.classList.toggle("on", cb.checked);
       prekresli(function(){ if(role === "ridici") renderAll(false); else renderContent(false); });
+      // změna řidiče mění i odvozený název jízdy, proto se překreslí celá doprava
     };
   });
   Array.prototype.forEach.call(box.querySelectorAll("[data-jdel]"), function(b){

@@ -50,7 +50,8 @@ Jízdy a náklady se zadávají po jednotlivých položkách ve dvou sbalovacíc
 nezabírají místo, když je zrovna nepotřebuješ:
 
 - **Doprava** — libovolný počet jízd, u každé částka, řidiči a osádka. *Naše auto* i *cizí
-  doprava*.
+  doprava*. Název naší jízdy se odvodí od řidiče (*Milošovo auto*, *Milošovo a Patrikovo
+  auto*); když chceš jiný, prostě ho přepiš.
 - **Náklady** — libovolný počet výdajů, každý s vlastním názvem. Vybíráš ze tří typů podle
   toho, kam peníze putují (viz níže).
 
@@ -103,8 +104,8 @@ Všechny částky jsou počítané a zobrazované přesně na haléře.
 
 ## Profilové obrázky
 
-Vedle jména se ve výplatách kreslí kolečko s prvním písmenem. Když chceš místo písmene
-fotku, stačí v `index.html` doplnit jméno a adresu obrázku do připraveného seznamu:
+Ve výchozím stavu stojí u výplaty jen jméno. Když k někomu chceš fotku, stačí
+v `index.html` doplnit jeho jméno a adresu obrázku do připraveného seznamu:
 
 ```js
 var FOTKY = {
@@ -114,7 +115,8 @@ var FOTKY = {
 ```
 
 Adresa může být soubor uložený v repozitáři vedle `index.html` i odkaz na internet.
-Obrázek se sám vyřízne a vyplní celou výšku řádku; kdo v seznamu není, má dál písmeno.
+Obrázek se sám vyřízne a vyplní celou výšku řádku; u koho nic nezadáš, stojí prostě
+jen jméno.
 
 ---
 
