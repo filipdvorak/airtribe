@@ -68,6 +68,8 @@
   .tab:active{transform:scale(.97)}
   .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:650;
        box-shadow:0 2px 8px rgba(59,91,219,.28)}
+  .tab.tabmore{background:var(--panel-2);color:var(--muted);border-style:dashed;font-size:13px;font-weight:600}
+  .tab.tabmore:hover{color:var(--accent);border-color:var(--accent)}
   @media (prefers-color-scheme: dark){.tab[aria-selected="true"]{color:#0e1014;box-shadow:none}}
 
   /* ======== karty ======== */
@@ -269,10 +271,6 @@
   .mrow .mlbl{flex:1;font-size:13.5px;line-height:1.35}
   .mrow .mval{font-weight:700;font-size:15.5px;white-space:nowrap}
   .mrow .mval.zero{color:var(--muted-2);font-weight:500}
-  .morebtn{appearance:none;width:100%;background:none;border:0;border-top:1px solid var(--line-2);
-    color:var(--accent);font:inherit;font-size:12.5px;font-weight:600;padding:13px 19px;cursor:pointer;text-align:left}
-  .morebtn:hover{background:var(--panel-2)}
-  .morebtn[aria-expanded="true"]{border-bottom:1px solid var(--line-2)}
 
   /* ---- editace: kartičky lidí pro mobil ---- */
   .pcard{border-bottom:1px solid var(--line-2);padding:15px 19px}
@@ -341,10 +339,6 @@
 
   <header>
     <h1 id="appTitle">Rozdělování peněz z vystoupení</h1>
-    <span class="badge" id="roBadge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Pouze pro čtení
-    </span>
   </header>
 
   <div class="stickytop">
@@ -435,16 +429,9 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-17",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
-  "lide": [
-    "Filip",
-    "Jenda",
-    "Patrik",
-    "Miloš",
-    "Kája",
-    "Martin"
-  ],
+  "lide": ["Filip", "Jenda", "Patrik", "Miloš", "Kája", "Martin"],
   "akce": [
     {
       "nazev": "Vrcovice + Kubata 2026",
@@ -455,150 +442,23 @@
       "nakladHromadny": 0,
       "nakladInterniHromadny": 0,
       "ucastnici": {
-        "Filip": {
-          "ucastnik": true,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": true,
-          "individualniNaklad": true,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": true
-        },
-        "Jenda": {
-          "ucastnik": true,
-          "interniRidic": false,
-          "pasazerInterni": true,
-          "pasazerExterni": true,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Patrik": {
-          "ucastnik": true,
-          "interniRidic": false,
-          "pasazerInterni": true,
-          "pasazerExterni": true,
-          "individualniNaklad": true,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Miloš": {
-          "ucastnik": true,
-          "interniRidic": true,
-          "pasazerInterni": false,
-          "pasazerExterni": true,
-          "individualniNaklad": true,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Kája": {
-          "ucastnik": false,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Martin": {
-          "ucastnik": false,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        }
+        "Filip":  { "ucastnik": true,  "interniRidic": false, "pasazerInterni": false, "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": true  },
+        "Jenda":  { "ucastnik": true,  "interniRidic": false, "pasazerInterni": true,  "pasazerExterni": true,  "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Patrik": { "ucastnik": true,  "interniRidic": false, "pasazerInterni": true,  "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Miloš":  { "ucastnik": true,  "interniRidic": true,  "pasazerInterni": false, "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Kája":   { "ucastnik": false, "interniRidic": false, "pasazerInterni": false, "pasazerExterni": false, "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
+        "Martin": { "ucastnik": false, "interniRidic": false, "pasazerInterni": false, "pasazerExterni": false, "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false }
       }
     },
     {
       "nazev": "Slavnosti mrkve 2026",
-      "vydelek": 4000,
-      "nakladInterniRidic": 100,
+      "vydelek": 0,
+      "nakladInterniRidic": 0,
       "nakladExterniRidic": 0,
       "nakladIndividualni": 0,
       "nakladHromadny": 0,
-      "nakladInterniHromadny": 100,
-      "ucastnici": {
-        "Filip": {
-          "ucastnik": true,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": true,
-          "interniPrijemce": false,
-          "organizator": true
-        },
-        "Jenda": {
-          "ucastnik": false,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Patrik": {
-          "ucastnik": true,
-          "interniRidic": false,
-          "pasazerInterni": true,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": true,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Miloš": {
-          "ucastnik": true,
-          "interniRidic": true,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": true,
-          "organizator": false
-        },
-        "Kája": {
-          "ucastnik": false,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        },
-        "Martin": {
-          "ucastnik": false,
-          "interniRidic": false,
-          "pasazerInterni": false,
-          "pasazerExterni": false,
-          "individualniNaklad": false,
-          "hromadnyNaklad": false,
-          "interniPlatce": false,
-          "interniPrijemce": false,
-          "organizator": false
-        }
-      }
+      "nakladInterniHromadny": 0,
+      "ucastnici": {}
     }
   ]
 }
@@ -891,7 +751,16 @@ function info(key, extra){
 }
 
 // Při otevření se ukazuje naposledy vytvořená akce (v datech je poslední v řadě).
-var state = { akce: Math.max(0, DATA.akce.length - 1), otevrene:{} };
+var STARSI_KEY = "vystoupeni.starsi";
+function starsiUlozeno(){
+  try{ var v = localStorage.getItem(STARSI_KEY); return v === null ? null : v === "1"; }catch(e){ return null; }
+}
+var state = {
+  akce: Math.max(0, DATA.akce.length - 1),
+  otevrene: {},
+  // starší akce jsou ve výchozím stavu schované, jakmile by se přepínač přestal vejít
+  starsi: starsiUlozeno() !== null ? starsiUlozeno() : (DATA.akce.length <= 3)
+};
 var EDIT = /(^|[?&])edit(=|&|$)/.test(location.search);
 
 /** úzká obrazovka → jiné rozvržení tabulek (rozhoduje se při vykreslení) */
@@ -923,11 +792,31 @@ document.addEventListener("click", function(e){
 function renderTabs(){
   var el = document.getElementById("tabs");
   // pořadí od nejstarší po nejnovější; vybraná se jen posune do zorného pole
-  el.innerHTML = DATA.akce.map(function(ev,i){
+  var posledni = DATA.akce.length - 1;
+  var vsechny  = DATA.akce.map(function(_,i){ return i; });
+  var vypsat   = state.starsi ? vsechny
+               : vsechny.filter(function(i){ return i === posledni || i === state.akce; });
+  var skryto   = vsechny.length - vypsat.length;
+
+  var html = vypsat.map(function(i){
     return '<button class="tab" role="tab" data-i="'+i+'" aria-selected="'+(i===state.akce)+'">'
-         + esc(nazevAkce(ev)) + '</button>';
+         + esc(nazevAkce(DATA.akce[i])) + '</button>';
   }).join("");
-  Array.prototype.forEach.call(el.querySelectorAll(".tab"), function(b){
+
+  if(DATA.akce.length > 1){
+    html += state.starsi
+      ? '<button class="tab tabmore" id="tabToggle" title="Nechat jen nejnovější akci">⌃ Skrýt starší</button>'
+      : '<button class="tab tabmore" id="tabToggle" title="Zobrazit všechny akce">⌄ Starší akce ('+skryto+')</button>';
+  }
+  el.innerHTML = html;
+
+  var tg = document.getElementById("tabToggle");
+  if(tg) tg.onclick = function(){
+    state.starsi = !state.starsi;
+    try{ localStorage.setItem(STARSI_KEY, state.starsi ? "1" : "0"); }catch(e){}
+    renderTabs();
+  };
+  Array.prototype.forEach.call(el.querySelectorAll(".tab[data-i]"), function(b){
     b.onclick = function(){
       if(+b.dataset.i === state.akce) return;
       state.akce = +b.dataset.i; state.otevrene = {}; renderAll(true);
@@ -957,7 +846,7 @@ function renderContent(animate){
   /* ---- karty ---- */
   h += '<div class="cards">'
     +  card("Výdělek", fmt(ev.vydelek), "celkem za vystoupení")
-    +  card("Náklady ven", fmt(R.ven.celkem), "odchází mimo skupinu")
+    +  (R.ven.celkem ? card("Náklady ven", fmt(R.ven.celkem), "odchází mimo skupinu") : "")
     +  card("K rozdělení", fmt(R.kRozdeleni), "zůstává lidem", true)
     +  card("Účastníků", String(R.nU), "dělí se o základ")
     +  '</div>';
@@ -967,14 +856,7 @@ function renderContent(animate){
     +  '<ul class="payouts">';
 
   R.radky.forEach(function(r,i){
-    if(!r.ucastnik){
-      h += '<li class="inactive"><div class="row-head" style="cursor:default">'
-        +  '<span class="avatar" style="background:var(--panel-2);color:var(--muted-2)">'+esc(ini(r.jmeno))+'</span>'
-        +  '<span class="who"><span class="nm">'+esc(r.jmeno)+'</span></span>'
-        +  '<span class="amount">—</span><span style="width:15px"></span>'
-        +  '<span class="tags"><span class="tag">nebyl na akci</span></span></div></li>';
-      return;
-    }
+    if(!r.ucastnik) return;   // kdo na akci nebyl, se nevypisuje
     var tags = FLAGS.filter(function(f){ return f.key!=="ucastnik" && r.flags[f.key]; })
       .map(function(f){ return '<span class="tag'+(f.key==="organizator"?" org":"")+'">'+(f.key==="organizator"?"⭐ ":"")+esc(f.short)+'</span>'; }).join("");
     var open = !!state.otevrene[i];
@@ -1002,8 +884,11 @@ function renderContent(animate){
   });
   h += '</ul></div>';
 
-  /* ---- přehled zaškrtnutí: tabulka na širší obrazovce, seznam počtů na mobilu ---- */
-  if(jeUzko()){
+  /* ---- přehled zaškrtnutí: jen funkce, které se u téhle akce opravdu použily ---- */
+  var pouzite = FLAGS.filter(function(f){ return R.pocty[f.key] > 0; });
+  if(!pouzite.length){
+    /* nic k zobrazení — panel se vynechá */
+  }else if(jeUzko()){
     h += '<div class="panel"><div class="phead"><span class="pic">✓</span><h2>Počty označených</h2>'
       +  '<p>Klepni na <b>i</b> a rozbalí se, jak se funkce počítá.</p></div>';
     var mrow = function(f){
@@ -1013,22 +898,13 @@ function renderContent(animate){
            + '<span class="mval num'+(n?"":" zero")+'">'+n+'</span></div>'
            + '<div class="xstrip">'+inf.box+'</div>';
     };
-    var pouzite   = FLAGS.filter(function(f){ return R.pocty[f.key] > 0; });
-    var nepouzite = FLAGS.filter(function(f){ return R.pocty[f.key] === 0; });
-    h += (pouzite.length ? pouzite : FLAGS).map(mrow).join("");
-    if(pouzite.length && nepouzite.length){
-      h += '<button class="morebtn" type="button" data-x="mvic" aria-expanded="false">'
-        +  '+ zobrazit '+nepouzite.length+' '+sklon(nepouzite.length,"funkci, která","funkce, které","funkcí, které")
-        +  ' se u téhle akce nepoužily</button>'
-        +  '<div class="collapse" id="mvic"><div class="inner">'+nepouzite.map(mrow).join("")+'</div></div>';
-    }
-    h += '</div>';
+    h += pouzite.map(mrow).join("") + '</div>';
   }else{
     var boxes = [];
     h += '<div class="panel"><div class="phead"><span class="pic">✓</span><h2>Přehled zaškrtnutí</h2>'
       +  '<p>Klikni na název sloupce a rozbalí se, co funkce dělá.</p></div>'
       +  '<div class="scroll"><table class="grid matrix"><thead><tr><th>Člověk</th>'
-      +  FLAGS.map(function(f){
+      +  pouzite.map(function(f){
            var id = "hc_"+f.key;
            boxes.push('<div class="collapse" id="'+id+'"><div class="inner">'+xcard(f.key)+'</div></div>');
            return '<th class="col"><button class="hbtn" type="button" data-x="'+id+'" data-group="mx" aria-expanded="false">'
@@ -1036,10 +912,10 @@ function renderContent(animate){
          }).join("")
       +  '</tr></thead><tbody>';
 
-    DATA.lide.forEach(function(p){
+    DATA.lide.filter(function(p){ return (ev.ucastnici[p]||blankFlags()).ucastnik; }).forEach(function(p){
       var f = ev.ucastnici[p] || blankFlags();
-      h += '<tr class="'+(f.ucastnik?"":"off")+'"><td>'+esc(p)+'</td>'
-        +  FLAGS.map(function(x){
+      h += '<tr><td>'+esc(p)+'</td>'
+        +  pouzite.map(function(x){
              if(!f.ucastnik && x.key!=="ucastnik") return '<td class="mk"><span class="no">·</span></td>';
              if(x.key === "pasazerInterni" && f.ucastnik && f.interniRidic && !f.pasazerInterni)
                return '<td class="mk"><span class="auto" title="automaticky — řidič se dělí také">✓</span></td>';
@@ -1047,36 +923,48 @@ function renderContent(animate){
            }).join("") + '</tr>';
     });
     h += '</tbody><tfoot><tr><td>Počet označených</td>'
-      +  FLAGS.map(function(x){ return '<td class="mk num">'+R.pocty[x.key]+'</td>'; }).join("")
+      +  pouzite.map(function(x){ return '<td class="mk num">'+R.pocty[x.key]+'</td>'; }).join("")
       +  '</tr></tfoot></table></div><div class="xstrip">'+boxes.join("")+'</div></div>';
   }
 
   /* ---- kam peníze jdou ---- */
-  h += '<div class="panel"><div class="phead"><span class="pic">🧾</span><h2>Kam peníze jdou</h2></div>'
-    +  '<div class="sect">Odchází ven ze skupiny</div>'
-    +  crow("pasazerExterni","Externí dopravce", R.ven.externi,
-           R.pocty.pasazerExterni ? "dělí "+R.pocty.pasazerExterni+" "+sklon(R.pocty.pasazerExterni,"pasažér","pasažéři","pasažérů") : "nikdo se nevezl")
-    +  crow("individualniNaklad","Individuální externí náklady", R.ven.individ,
-           R.pocty.individualniNaklad+"× "+fmt(ev.nakladIndividualni))
-    +  crow("hromadnyNaklad","Hromadné externí náklady", R.ven.hromadne,
-           R.pocty.hromadnyNaklad ? "dělí "+R.pocty.hromadnyNaklad+" "+sklon(R.pocty.hromadnyNaklad,"osoba","osoby","osob") : "nevyužito")
-    +  '<div class="ctot"><span class="nm">Celkem ven</span><span class="num">'+fmt(R.ven.celkem)+'</span></div>'
-    +  '<div class="sect">Přesouvá se uvnitř skupiny</div>'
-    +  crow("interniRidic","Náhrada internímu řidiči", R.uvnitr.ridic,
-           R.pocty.interniRidic ? "skládá se "+R.pocty.pasazerInterni+" "+sklon(R.pocty.pasazerInterni,"člověk","lidé","lidí")+" v autě (i řidič)" : "nevyužito")
-    +  crow("interniPlatce","Interní hromadný náklad", R.uvnitr.hromadn,
-           R.pocty.interniPlatce ? "od "+R.pocty.interniPlatce+" "+sklon(R.pocty.interniPlatce,"plátce","plátců","plátců")+" pro "+R.pocty.interniPrijemce : "nevyužito")
-    +  crow("organizator","Odměna organizátora", R.uvnitr.bonus,
-           R.pocty.organizator ? DATA.bonusOrganizatoraProcent+" % z výdělku" : "nevyužito")
-    +  '</div>';
+  // Nulové položky se vůbec nevypisují, prázdná sekce se vynechá celá.
+  var ven = [];
+  if(R.ven.externi)  ven.push(crow("pasazerExterni","Externí dopravce", R.ven.externi,
+      "dělí "+R.pocty.pasazerExterni+" "+sklon(R.pocty.pasazerExterni,"pasažér","pasažéři","pasažérů")));
+  if(R.ven.individ)  ven.push(crow("individualniNaklad","Individuální externí náklady", R.ven.individ,
+      R.pocty.individualniNaklad+"× "+fmt(ev.nakladIndividualni)));
+  if(R.ven.hromadne) ven.push(crow("hromadnyNaklad","Hromadné externí náklady", R.ven.hromadne,
+      "dělí "+R.pocty.hromadnyNaklad+" "+sklon(R.pocty.hromadnyNaklad,"osoba","osoby","osob")));
+
+  var uvnitr = [];
+  if(R.uvnitr.ridic)   uvnitr.push(crow("interniRidic","Náhrada internímu řidiči", R.uvnitr.ridic,
+      "skládá se "+R.pocty.pasazerInterni+" "+sklon(R.pocty.pasazerInterni,"člověk","lidé","lidí")+" v autě (i řidič)"));
+  if(R.uvnitr.hromadn) uvnitr.push(crow("interniPlatce","Interní hromadný náklad", R.uvnitr.hromadn,
+      "od "+R.pocty.interniPlatce+" "+sklon(R.pocty.interniPlatce,"plátce","plátců","plátců")+" pro "+R.pocty.interniPrijemce));
+  if(R.uvnitr.bonus)   uvnitr.push(crow("organizator","Odměna organizátora", R.uvnitr.bonus,
+      DATA.bonusOrganizatoraProcent+" % z výdělku"));
+
+  if(ven.length || uvnitr.length){
+    h += '<div class="panel"><div class="phead"><span class="pic">🧾</span><h2>Kam peníze jdou</h2></div>';
+    if(ven.length){
+      h += '<div class="sect">Odchází ven ze skupiny</div>' + ven.join("");
+      if(ven.length > 1)
+        h += '<div class="ctot"><span class="nm">Celkem ven</span><span class="num">'+fmt(R.ven.celkem)+'</span></div>';
+    }
+    if(uvnitr.length) h += '<div class="sect">Přesouvá se uvnitř skupiny</div>' + uvnitr.join("");
+    h += '</div>';
+  }
 
   /* ---- kontrola ---- */
   var ok = Math.abs(R.rozdil) < 5e-9;
   h += '<div class="panel"><div class="phead"><span class="pic">🧮</span><h2>Kontrola</h2></div>'
     +  '<div class="scroll"><table class="grid calc"><tbody>'
     +  '<tr><td>Výdělek</td><td class="n num">'+fmt(ev.vydelek)+'</td></tr>'
-    +  '<tr><td>− náklady ven ze skupiny</td><td class="n num">'+fmt(R.ven.celkem)+'</td></tr>'
-    +  '<tr><td>= k rozdělení mezi lidi</td><td class="n num">'+fmt(R.kRozdeleni)+'</td></tr>'
+    +  (R.ven.celkem
+        ? '<tr><td>− náklady ven ze skupiny</td><td class="n num">'+fmt(R.ven.celkem)+'</td></tr>'
+        + '<tr><td>= k rozdělení mezi lidi</td><td class="n num">'+fmt(R.kRozdeleni)+'</td></tr>'
+        : '')
     +  '<tr><td>Součet všech výplat</td><td class="n num">'+fmt(R.soucet)+'</td></tr>'
     +  '</tbody><tfoot><tr><td>Rozdíl</td><td class="n num" style="color:'+(ok?"var(--pos)":"var(--neg)")+'">'
     +  (ok ? "0,00 "+DATA.mena+" ✓" : fmt(R.rozdil))+'</td></tr></tfoot></table></div>'
@@ -1105,7 +993,6 @@ function crow(key,label,value,note){
 function renderHeader(){
   document.getElementById("appTitle").textContent = DATA.titul;
   document.title = DATA.titul;
-  document.getElementById("roBadge").hidden = EDIT;
   var stamp = "";
   if(DATA.aktualizovano){
     var dt = new Date(DATA.aktualizovano);
