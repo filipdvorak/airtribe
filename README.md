@@ -18,7 +18,7 @@ nemohou změnit — v tomhle zobrazení nejsou žádná editovatelná pole.
 
 Po otevření se ukáže naposledy vytvořená akce. V přilepeném pruhu nahoře je vidět vždy
 jen právě vybraná akce a vedle ní vlevo tlačítko ☰. To vysune od levého okraje panel
-se seznamem všech akcí i s výdělky; zavře se křížkem, kliknutím vedle nebo Escapem.
+se seznamem všech akcí i s datem a výdělkem; zavře se křížkem, kliknutím vedle nebo Escapem.
 
 Zobrazuje se jen to, co má obsah: kdo na akci nebyl, se v seznamu neobjeví, a nulové
 náklady se vynechají i s celou sekcí. Na mobilu se místo široké tabulky použije seznam
@@ -32,8 +32,8 @@ Přidej `?edit` na konec adresy:
 https://vystoupeni.vercel.app/?edit
 ```
 
-Můžeš měnit výdělek a náklady, zaškrtávat, kdo se účastnil a kdo koho vezl, přidávat
-a mazat lidi i akce a duplikovat akci jako šablonu. Čísla se přepočítají okamžitě.
+Můžeš měnit název, datum, výdělek a náklady, zaškrtávat, kdo se účastnil a kdo koho vezl,
+přidávat a mazat lidi i akce a duplikovat akci jako šablonu. Čísla se přepočítají okamžitě.
 
 Změny zatím žijí jen v tvém prohlížeči. Zveřejníš je tlačítkem **💾 Uložit na web** —
 aplikace zapíše data přímo do repozitáře na GitHubu a na stejné adrese se do ~20 vteřin

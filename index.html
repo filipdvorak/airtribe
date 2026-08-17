@@ -479,7 +479,14 @@
   "mena": "Kč",
   "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
-  "lide": ["Filip", "Jenda", "Patrik", "Miloš", "Kája", "Martin"],
+  "lide": [
+    "Filip",
+    "Jenda",
+    "Patrik",
+    "Miloš",
+    "Kája",
+    "Martin"
+  ],
   "akce": [
     {
       "nazev": "Vrcovice + Kubata 2026",
@@ -490,13 +497,74 @@
       "nakladHromadny": 0,
       "nakladInterniHromadny": 0,
       "ucastnici": {
-        "Filip":  { "ucastnik": true,  "interniRidic": false, "pasazerInterni": false, "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": true  },
-        "Jenda":  { "ucastnik": true,  "interniRidic": false, "pasazerInterni": true,  "pasazerExterni": true,  "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
-        "Patrik": { "ucastnik": true,  "interniRidic": false, "pasazerInterni": true,  "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
-        "Miloš":  { "ucastnik": true,  "interniRidic": true,  "pasazerInterni": false, "pasazerExterni": true,  "individualniNaklad": true,  "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
-        "Kája":   { "ucastnik": false, "interniRidic": false, "pasazerInterni": false, "pasazerExterni": false, "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false },
-        "Martin": { "ucastnik": false, "interniRidic": false, "pasazerInterni": false, "pasazerExterni": false, "individualniNaklad": false, "hromadnyNaklad": false, "interniPlatce": false, "interniPrijemce": false, "organizator": false }
-      }
+        "Filip": {
+          "ucastnik": true,
+          "interniRidic": false,
+          "pasazerInterni": false,
+          "pasazerExterni": true,
+          "individualniNaklad": true,
+          "hromadnyNaklad": false,
+          "interniPlatce": false,
+          "interniPrijemce": false,
+          "organizator": true
+        },
+        "Jenda": {
+          "ucastnik": true,
+          "interniRidic": false,
+          "pasazerInterni": true,
+          "pasazerExterni": true,
+          "individualniNaklad": false,
+          "hromadnyNaklad": false,
+          "interniPlatce": false,
+          "interniPrijemce": false,
+          "organizator": false
+        },
+        "Patrik": {
+          "ucastnik": true,
+          "interniRidic": false,
+          "pasazerInterni": true,
+          "pasazerExterni": true,
+          "individualniNaklad": true,
+          "hromadnyNaklad": false,
+          "interniPlatce": false,
+          "interniPrijemce": false,
+          "organizator": false
+        },
+        "Miloš": {
+          "ucastnik": true,
+          "interniRidic": true,
+          "pasazerInterni": false,
+          "pasazerExterni": true,
+          "individualniNaklad": true,
+          "hromadnyNaklad": false,
+          "interniPlatce": false,
+          "interniPrijemce": false,
+          "organizator": false
+        },
+        "Kája": {
+          "ucastnik": false,
+          "interniRidic": false,
+          "pasazerInterni": false,
+          "pasazerExterni": false,
+          "individualniNaklad": false,
+          "hromadnyNaklad": false,
+          "interniPlatce": false,
+          "interniPrijemce": false,
+          "organizator": false
+        },
+        "Martin": {
+          "ucastnik": false,
+          "interniRidic": false,
+          "pasazerInterni": false,
+          "pasazerExterni": false,
+          "individualniNaklad": false,
+          "hromadnyNaklad": false,
+          "interniPlatce": false,
+          "interniPrijemce": false,
+          "organizator": false
+        }
+      },
+      "datum": "2026-06-13"
     },
     {
       "nazev": "Slavnosti mrkve 2026",
@@ -506,7 +574,8 @@
       "nakladIndividualni": 0,
       "nakladHromadny": 0,
       "nakladInterniHromadny": 0,
-      "ucastnici": {}
+      "ucastnici": {},
+      "datum": ""
     }
   ]
 }
@@ -589,6 +658,7 @@ function normalize(d){
   d.akce = Array.isArray(d.akce) ? d.akce : [];
   d.akce.forEach(function(ev){
     if(typeof ev.nazev !== "string") ev.nazev = "";
+    if(typeof ev.datum !== "string") ev.datum = "";
     AMOUNTS.forEach(function(a){ ev[a.key] = Number(ev[a.key]) || 0; });
     ev.ucastnici = ev.ucastnici || {};
     d.lide.forEach(function(p){
@@ -737,6 +807,15 @@ function fmt(n){ return nf.format(z(n)) + " " + DATA.mena; }
 function fmtS(n){ n=z(n); return (n>0?"+ ":n<0?"− ":"") + nf.format(Math.abs(n)) + " " + DATA.mena; }
 function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function ini(n){ return String(n).trim().charAt(0).toUpperCase() || "?"; }
+/** datum akce ve tvaru „14. června 2027“; prázdné zůstane prázdné */
+function datumAkce(ev){
+  var d = ev && ev.datum;
+  if(!d) return "";
+  var dt = new Date(d + "T12:00:00");
+  if(isNaN(dt)) return d;
+  return dt.toLocaleDateString("cs-CZ", { day:"numeric", month:"long", year:"numeric" });
+}
+
 /** název akce pro zobrazení — prázdný název dostane jen zástupný text */
 function nazevAkce(ev){ return (ev && ev.nazev || "").trim() || "Akce bez názvu"; }
 
@@ -868,7 +947,8 @@ function vykresliNabidku(){
          + (i === state.akce ? ' aria-current="true"' : '') + '>'
          + (i === posledni ? '<span class="zn">nejnovější</span>' : '')
          + '<span class="nm">'+esc(nazevAkce(ev))+'</span>'
-         + '<span class="vd">'+(ev.vydelek ? fmt(ev.vydelek) : "zatím bez údajů")+'</span></button>';
+         + '<span class="vd">'+esc([datumAkce(ev), ev.vydelek ? fmt(ev.vydelek) : "zatím bez údajů"]
+             .filter(Boolean).join(" · "))+'</span></button>';
   }).join("");
 
   Array.prototype.forEach.call(sez.querySelectorAll("[data-go]"), function(b){
@@ -1082,9 +1162,9 @@ function renderHeader(){
     stamp = " • Naposledy aktualizováno " + (isNaN(dt) ? DATA.aktualizovano
           : dt.toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"}));
   }
-  document.getElementById("footNote").textContent =
-    (DATA.aktualizovano ? stamp.replace(/^ • /,"") : "Částky jsou přesně na haléře.")
-    + (HASH_DATA ? " • verze z odkazu" : "");
+  var text = DATA.aktualizovano ? stamp.replace(/^ • /, "") : "";
+  if(HASH_DATA) text += (text ? " • " : "") + "verze z odkazu";
+  document.getElementById("footNote").textContent = text;
 }
 
 /* =========================================================
@@ -1098,7 +1178,10 @@ function renderEditor(){
            document.getElementById("matrixEditWrap").innerHTML = ""; return; }
 
   var h = '<div class="field"><label>Název akce</label><div class="fh">Zobrazí se ostatním jako záložka.</div>'
-        + '<input type="text" id="fld_nazev" data-f="nazev" value="'+esc(ev.nazev)+'" placeholder="např. Vrcovice 2027"></div>';
+        + '<input type="text" id="fld_nazev" data-f="nazev" value="'+esc(ev.nazev)+'" placeholder="např. Vrcovice 2027"></div>'
+        + '<div class="field"><label>Datum akce</label>'
+        + '<div class="fh">Ukáže se v seznamu akcí pod tlačítkem ☰. Nechat prázdné je v pořádku.</div>'
+        + '<input type="date" id="fld_datum" data-f="datum" value="'+esc(ev.datum)+'"></div>';
   AMOUNTS.forEach(function(a){
     // Nevyplněná částka zůstane prázdná — nula se nepředvyplňuje, aby ji nebylo nutné mazat.
     h += '<div class="field"><label>'+esc(a.label)+' ('+esc(DATA.mena)+')</label>'
@@ -1116,6 +1199,7 @@ function renderEditor(){
     inp.oninput = function(){
       if(inp.dataset.g) DATA[inp.dataset.g] = Number(inp.value)||0;
       else if(inp.dataset.f === "nazev"){ ev.nazev = inp.value; renderTabs(); }
+      else if(inp.dataset.f === "datum"){ ev.datum = inp.value; renderTabs(); }
       else ev[inp.dataset.f] = Number(inp.value)||0;
       prekresli(function(){ renderContent(false); });
     };
@@ -1203,7 +1287,7 @@ function renderAll(animate){ DATA = normalize(DATA); renderHeader(); renderTabs(
    Export
    ========================================================= */
 function newEvent(src){
-  var ev = { nazev: src ? nazevAkce(src)+" (kopie)" : "", ucastnici:{} };
+  var ev = { nazev: src ? nazevAkce(src)+" (kopie)" : "", datum: "", ucastnici:{} };
   AMOUNTS.forEach(function(a){ ev[a.key] = src ? src[a.key] : 0; });
   if(src) DATA.lide.forEach(function(p){ ev.ucastnici[p] = Object.assign({}, src.ucastnici[p]); });
   DATA.akce.push(ev); state.akce = DATA.akce.length-1; state.otevrene = {}; renderAll(true);
