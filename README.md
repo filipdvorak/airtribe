@@ -49,8 +49,8 @@ s vzorcem — a u organizátora spolu s ní i pole na jeho procento z výdělku.
 Jízdy a náklady se zadávají po jednotlivých položkách ve dvou sbalovacích oddílech, takže
 nezabírají místo, když je zrovna nepotřebuješ:
 
-- **Doprava** — libovolný počet jízd, u každé částka, řidiči a osádka. *Naše auto* i *cizí
-  doprava*. Název naší jízdy se odvodí od řidiče a skloní se podle věty: u řidiče se ukáže
+- **Doprava** — libovolný počet jízd, u každé částka, řidič a osádka. Řidič je u jízdy
+  vždycky jeden (vybírá se kolečkem) — když jela dvě auta, přidáš dvě jízdy. Název naší jízdy se odvodí od řidiče a skloní se podle věty: u řidiče se ukáže
   *řídil svoje auto*, u ostatních *vezl se Milošovým autem* (při více řidičích
   *Milošovým a Patrikovým autem*) — a stejně i v rozpadu částky. Když chceš vlastní název,
   prostě ho přepiš; pak se píše s dvojtečkou a neskloňuje.
@@ -76,8 +76,8 @@ Pro každou akci, v tomto pořadí:
 1. **Základ** — výdělek se rozdělí rovným dílem mezi účastníky.
 
 2. **Jízdy** — každá cesta se počítá zvlášť, takže dvě auta s různými náklady se nemíchají.
-   - *Naše auto* — řidič dostane částku zpátky (při více řidičích se dělí mezi ně) a zároveň
-     se na ní podílí; do dělení se započítá automaticky. Peníze **zůstávají uvnitř skupiny**.
+   - *Naše auto* — řidič dostane celou částku zpátky a zároveň se na ní podílí; do dělení
+     se započítá automaticky. Peníze **zůstávají uvnitř skupiny**.
    - *Cizí doprava* — cena se dělí mezi označené pasažéry a **odchází ven**.
 
 3. **Náklady** — každý výdaj má svůj název, částku a lidi. Typ určuje, co se s penězi stane:

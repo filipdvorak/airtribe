@@ -51,9 +51,6 @@
   /* ======== hlavička ======== */
   header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   h1{flex:1;min-width:0;font-size:23px;line-height:1.2;margin:0;letter-spacing:-.018em}
-  .badge{display:inline-flex;align-items:center;gap:6px;flex:none;font-size:12px;color:var(--muted);
-         background:var(--panel);border:1px solid var(--line);padding:6px 12px;border-radius:999px}
-  .badge svg{width:13px;height:13px;opacity:.75;flex:none}
 
   /* ---- přilepovací pruh s přepínáním akcí ---- */
   .stickytop{position:sticky;top:0;z-index:40;background:var(--bg);
@@ -102,25 +99,6 @@
   .evitem{display:block;width:100%;padding:12px 13px;border:0;background:none;cursor:pointer;
     font:inherit;color:var(--ink);text-align:left;border-radius:11px;
     transition:background .16s var(--ease),color .16s var(--ease)}
-  .jcard{border-bottom:1px solid var(--line-2);padding:14px 19px}
-  .jcard:last-child{border-bottom:0}
-  .jhead{display:flex;align-items:center;gap:9px;margin-bottom:11px}
-  .jhead .jic{flex:none;font-size:17px}
-  .jhead input[type=text]{flex:1;min-width:80px}
-  .jhead input[type=number]{flex:none;width:110px}
-  .jhead input{font:inherit;font-size:14.5px;font-weight:600;padding:9px 11px;border-radius:10px;
-    border:1px solid var(--line);background:var(--panel-2);color:var(--ink)}
-  .jhead input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
-  .jrada{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
-  .jlbl{flex:none;width:66px;padding-top:11px;font-size:12px;color:var(--muted);font-weight:650}
-  .jrada .tgs{flex:1}
-  @media (max-width:640px){
-    .jcard{padding:13px 15px}
-    .jhead{flex-wrap:wrap}
-    .jhead input[type=number]{width:100%}
-    .jrada{flex-direction:column;gap:5px}
-    .jlbl{width:auto;padding-top:0}
-  }
   .evrow{display:flex;align-items:center;gap:3px}
   .evrow .evitem{flex:1;min-width:0}
   .ikbtn{flex:none;width:36px;height:36px;padding:0;border:0;background:none;cursor:pointer;
@@ -133,8 +111,6 @@
     border:1px solid var(--accent);background:var(--panel-2);color:var(--ink);outline:none}
   .evitem:hover{background:var(--panel-2)}
   .evitem:focus{outline:none}
-  .evitem:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-  .sidenav .closebtn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .evitem[aria-current="true"]{background:var(--accent-soft);color:var(--accent-ink)}
   .evitem .nm{display:block;font-size:15.5px;font-weight:600;line-height:1.3}
   .evitem[aria-current="true"] .nm{font-weight:700}
@@ -178,7 +154,6 @@
   .sklhd{width:100%;appearance:none;font:inherit;text-align:left;cursor:pointer;
     border:0;border-bottom:1px solid var(--line);transition:background .18s var(--ease)}
   .sklhd:hover{background:var(--line-2)}
-  .sklhd:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   .sklchev{flex:none;color:var(--muted-2);font-size:19px;line-height:1;
     transition:transform .28s var(--ease),color .18s var(--ease)}
   .sklhd[aria-expanded="true"] .sklchev{transform:rotate(90deg);color:var(--accent)}
@@ -194,11 +169,6 @@
   .jtyp{flex:none;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
     color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
     padding:3px 8px;border-radius:999px;white-space:nowrap}
-
-  /* ======== postup výpočtu (legenda) ======== */
-  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:11px;font-size:11.5px;color:var(--muted)}
-  .flow .st{background:var(--panel-2);border:1px solid var(--line);padding:3px 9px;border-radius:999px;white-space:nowrap}
-  .flow .ar{color:var(--accent);font-weight:700}
 
   /* ======== výplaty ======== */
   ul.payouts{list-style:none;margin:0;padding:0}
@@ -239,7 +209,6 @@
   .steps tr.final td.run{font-weight:400}
   .steps tr.xrow td{padding:0;border-bottom:1px solid var(--line-2)}
   .plus{color:var(--pos);font-weight:600} .minus{color:var(--neg);font-weight:600}
-  .inactive .amount,.inactive .who .nm{color:var(--muted-2);font-weight:500}
 
   /* ======== tlačítko ⓘ a vysvětlivka ======== */
   .qm{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--muted-2);
@@ -273,13 +242,6 @@
   th.col .hbtn:hover{background:var(--panel-2);color:var(--accent)}
   th.col .hbtn[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent-ink)}
   th.col .hbtn .ic{font-size:14px;display:block;margin-bottom:3px;text-transform:none}
-  table.matrix td.mk{text-align:center;font-size:15px;padding-left:8px;padding-right:8px}
-  table.matrix tfoot td{border-top:2px solid var(--line);border-bottom:0;padding-top:11px;color:var(--muted);font-size:12px}
-  table.matrix .yes{color:var(--pos);font-weight:700}
-  table.matrix .auto{color:var(--pos);font-weight:700;opacity:.5}
-  table.matrix .no{color:var(--line);user-select:none}
-  @media (prefers-color-scheme: dark){table.matrix .no{color:#333947}}
-  table.matrix tr.off td:first-child{color:var(--muted-2)}
   .xstrip{padding:0 19px 16px}
 
   table.calc td.n{text-align:right}
@@ -356,7 +318,6 @@
   .field .fh{font-size:11.5px;color:var(--muted);line-height:1.45;margin-bottom:8px}
   .field input{font:inherit;font-size:14px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);
                background:var(--panel-2);color:var(--ink);width:100%;transition:border-color .18s var(--ease)}
-  .field input:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
   .field textarea{font:inherit;font-family:var(--mono);font-size:12.5px;padding:10px 12px;border-radius:10px;
     border:1px solid var(--line);background:var(--panel-2);color:var(--ink);width:100%;resize:vertical}
   /* Zaškrtávátka stojí přesně pod nadpisem sloupce — proto stejná šířka i zarovnání. */
@@ -373,7 +334,6 @@
   .matrix-edit input[type=checkbox]:disabled{cursor:not-allowed;opacity:.45}
   .matrix-edit input[type=text]{font:inherit;font-size:14px;padding:8px 11px;border-radius:9px;border:1px solid var(--line);
        background:var(--panel-2);color:var(--ink);width:100%;max-width:230px}
-  .matrix-edit input[type=text]:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
 
   /* pole s procentem uvnitř vysvětlivky u sloupce Organizátor */
   .spolu .xcard{margin-bottom:0;border-radius:11px 11px 0 0}
@@ -383,7 +343,6 @@
   .pctrada{display:flex;align-items:center;gap:9px}
   .pctrada input{font:inherit;font-size:15px;font-weight:650;width:88px;padding:9px 11px;border-radius:10px;
        border:1px solid var(--line);background:var(--panel);color:var(--ink);text-align:right}
-  .pctrada input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
   .pctzn{font-size:13px;color:var(--muted)}
   .pctbox .fh{margin:7px 0 0}
 
@@ -397,7 +356,6 @@
        border:1px solid currentColor;font-size:10px;font-weight:700;line-height:1}
   .mflag:hover{border-color:var(--accent);color:var(--accent)}
   .mflag[aria-expanded="true"]{background:var(--accent-soft);border-color:transparent;color:var(--accent-ink)}
-  .autolbl{display:block;font-size:9.5px;color:var(--muted-2);margin-top:2px;letter-spacing:.02em}
   .toolrow{display:flex;flex-wrap:wrap;gap:9px;padding:0 19px 17px}
   .toolbar-top{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
   code{font-family:var(--mono);font-size:.9em;background:var(--panel-2);border:1px solid var(--line);padding:1px 5px;border-radius:5px}
@@ -407,14 +365,25 @@
     max-width:90vw;text-align:center}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* ---- mobilní přehled počtů místo široké tabulky ---- */
-  .mrow{display:flex;align-items:center;gap:11px;padding:11px 19px;border-bottom:1px solid var(--line-2)}
-  .mrow:last-of-type{border-bottom:0}
-  .mrow .mic{flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
-             background:var(--panel-2);border:1px solid var(--line);font-size:14px}
-  .mrow .mlbl{flex:1;font-size:13.5px;line-height:1.35}
-  .mrow .mval{font-weight:700;font-size:15.5px;white-space:nowrap}
-  .mrow .mval.zero{color:var(--muted-2);font-weight:500}
+  /* ---- editace: karty jízd a nákladů ---- */
+  .jcard{border-bottom:1px solid var(--line-2);padding:14px 19px}
+  .jcard:last-child{border-bottom:0}
+  .jhead{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+  .jhead .jic{flex:none;font-size:17px}
+  .jhead input[type=text]{flex:1;min-width:80px}
+  .jhead input[type=number]{flex:none;width:110px}
+  .jhead input{font:inherit;font-size:14.5px;font-weight:600;padding:9px 11px;border-radius:10px;
+    border:1px solid var(--line);background:var(--panel-2);color:var(--ink)}
+  .jrada{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+  .jlbl{flex:none;width:66px;padding-top:11px;font-size:12px;color:var(--muted);font-weight:650}
+  .jrada .tgs{flex:1}
+  @media (max-width:640px){
+    .jcard{padding:13px 15px}
+    .jhead{flex-wrap:wrap}
+    .jhead input[type=number]{width:100%}
+    .jrada{flex-direction:column;gap:5px}
+    .jlbl{width:auto;padding-top:0}
+  }
 
   /* ---- editace: kartičky lidí pro mobil ---- */
   .pcard{border-bottom:1px solid var(--line-2);padding:15px 19px}
@@ -430,11 +399,18 @@
   .tg.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
   .tg.locked{opacity:.6;cursor:not-allowed}
 
+  /* ======== zaostření — jedno pravidlo pro všechna pole i tlačítka ======== */
+  .jhead input:focus,
+  .field input:focus, .field textarea:focus,
+  .matrix-edit input[type=text]:focus,
+  .pctrada input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+  .evitem:focus-visible,
+  .sidenav .closebtn:focus-visible,
+  .sklhd:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
   @media (max-width:640px){
     .wrap{padding:18px 12px 64px}
     h1{font-size:20px}
-    .sub{font-size:13.5px}
-    .badge{font-size:11.5px;padding:5px 10px;margin-top:12px}
     .stickytop{margin:16px -12px 14px;padding:9px 12px 10px}
     .tabs{gap:6px}
     .tab{padding:9px 14px;font-size:13.5px}
@@ -454,7 +430,7 @@
     .steps{font-size:13px}
     .steps td.run{display:none}
     .steps td.amt{padding-left:10px}
-    .sect,.hint,.xstrip,.crow,.mrow{padding-left:15px;padding-right:15px}
+    .sect,.hint,.xstrip,.crow{padding-left:15px;padding-right:15px}
     .ctot{padding-left:15px;padding-right:15px}
     .pcard{padding:13px 15px}
     .btn{padding:10px 14px}
@@ -471,7 +447,7 @@
   }
   @media print{
     body{background:#fff}
-    .tabs,.edit-bar,.badge,.qm{display:none !important}
+    .tabs,.edit-bar,.qm{display:none !important}
     .panel{break-inside:avoid;border-color:#ccc}
     .collapse{grid-template-rows:1fr !important;opacity:1 !important}
   }
@@ -621,7 +597,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-17",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -633,8 +609,8 @@
   ],
   "akce": [
     {
-      "nazev": "Vrcovice + Kubata",
-      "datum": "2026-06-20",
+      "nazev": "Vrcovice + Kubata 2026",
+      "datum": "2026-06-13",
       "vydelek": 9000,
       "jizdy": [
         {
@@ -703,49 +679,26 @@
       }
     },
     {
-      "nazev": "Slavnosti mrkve",
-      "datum": "2026-08-15",
-      "vydelek": 4000,
-      "jizdy": [
-        {
-          "typ": "interni",
-          "nazev": "",
-          "castka": 100,
-          "ridici": [
-            "Miloš"
-          ],
-          "pasazeri": [
-            "Patrik"
-          ]
-        }
-      ],
-      "naklady": [
-        {
-          "typ": "interni",
-          "nazev": "Airtrack",
-          "castka": 100,
-          "prijemce": "Miloš",
-          "platci": [
-            "Patrik",
-            "Filip"
-          ]
-        }
-      ],
+      "nazev": "Slavnosti mrkve 2026",
+      "datum": "",
+      "vydelek": 0,
+      "jizdy": [],
+      "naklady": [],
       "ucastnici": {
         "Filip": {
-          "ucastnik": true,
-          "organizator": true
+          "ucastnik": false,
+          "organizator": false
         },
         "Jenda": {
           "ucastnik": false,
           "organizator": false
         },
         "Patrik": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Miloš": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Kája": {
@@ -782,8 +735,8 @@ var FLAGS = [
 /* Doprava a náklady se zadávají jako jednotlivé položky s vlastní částkou a lidmi. */
 var DOPRAVA = {
   jizdaInterni: { key:"jizdaInterni", label:"Naše auto", ikona:"🚗",
-    popis:"Někdo z týmu jel vlastním autem. Dostane zpátky částku za tuhle jízdu (když u ní řídilo víc lidí, dělí se mezi ně) a zároveň se <b>počítá mezi ty, kdo se na ní skládají</b>. Peníze neodcházejí ven ze skupiny, jen se přesunou.",
-    vzorec:"řidič: + částka ÷ počet řidičů   |   každý v autě: − částka ÷ počet lidí v autě" },
+    popis:"Někdo z týmu jel vlastním autem. Dostane celou částku za tuhle jízdu zpátky a zároveň se <b>počítá mezi ty, kdo se na ní skládají</b>. Peníze neodcházejí ven ze skupiny, jen se přesunou. Řidič je u jízdy vždycky jeden — když jela dvě auta, přidej dvě jízdy.",
+    vzorec:"řidič: + celá částka   |   každý v autě: − částka ÷ počet lidí v autě" },
   jizdaExterni: { key:"jizdaExterni", label:"Cizí doprava", ikona:"🚐",
     popis:"Cesta s někým cizím, komu se platí — autobus, taxík, půjčovna. Cena se dělí rovným dílem mezi označené pasažéry a <b>odchází ven ze skupiny</b>.",
     vzorec:"− částka ÷ počet pasažérů" }
@@ -878,7 +831,7 @@ function normalize(d){
       return { typ: j.typ === "externi" ? "externi" : "interni",
                nazev: typeof j.nazev === "string" ? j.nazev : "",
                castka: Number(j.castka) || 0,
-               ridici: j.typ === "externi" ? [] : jenZnami(j.ridici),
+               ridici: j.typ === "externi" ? [] : jenZnami(j.ridici).slice(0, 1),   // řidič je vždy jeden
                pasazeri: jenZnami(j.pasazeri) };
     });
 
@@ -980,10 +933,18 @@ function nazevNakladu(n){
   return (n.nazev || "").trim() || (NAKLADY_TYPY[n.typ] ? NAKLADY_TYPY[n.typ].label : "Náklad");
 }
 
+/** ze seznamu jmen udělá tabulku pro rychlé „je tam?“ (místo opakovaného indexOf) */
+function jmenaDoMapy(jmena){
+  var m = {};
+  for(var i = 0; i < jmena.length; i++) m[jmena[i]] = true;
+  return m;
+}
+
 function compute(ev, lide, pct){
   var fl  = function(p){ return ev.ucastnici[p] || blankFlags(); };
   var akt = lide.filter(function(p){ return fl(p).ucastnik; });
-  var je  = function(p){ return akt.indexOf(p) !== -1; };
+  var jeAkt = jmenaDoMapy(akt);
+  var je  = function(p){ return jeAkt[p] === true; };
 
   var c = {};
   FLAGS.forEach(function(f){ c[f.key] = akt.filter(function(p){ return fl(p)[f.key]; }).length; });
@@ -1035,7 +996,7 @@ function compute(ev, lide, pct){
       if(jeRidic)
         push("jizdaInterni",
              jz.odvozeny ? "Náhrada za jízdu svým autem" : "Náhrada za jízdu — " + jz.nazev,
-             jz.ridici.length > 1 ? fmt(jz.castka)+" ÷ "+jz.ridici.length+" řidiči" : "proplacené náklady na cestu",
+             "proplacené náklady na cestu",
              jz.naRidice, "plus");
       if(jz.platci.indexOf(p) !== -1)
         push(jz.typ === "interni" ? "jizdaInterni" : "jizdaExterni",
@@ -1159,11 +1120,23 @@ var FOTKY = {
 /* =========================================================
    Pomocné
    ========================================================= */
+
+/** zkratky, které se v kódu opakují na každém druhém řádku */
+function $(id){ return document.getElementById(id); }
+/** navěsí obsluhu kliknutí na prvek s daným id (když existuje) */
+function klik(id, fn){ var el = $(id); if(el) el.onclick = fn; return el; }
+/** projde všechny prvky odpovídající selektoru (koren může být prvek i jeho id) */
+function naVse(koren, sel, fn){
+  var k = typeof koren === "string" ? $(koren) : koren;
+  if(k) Array.prototype.forEach.call(k.querySelectorAll(sel), fn);
+}
+
 var nf = new Intl.NumberFormat("cs-CZ",{minimumFractionDigits:2,maximumFractionDigits:2});
 function z(n){ return Math.abs(n) < 5e-9 ? 0 : n; }
 function fmt(n){ return nf.format(z(n)) + " " + DATA.mena; }
 function fmtS(n){ n=z(n); return (n>0?"+ ":n<0?"− ":"") + nf.format(Math.abs(n)) + " " + DATA.mena; }
-function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+var ESC = { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" };
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return ESC[c]; }); }
 /** profilový obrázek — jen když je pro dané jméno v FOTKY, jinak u jména nic nestojí */
 function avatar(jmeno){
   var url = FOTKY[jmeno];
@@ -1175,21 +1148,24 @@ function pocetUcastniku(ev){
   return DATA.lide.filter(function(p){ return (ev.ucastnici[p]||{}).ucastnik; }).length;
 }
 
+/** „2026-06-13“ → Date v poledne (aby posun časové zóny nepřehodil den); jinak null */
+function kDatu(s){
+  if(!s) return null;
+  var d = new Date(s + "T12:00:00");
+  return isNaN(d) ? null : d;
+}
+var DLOUHE_DATUM = { day:"numeric", month:"long", year:"numeric" };
+
 /** datum akce krátce, „13. 6. 2026“ — do úzké lišty nad obsahem */
 function datumKratke(ev){
-  if(!ev || !ev.datum) return "";
-  var d = new Date(ev.datum + "T12:00:00");
-  if(isNaN(d)) return ev.datum;
-  return d.getDate() + ". " + (d.getMonth()+1) + ". " + d.getFullYear();
+  var d = kDatu(ev && ev.datum);
+  return d ? d.getDate() + ". " + (d.getMonth()+1) + ". " + d.getFullYear() : (ev && ev.datum) || "";
 }
 
 /** datum akce ve tvaru „14. června 2027“; prázdné zůstane prázdné */
 function datumAkce(ev){
-  var d = ev && ev.datum;
-  if(!d) return "";
-  var dt = new Date(d + "T12:00:00");
-  if(isNaN(dt)) return d;
-  return dt.toLocaleDateString("cs-CZ", { day:"numeric", month:"long", year:"numeric" });
+  var d = kDatu(ev && ev.datum);
+  return d ? d.toLocaleDateString("cs-CZ", DLOUHE_DATUM) : (ev && ev.datum) || "";
 }
 
 /** název akce pro zobrazení — prázdný název dostane jen zástupný text */
@@ -1211,7 +1187,7 @@ function prekresli(akce){
 
   akce();
 
-  var novy = id ? document.getElementById(id) : null;
+  var novy = id ? $(id) : null;
   if(!novy) return;
   if(novy !== document.activeElement){
     OBNOVA = true;
@@ -1233,9 +1209,12 @@ function oznacitPriKliknuti(inp){
   inp.addEventListener("mouseup", function(e){ if(nove){ nove = false; e.preventDefault(); } });
   inp.addEventListener("blur", function(){ nove = false; });
 }
+/** překreslení po změně dat — buď jen obsah, nebo u strukturálních změn všechno */
+function prekresliObsah(){ prekresli(function(){ renderContent(false); }); }
+function prekresliVse(){ prekresli(function(){ renderAll(false); }); }
+
 function oznacitVse(korenId){
-  var k = document.getElementById(korenId); if(!k) return;
-  Array.prototype.forEach.call(k.querySelectorAll("input[type=text],input[type=number],input[type=password]"), oznacitPriKliknuti);
+  naVse(korenId, "input[type=text],input[type=number],input[type=password]", oznacitPriKliknuti);
 }
 function sklon(n,a,b,c){ return n===1?a:(n>=2&&n<=4?b:c); }
 
@@ -1247,6 +1226,30 @@ function polePct(){
        + ' value="'+DATA.bonusOrganizatoraProcent+'" aria-describedby="pctPozn">'
        + '<span class="pctzn">% z výdělku</span></div>'
        + '<div class="fh" id="pctPozn">Platí pro všechny akce.</div></div>';
+}
+
+/** Jeden přepínač v řadě lidí. „vstup“ je hotový <input>, „text“ hotový popisek. */
+function tg(text, vstup, zapnuto, tridy, titulek){
+  return '<label class="tg'+(zapnuto?" on":"")+(tridy?" "+tridy:"")+'"'
+       + (titulek?' title="'+titulek+'"':'')+'>'+vstup+text+'</label>';
+}
+/** Řada „popisek + přepínače“ uvnitř karty. */
+function radaLidi(popisek, obsah){
+  return '<div class="jrada"><span class="jlbl">'+popisek+'</span><div class="tgs">'+obsah+'</div></div>';
+}
+/** Hlavička karty v editaci — jízda i náklad ji mají úplně stejnou.
+    kl = "j" (jízdy) nebo "n" (náklady), podle toho se jmenují i data-atributy. */
+function kartaHlavicka(o){
+  var kl = o.kl, pole = (kl === "j" ? "jz_" : "nk_") + o.i;
+  return '<div class="jcard"><div class="jhead">'
+    + '<span class="jic">'+o.ikona+'</span>'
+    + '<input type="text" id="'+pole+'_nazev" data-'+kl+'="'+o.i+'" data-'+kl+'f="nazev" value="'+esc(o.nazev)+'"'
+    + ' placeholder="'+esc(o.napoveda)+'">'
+    + '<input type="number" step="0.01" inputmode="decimal" id="'+pole+'_castka" data-'+kl+'="'+o.i+'" data-'+kl+'f="castka"'
+    + ' value="'+(o.castka ? o.castka : "")+'" placeholder="0" title="Částka v '+esc(DATA.mena)+'">'
+    + '<button class="ikbtn" type="button" data-'+kl+'del="'+o.i+'" title="'+o.smazat+'">🗑</button></div>'
+    + radaLidi("Typ", '<span class="jtyp">'+esc(o.typ)+'</span>'+o.info.btn)
+    + o.info.box;
 }
 
 /** obsah vysvětlivky pro danou funkci */
@@ -1273,19 +1276,20 @@ var EDIT = /(^|[?&])edit(=|&|$)/.test(location.search);
 var UZKO = window.matchMedia("(max-width:640px)");
 function jeUzko(){ return UZKO.matches; }
 
-/** rozbalování — jeden posluchač pro celý dokument */
+/** Rozbalování — jediný posluchač pro celý dokument.
+    data-x  … vysvětlivky a řádky výplat (mohou být ve skupině, kde je otevřená jen jedna)
+    data-skl … sbalovací oddíly v editaci */
 document.addEventListener("click", function(e){
-  var b = e.target.closest ? e.target.closest("[data-x]") : null;
+  var b = e.target.closest ? e.target.closest("[data-x],[data-skl]") : null;
   if(!b) return;
   e.preventDefault();
-  var box = document.getElementById(b.dataset.x);
+  var box = $(b.dataset.x || b.dataset.skl);
   if(!box) return;
   var open = !box.classList.contains("open");
-  // v jedné skupině (hlavičky tabulky) necháme otevřenou jen jednu
   if(b.dataset.group){
     document.querySelectorAll('[data-group="'+b.dataset.group+'"]').forEach(function(o){
       if(o !== b){ o.setAttribute("aria-expanded","false");
-        var ob = document.getElementById(o.dataset.x); if(ob) ob.classList.remove("open"); }
+        var ob = $(o.dataset.x); if(ob) ob.classList.remove("open"); }
     });
   }
   box.classList.toggle("open", open);
@@ -1293,23 +1297,11 @@ document.addEventListener("click", function(e){
   if(b.dataset.row !== undefined) state.otevreny = open ? +b.dataset.row : null;
 });
 
-/** sbalovací panely v editaci */
-document.addEventListener("click", function(e){
-  var b = e.target.closest ? e.target.closest("[data-skl]") : null;
-  if(!b) return;
-  e.preventDefault();
-  var box = document.getElementById(b.dataset.skl);
-  if(!box) return;
-  var open = !box.classList.contains("open");
-  box.classList.toggle("open", open);
-  b.setAttribute("aria-expanded", String(open));
-});
-
 /* =========================================================
    Vykreslení
    ========================================================= */
 function renderTabs(){
-  var el = document.getElementById("tabs");
+  var el = $("tabs");
   // Vedle hamburgeru je vždy jen právě vybraná akce.
   // Ve výchozím stavu je vybraná ta nejnovější, takže se ukáže ona.
   var html = "";
@@ -1324,7 +1316,7 @@ function renderTabs(){
   el.innerHTML = html;
 
   vykresliNabidku();
-  Array.prototype.forEach.call(el.querySelectorAll(".tab[data-i]"), function(b){
+  naVse(el, ".tab[data-i]", function(b){
     b.onclick = function(){
       if(+b.dataset.i === state.akce) return;
       state.akce = +b.dataset.i; state.otevreny = null; renderAll(true);
@@ -1333,20 +1325,20 @@ function renderTabs(){
   var sel = el.querySelector('.tab[aria-selected="true"]');
   if(sel) el.scrollLeft = Math.max(0, sel.offsetLeft - 14);
 
-  var bt = document.getElementById("evBtn");
+  var bt = $("evBtn");
   if(bt) bt.onclick = function(e){ e.stopPropagation(); prepniNabidku(); };
 }
 
 /** obsah vysouvacího panelu — všechny akce, od nejnovější */
 function vykresliNabidku(){
-  var sez = document.getElementById("evList");
+  var sez = $("evList");
   if(!sez) return;
   var posledni = DATA.akce.length - 1;
   var poradi = [];
   for(var i = posledni; i >= 0; i--) poradi.push(i);
 
   sez.innerHTML = poradi.map(function(i){
-    var ev = DATA.akce[i];
+    var ev = DATA.akce[i], osob = pocetUcastniku(ev);
     if(EDIT && state.prejm === i){
       return '<div class="evrow renmode">'
            + '<input type="text" id="renInput" value="'+esc(ev.nazev)+'" placeholder="název akce">'
@@ -1360,32 +1352,28 @@ function vykresliNabidku(){
          + '<span class="nm">'+esc(nazevAkce(ev))+'</span>'
          + '<span class="vd">'+esc([datumAkce(ev), ev.vydelek ? fmt(ev.vydelek) : "zatím bez údajů"]
              .filter(Boolean).join(" · "))
-         + (pocetUcastniku(ev) ? '<span class="pc">'+pocetUcastniku(ev)+'&nbsp;os.</span>' : '')
+         + (osob ? '<span class="pc">'+osob+'&nbsp;os.</span>' : '')
          + '</span></button>'
          + (EDIT ? '<button class="ikbtn" type="button" data-ren="'+i+'" title="Přejmenovat akci"'
                  + ' aria-label="Přejmenovat akci">✎</button>' : '')
          + '</div>';
   }).join("");
 
-  Array.prototype.forEach.call(sez.querySelectorAll("[data-go]"), function(b){
-    b.onclick = function(){
-      var i = +b.dataset.go;
-      zavriNabidku();
-      if(i === state.akce) return;
-      state.akce = i; state.otevreny = null; renderAll(true);
-    };
-  });
-  Array.prototype.forEach.call(sez.querySelectorAll("[data-ren]"), function(b){
-    b.onclick = function(){ state.prejm = +b.dataset.ren; vykresliNabidku(); };
-  });
-  Array.prototype.forEach.call(sez.querySelectorAll("[data-ren-zrus]"), function(b){
-    b.onclick = function(){ state.prejm = null; vykresliNabidku(); };
-  });
-  Array.prototype.forEach.call(sez.querySelectorAll("[data-ren-ok]"), function(b){
-    b.onclick = function(){ ulozPrejmenovani(+b.dataset.renOk); };
-  });
+  // jeden posluchač na celý seznam místo obsluhy u každého tlačítka zvlášť
+  sez.onclick = function(e){
+    var b = e.target.closest ? e.target.closest("[data-go],[data-ren],[data-ren-zrus],[data-ren-ok]") : null;
+    if(!b) return;
+    var d = b.dataset;
+    if(d.renOk !== undefined) return ulozPrejmenovani(+d.renOk);
+    if(d.renZrus !== undefined){ state.prejm = null; return vykresliNabidku(); }
+    if(d.ren !== undefined){ state.prejm = +d.ren; return vykresliNabidku(); }
+    var i = +d.go;
+    zavriNabidku();
+    if(i === state.akce) return;
+    state.akce = i; state.otevreny = null; renderAll(true);
+  };
 
-  var inp = document.getElementById("renInput");
+  var inp = $("renInput");
   if(inp){
     setTimeout(function(){ try{ inp.focus(); inp.select(); }catch(e){} }, 40);
     inp.onkeydown = function(e){
@@ -1397,7 +1385,7 @@ function vykresliNabidku(){
 
 /** uloží nový název akce zadaný v seznamu */
 function ulozPrejmenovani(i){
-  var inp = document.getElementById("renInput");
+  var inp = $("renInput");
   if(inp && DATA.akce[i]) DATA.akce[i].nazev = inp.value;
   state.prejm = null;
   renderTabs();
@@ -1405,30 +1393,23 @@ function ulozPrejmenovani(i){
   toast("Přejmenováno. Nezapomeň uložit na web.");
 }
 
-function zavriNabidku(){
-  state.prejm = null;
-  var m = document.getElementById("evMenu"),
-      z = document.getElementById("evBack"),
-      b = document.getElementById("evBtn");
-  if(m){ m.classList.remove("open"); m.setAttribute("aria-hidden","true"); }
-  if(z) z.classList.remove("open");
-  if(b){ b.setAttribute("aria-expanded","false"); try{ b.focus({preventScroll:true}); }catch(e){} }
+/** Vysune/zasune panel s akcemi — otevření i zavření je totéž zrcadlově. */
+function nastavNabidku(otevrit){
+  var m = $("evMenu"), z = $("evBack"), b = $("evBtn");
+  if(otevrit && !m) return;
+  if(!otevrit) state.prejm = null;
+  if(m){ m.classList.toggle("open", otevrit); m.setAttribute("aria-hidden", String(!otevrit)); }
+  if(z) z.classList.toggle("open", otevrit);
+  if(b) b.setAttribute("aria-expanded", String(otevrit));
+  var zaostri = function(el){ if(el) try{ el.focus({preventScroll:true}); }catch(e){} };
+  if(otevrit){
+    // po dojetí animace, ať stránka neuskočí
+    var akt = m.querySelector('.evitem[aria-current="true"]') || m.querySelector(".evitem");
+    if(akt) setTimeout(function(){ zaostri(akt); }, 200);
+  }else zaostri(b);
 }
-function otevriNabidku(){
-  var m = document.getElementById("evMenu"),
-      z = document.getElementById("evBack"),
-      b = document.getElementById("evBtn");
-  if(!m) return;
-  m.classList.add("open"); m.setAttribute("aria-hidden","false");
-  if(z) z.classList.add("open");
-  if(b) b.setAttribute("aria-expanded","true");
-  var akt = m.querySelector('.evitem[aria-current="true"]') || m.querySelector(".evitem");
-  if(akt) setTimeout(function(){ try{ akt.focus({preventScroll:true}); }catch(e){} }, 200);
-}
-function prepniNabidku(){
-  var m = document.getElementById("evMenu");
-  if(m && m.classList.contains("open")) zavriNabidku(); else otevriNabidku();
-}
+function zavriNabidku(){ nastavNabidku(false); }
+function prepniNabidku(){ var m = $("evMenu"); nastavNabidku(!(m && m.classList.contains("open"))); }
 
 document.addEventListener("keydown", function(e){
   if(e.key !== "Escape") return;
@@ -1437,7 +1418,7 @@ document.addEventListener("keydown", function(e){
 });
 
 function renderContent(animate){
-  var host = document.getElementById("content");
+  var host = $("content");
   var ev = DATA.akce[state.akce];
   if(!ev){ host.innerHTML = '<div class="panel"><div class="empty">Zatím tu není žádná akce.</div></div>';
            renderKontrola(null, null); return; }
@@ -1518,7 +1499,7 @@ function renderContent(animate){
     // Řidič už bývá v názvu jízdy, tak ho v poznámce zmiňujeme jen u vlastního názvu.
     var vlastni = !!(jz.def.nazev || "").trim();
     uvnitr.push(crow("jizdaInterni", jz.nazev, jz.castka,
-      (vlastni ? "řídí " + jz.ridici.join(", ") + " · " : "") + "skládají se: " + jz.platci.join(", ")));
+      (vlastni && jz.ridici.length ? "řídí " + jz.ridici[0] + " · " : "") + "skládají se: " + jz.platci.join(", ")));
   });
   R.uvnNakl.forEach(function(nk){
     uvnitr.push(crow("n_interni", nk.nazev, nk.castka,
@@ -1547,7 +1528,7 @@ function renderContent(animate){
 
 /** Kontrola — „výdělek − náklady ven" musí sedět na součet výplat */
 function renderKontrola(R, ev){
-  var host = document.getElementById("kontrola");
+  var host = $("kontrola");
   if(!host) return;
   if(!ev || (ev.vydelek === 0 && R.nU === 0)){ host.innerHTML = ""; return; }
 
@@ -1579,17 +1560,15 @@ function crow(key,label,value,note){
 }
 
 function renderHeader(){
-  document.getElementById("appTitle").textContent = DATA.titul;
+  $("appTitle").textContent = DATA.titul;
   document.title = DATA.titul;
-  var stamp = "";
+  var text = "";
   if(DATA.aktualizovano){
-    var dt = new Date(DATA.aktualizovano);
-    stamp = " • Naposledy aktualizováno " + (isNaN(dt) ? DATA.aktualizovano
-          : dt.toLocaleDateString("cs-CZ",{day:"numeric",month:"long",year:"numeric"}));
+    var dt = kDatu(DATA.aktualizovano);
+    text = "Naposledy aktualizováno " + (dt ? dt.toLocaleDateString("cs-CZ", DLOUHE_DATUM) : DATA.aktualizovano);
   }
-  var text = DATA.aktualizovano ? stamp.replace(/^ • /, "") : "";
   if(HASH_DATA) text += (text ? " • " : "") + "verze z odkazu";
-  document.getElementById("footNote").textContent = text;
+  $("footNote").textContent = text;
 }
 
 /* =========================================================
@@ -1598,9 +1577,9 @@ function renderHeader(){
 function renderEditor(){
   if(!EDIT) return;
   var ev = DATA.akce[state.akce];
-  var fh = document.getElementById("evFields");
+  var fh = $("evFields");
   if(!ev){ fh.innerHTML = '<p class="hint">Žádná akce — vytvoř novou tlačítkem níže.</p>';
-           document.getElementById("matrixEditWrap").innerHTML = ""; return; }
+           $("matrixEditWrap").innerHTML = ""; return; }
 
   var h = '<div class="field"><label>Název akce</label><div class="fh">Zobrazí se ostatním jako záložka.</div>'
         + '<input type="text" id="fld_nazev" data-f="nazev" value="'+esc(ev.nazev)+'" placeholder="např. Vrcovice 2027"></div>'
@@ -1618,17 +1597,17 @@ function renderEditor(){
 
   /** navěsí přepočet na pole s částkami a nastavením (voláme až po vykreslení všech polí) */
   function navesPole(korenId){
-    var koren = document.getElementById(korenId);
+    var koren = $(korenId);
     if(!koren) return;
     oznacitVse(korenId);
-    Array.prototype.forEach.call(koren.querySelectorAll("input"), function(inp){
+    naVse(koren, "input", function(inp){
       if(!inp.dataset.f && !inp.dataset.g) return;
       inp.oninput = function(){
         if(inp.dataset.g) DATA[inp.dataset.g] = Number(inp.value)||0;
         else if(inp.dataset.f === "nazev"){ ev.nazev = inp.value; renderTabs(); }
         else if(inp.dataset.f === "datum"){ ev.datum = inp.value; renderTabs(); }
         else ev[inp.dataset.f] = Number(inp.value)||0;
-        prekresli(function(){ renderContent(false); });
+        prekresliObsah();
       };
     });
   }
@@ -1644,9 +1623,9 @@ function renderEditor(){
         +  '<input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'" placeholder="jméno">'
         +  '<button class="btn danger" data-del="'+pi+'" title="Odebrat">✕</button></div><div class="tgs">'
         +  FLAGS.map(function(x){
-             return '<label class="tg'+(f[x.key]?" on":"")+'">'
-                  + '<input type="checkbox" id="cb_'+pi+'_'+x.key+'" data-p="'+esc(p)+'" data-k="'+x.key+'"'+(f[x.key]?" checked":"")+'>'
-                  + x.ikona+' '+esc(x.label)+'</label>';
+             return tg(x.ikona+' '+esc(x.label),
+                       '<input type="checkbox" id="cb_'+pi+'_'+x.key+'" data-p="'+esc(p)+'" data-k="'+x.key+'"'
+                       + (f[x.key]?" checked":"")+'>', f[x.key]);
            }).join("")
         +  '</div></div>';
     });
@@ -1674,11 +1653,11 @@ function renderEditor(){
     t += '</tbody></table></div>';
   }
 
-  var m = document.getElementById("matrixEditWrap");
+  var m = $("matrixEditWrap");
   m.innerHTML = t;
   // Kliknutí na nadpis sloupce (na mobilu na štítek pod kartami) odkryje vysvětlivku
   // a u organizátora zároveň pole s procentem — nastavení tak leží přímo u přepínače.
-  document.getElementById("expEdit").innerHTML = FLAGS.map(function(f){
+  $("expEdit").innerHTML = FLAGS.map(function(f){
     var pct = (f.key === "organizator");
     return '<div class="collapse" id="ce_'+f.key+'"><div class="inner'+(pct ? " spolu" : "")+'">'
          + xcard(f.key) + (pct ? polePct() : "")
@@ -1686,27 +1665,25 @@ function renderEditor(){
   }).join("");
   navesPole("expEdit");
 
-  Array.prototype.forEach.call(m.querySelectorAll('input[type=checkbox]:not(:disabled)'), function(cb){
+  naVse(m, 'input[type=checkbox]:not(:disabled)', function(cb){
     cb.onchange = function(){
       DATA.akce[state.akce].ucastnici[cb.dataset.p][cb.dataset.k] = cb.checked;
       var lbl = cb.closest ? cb.closest(".tg") : null;
       if(lbl) lbl.classList.toggle("on", cb.checked);
-      prekresli(function(){
-        renderContent(false);
-      });
+      prekresliObsah();
     };
   });
   oznacitVse("matrixEditWrap");
-  Array.prototype.forEach.call(m.querySelectorAll('input[data-person]'), function(inp){
+  naVse(m, 'input[data-person]', function(inp){
     inp.onchange = function(){
       var i = +inp.dataset.person, old = DATA.lide[i], nn = (inp.value||"").trim();
       if(!nn || (DATA.lide.indexOf(nn) !== -1 && nn !== old)){ inp.value = old; toast("Jméno musí být vyplněné a jedinečné."); return; }
       DATA.lide[i] = nn;
       DATA.akce.forEach(function(a){ a.ucastnici[nn] = a.ucastnici[old] || blankFlags(); delete a.ucastnici[old]; });
-      prekresli(function(){ renderAll(false); });
+      prekresliVse();
     };
   });
-  Array.prototype.forEach.call(m.querySelectorAll('button[data-del]'), function(b){
+  naVse(m, 'button[data-del]', function(b){
     b.onclick = function(){
       var i = +b.dataset.del, nm = DATA.lide[i];
       DATA.lide.splice(i,1);
@@ -1716,9 +1693,61 @@ function renderEditor(){
   });
 }
 
+/* ---------------------------------------------------------
+   Obsluha karet — jízda i náklad se ovládají úplně stejně,
+   liší se jen písmeno v data-atributech: "j" jízdy, "n" náklady.
+   --------------------------------------------------------- */
+
+/** políčka „název“ a „částka“ na kartě */
+function polePolozky(box, kl, polozky){
+  naVse(box, "input[data-"+kl+"f]", function(inp){
+    inp.oninput = function(){
+      var o = polozky[+inp.dataset[kl]];
+      if(!o) return;
+      if(inp.dataset[kl+"f"] === "nazev") o.nazev = inp.value; else o.castka = Number(inp.value) || 0;
+      prekresliObsah();
+    };
+  });
+}
+
+/** koš na kartě */
+function tlacitkoKose(box, kl, polozky){
+  naVse(box, "[data-"+kl+"del]", function(b){
+    b.onclick = function(){ polozky.splice(+b.dataset[kl+"del"], 1); prekresliVse(); };
+  });
+}
+
+/** zaškrtávátko, které přidává a odebírá jméno v seznamu (osádka, plátci) */
+function prepinacSeznamu(box, sel, seznam){
+  naVse(box, sel, function(cb){
+    cb.onchange = function(){
+      var pole = seznam(cb);
+      if(!pole) return;
+      var kdo = cb.dataset.p, i = pole.indexOf(kdo);
+      if(cb.checked && i === -1) pole.push(kdo);
+      if(!cb.checked && i !== -1) pole.splice(i, 1);
+      var lbl = cb.closest ? cb.closest(".tg") : null;
+      if(lbl) lbl.classList.toggle("on", cb.checked);
+      prekresliObsah();
+    };
+  });
+}
+
+/** kolečko pro jedinou volbu; kliknutím na už vybrané se výběr zase zruší */
+function koleckoJedno(box, sel, nastav, poZmene){
+  naVse(box, sel, function(rb){
+    rb.onclick = function(){
+      var byl = rb.dataset.byl === "1";
+      if(nastav(rb, byl ? "" : rb.dataset.p) === false) return;
+      if(byl) rb.checked = false;
+      prekresli(poZmene);
+    };
+  });
+}
+
 /* ---- editace jízd ---- */
 function renderDoprava(){
-  var box = document.getElementById("dopravaBox");
+  var box = $("dopravaBox");
   if(!box) return;
   var ev = DATA.akce[state.akce];
   if(!ev){ box.innerHTML = ""; return; }
@@ -1727,76 +1756,63 @@ function renderDoprava(){
   box.innerHTML = ev.jizdy.map(function(j, ji){
     var t = j.typ === "externi" ? DOPRAVA.jizdaExterni : DOPRAVA.jizdaInterni;
     var inf = info(t.key, "editjiz");
-    var h = '<div class="jcard"><div class="jhead">'
-      + '<span class="jic">'+(j.typ==="externi" ? "🚐" : "🚗")+'</span>'
-      + '<input type="text" id="jz_'+ji+'_nazev" data-j="'+ji+'" data-jf="nazev" value="'+esc(j.nazev)+'"'
-      + ' placeholder="'+esc(j.typ==="externi" ? "např. autobus" : nazevJizdy({typ:"interni",nazev:"",ridici:j.ridici}))+'">'
-      + '<input type="number" step="0.01" inputmode="decimal" id="jz_'+ji+'_castka" data-j="'+ji+'" data-jf="castka"'
-      + ' value="'+(j.castka ? j.castka : "")+'" placeholder="0" title="Částka v '+esc(DATA.mena)+'">'
-      + '<button class="ikbtn" type="button" data-jdel="'+ji+'" title="Smazat jízdu">🗑</button></div>'
-      + '<div class="jrada"><span class="jlbl">Typ</span><div class="tgs">'
-      + '<span class="jtyp">'+esc(t.label)+'</span>'+inf.btn+'</div></div>'
-      + inf.box;
+    var h = kartaHlavicka({ kl:"j", i:ji, ikona:(j.typ==="externi" ? "🚐" : "🚗"),
+      nazev:j.nazev, castka:j.castka, typ:t.label, info:inf, smazat:"Smazat jízdu",
+      napoveda:(j.typ==="externi" ? "např. autobus"
+                                  : nazevJizdy({typ:"interni",nazev:"",ridici:j.ridici})) });
 
     if(j.typ === "interni"){
-      h += '<div class="jrada"><span class="jlbl">Řídí</span><div class="tgs">'
-        +  DATA.lide.map(function(p){
-             var on = j.ridici.indexOf(p) !== -1;
-             return '<label class="tg'+(on?" on":"")+'"><input type="checkbox" data-j="'+ji+'" data-jrole="ridici"'
-                  + ' data-p="'+esc(p)+'"'+(on?" checked":"")+'>'+esc(p)+'</label>';
-           }).join("") + '</div></div>';
+      // Řidič je vždycky jeden — proto kolečka, stejně jako u interního nákladu.
+      h += radaLidi("Řidič", DATA.lide.map(function(p){
+        var on = j.ridici.indexOf(p) !== -1;
+        return tg(esc(p), '<input type="radio" name="jzr_'+ji+'"'
+                        + ' data-j="'+ji+'" data-jridic="1" data-p="'+esc(p)+'"'
+                        + (on ? ' checked data-byl="1"' : '')+'>', on);
+      }).join(""));
     }
-    h += '<div class="jrada"><span class="jlbl">Vezli se</span><div class="tgs">'
-      +  DATA.lide.map(function(p){
-           var on = j.pasazeri.indexOf(p) !== -1;
-           if(j.typ === "interni" && j.ridici.indexOf(p) !== -1)
-             return '<label class="tg on locked" title="Řidič se do dělení počítá automaticky">'
-                  + '<input type="checkbox" checked disabled>'+esc(p)+'</label>';
-           return '<label class="tg'+(on?" on":"")+'"><input type="checkbox" data-j="'+ji+'" data-jrole="pasazeri"'
-                + ' data-p="'+esc(p)+'"'+(on?" checked":"")+'>'+esc(p)+'</label>';
-         }).join("") + '</div></div></div>';
+    h += radaLidi("Vezli se", DATA.lide.map(function(p){
+      if(j.typ === "interni" && j.ridici.indexOf(p) !== -1)
+        return tg(esc(p), '<input type="checkbox" checked disabled>', true,
+                  "locked", "Řidič se do dělení počítá automaticky");
+      var on = j.pasazeri.indexOf(p) !== -1;
+      return tg(esc(p), '<input type="checkbox" data-j="'+ji+'" data-jrole="pasazeri"'
+                      + ' data-p="'+esc(p)+'"'+(on?" checked":"")+'>', on);
+    }).join("")) + '</div>';
     return h;
   }).join("");
 
   oznacitVse("dopravaBox");
 
-  Array.prototype.forEach.call(box.querySelectorAll("input[data-jf]"), function(inp){
-    inp.oninput = function(){
-      var j = ev.jizdy[+inp.dataset.j];
-      if(!j) return;
-      if(inp.dataset.jf === "nazev") j.nazev = inp.value; else j.castka = Number(inp.value) || 0;
-      prekresli(function(){ renderContent(false); });
-    };
+  polePolozky(box, "j", ev.jizdy);
+  prepinacSeznamu(box, "input[data-jrole]:not(:disabled)", function(cb){
+    var j = ev.jizdy[+cb.dataset.j];
+    return j && j.pasazeri;
   });
-  Array.prototype.forEach.call(box.querySelectorAll("input[data-jrole]:not(:disabled)"), function(cb){
-    cb.onchange = function(){
-      var j = ev.jizdy[+cb.dataset.j], role = cb.dataset.jrole, kdo = cb.dataset.p;
-      if(!j) return;
-      var pole = j[role], i = pole.indexOf(kdo);
-      if(cb.checked && i === -1) pole.push(kdo);
-      if(!cb.checked && i !== -1) pole.splice(i,1);
-      var lbl = cb.closest ? cb.closest(".tg") : null;
-      if(lbl) lbl.classList.toggle("on", cb.checked);
-      prekresli(function(){ if(role === "ridici") renderAll(false); else renderContent(false); });
-      // změna řidiče mění i odvozený název jízdy, proto se překreslí celá doprava
-    };
-  });
-  Array.prototype.forEach.call(box.querySelectorAll("[data-jdel]"), function(b){
-    b.onclick = function(){ ev.jizdy.splice(+b.dataset.jdel, 1); prekresli(function(){ renderAll(false); }); };
-  });
+  // změna řidiče mění i odvozený název jízdy, proto se překresluje všechno
+  koleckoJedno(box, "input[data-jridic]", function(rb, kdo){
+    var j = ev.jizdy[+rb.dataset.j];
+    if(!j) return false;
+    j.ridici = kdo ? [kdo] : [];
+  }, function(){ renderAll(false); });
+  tlacitkoKose(box, "j", ev.jizdy);
+}
+
+/** přidá položku do akce, překreslí a rozbalí příslušný oddíl */
+function pridejPolozku(kam, polozka, panel){
+  var ev = DATA.akce[state.akce];
+  if(!ev) return;
+  ev[kam].push(polozka);
+  renderAll(false);
+  otevriPanel(panel);
 }
 
 function pridejJizdu(typ){
-  var ev = DATA.akce[state.akce];
-  if(!ev) return;
-  ev.jizdy.push({ typ:typ, nazev:"", castka:0, ridici:[], pasazeri:[] });
-  renderAll(false);
-  otevriPanel("bDoprava");
+  pridejPolozku("jizdy", { typ:typ, nazev:"", castka:0, ridici:[], pasazeri:[] }, "bDoprava");
 }
 
 /* ---- editace nákladů ---- */
 function renderNaklady(){
-  var box = document.getElementById("nakladyBox");
+  var box = $("nakladyBox");
   if(!box) return;
   var ev = DATA.akce[state.akce];
   if(!ev){ box.innerHTML = ""; return; }
@@ -1808,82 +1824,50 @@ function renderNaklady(){
   box.innerHTML = ev.naklady.map(function(n, ni){
     var t = NAKLADY_TYPY[n.typ] || NAKLADY_TYPY.externiHromadny;
     var inf = info("n_"+t.key, "editnak");
-    var h = '<div class="jcard"><div class="jhead">'
-      + '<span class="jic">'+t.ikona+'</span>'
-      + '<input type="text" id="nk_'+ni+'_nazev" data-n="'+ni+'" data-nf="nazev" value="'+esc(n.nazev)+'"'
-      + ' placeholder="'+esc(t.label.toLowerCase())+'">'
-      + '<input type="number" step="0.01" inputmode="decimal" id="nk_'+ni+'_castka" data-n="'+ni+'" data-nf="castka"'
-      + ' value="'+(n.castka ? n.castka : "")+'" placeholder="0" title="Částka v '+esc(DATA.mena)+'">'
-      + '<button class="ikbtn" type="button" data-ndel="'+ni+'" title="Smazat náklad">🗑</button></div>'
-      + '<div class="jrada"><span class="jlbl">Typ</span><div class="tgs">'
-      + '<span class="jtyp">'+esc(t.label)+'</span>'+inf.btn+'</div></div>'
-      + inf.box;
+    var h = kartaHlavicka({ kl:"n", i:ni, ikona:t.ikona, nazev:n.nazev, castka:n.castka,
+      typ:t.label, info:inf, smazat:"Smazat náklad", napoveda:t.label.toLowerCase() });
 
     if(n.typ === "interni"){
-      h += '<div class="jrada"><span class="jlbl">Zaplatil</span><div class="tgs">'
-        +  DATA.lide.map(function(p){
-             var on = n.prijemce === p;
-             return '<label class="tg'+(on?" on":"")+'"><input type="radio" name="nkp_'+ni+'"'
-                  + ' data-n="'+ni+'" data-nprij="1" data-p="'+esc(p)+'"'+(on?" checked":"")+'>'+esc(p)+'</label>';
-           }).join("") + '</div></div>';
+      h += radaLidi("Zaplatil", DATA.lide.map(function(p){
+        var on = n.prijemce === p;
+        return tg(esc(p), '<input type="radio" name="nkp_'+ni+'"'
+                        + ' data-n="'+ni+'" data-nprij="1" data-p="'+esc(p)+'"'
+                        + (on ? ' checked data-byl="1"' : '')+'>', on);
+      }).join(""));
     }
 
     var lbl = n.typ === "interni" ? "Složí se" : (n.typ === "externiIndiv" ? "Platí" : "Dělí se");
-    h += '<div class="jrada"><span class="jlbl">'+lbl+'</span><div class="tgs">'
-      +  DATA.lide.map(function(p){
-           var on = n.platci.indexOf(p) !== -1;
-           return '<label class="tg'+(on?" on":"")+'"><input type="checkbox" data-n="'+ni+'" data-nplat="1"'
-                + ' data-p="'+esc(p)+'"'+(on?" checked":"")+'>'+esc(p)+'</label>';
-         }).join("") + '</div></div></div>';
+    h += radaLidi(lbl, DATA.lide.map(function(p){
+      var on = n.platci.indexOf(p) !== -1;
+      return tg(esc(p), '<input type="checkbox" data-n="'+ni+'" data-nplat="1"'
+                      + ' data-p="'+esc(p)+'"'+(on?" checked":"")+'>', on);
+    }).join("")) + '</div>';
     return h;
   }).join("");
 
   oznacitVse("nakladyBox");
 
-  Array.prototype.forEach.call(box.querySelectorAll("input[data-nf]"), function(inp){
-    inp.oninput = function(){
-      var n = ev.naklady[+inp.dataset.n];
-      if(!n) return;
-      if(inp.dataset.nf === "nazev") n.nazev = inp.value; else n.castka = Number(inp.value) || 0;
-      prekresli(function(){ renderContent(false); });
-    };
+  polePolozky(box, "n", ev.naklady);
+  prepinacSeznamu(box, "input[data-nplat]", function(cb){
+    var n = ev.naklady[+cb.dataset.n];
+    return n && n.platci;
   });
-  Array.prototype.forEach.call(box.querySelectorAll("input[data-nplat]"), function(cb){
-    cb.onchange = function(){
-      var n = ev.naklady[+cb.dataset.n], kdo = cb.dataset.p;
-      if(!n) return;
-      var i = n.platci.indexOf(kdo);
-      if(cb.checked && i === -1) n.platci.push(kdo);
-      if(!cb.checked && i !== -1) n.platci.splice(i,1);
-      var lb = cb.closest ? cb.closest(".tg") : null;
-      if(lb) lb.classList.toggle("on", cb.checked);
-      prekresli(function(){ renderContent(false); });
-    };
-  });
-  Array.prototype.forEach.call(box.querySelectorAll("input[data-nprij]"), function(rb){
-    rb.onchange = function(){
-      var n = ev.naklady[+rb.dataset.n];
-      if(!n) return;
-      n.prijemce = rb.checked ? rb.dataset.p : "";
-      prekresli(function(){ renderNaklady(); renderContent(false); });
-    };
-  });
-  Array.prototype.forEach.call(box.querySelectorAll("[data-ndel]"), function(b){
-    b.onclick = function(){ ev.naklady.splice(+b.dataset.ndel, 1); prekresli(function(){ renderAll(false); }); };
-  });
+  // výběr toho, kdo zaplatil, mění i zámek u „Složí se“, proto se překreslí i karty
+  koleckoJedno(box, "input[data-nprij]", function(rb, kdo){
+    var n = ev.naklady[+rb.dataset.n];
+    if(!n) return false;
+    n.prijemce = kdo;
+  }, function(){ renderNaklady(); renderContent(false); });
+  tlacitkoKose(box, "n", ev.naklady);
 }
 
 function pridejNaklad(typ){
-  var ev = DATA.akce[state.akce];
-  if(!ev) return;
-  ev.naklady.push({ typ:typ, nazev:"", castka:0, prijemce:"", platci:[] });
-  renderAll(false);
-  otevriPanel("bNaklady");
+  pridejPolozku("naklady", { typ:typ, nazev:"", castka:0, prijemce:"", platci:[] }, "bNaklady");
 }
 
 /** rozbalí sbalovací panel podle id (a nechá hlavičku ve správném stavu) */
 function otevriPanel(id){
-  var box = document.getElementById(id);
+  var box = $(id);
   if(!box || box.classList.contains("open")) return;
   box.classList.add("open");
   var hd = document.querySelector('[data-skl="'+id+'"]');
@@ -1914,7 +1898,7 @@ function serialize(){
 }
 
 function toast(msg){
-  var t = document.getElementById("toast");
+  var t = $("toast");
   t.textContent = msg; t.classList.add("show");
   clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 2800);
 }
@@ -1933,9 +1917,9 @@ function copy(text, ok){
 }
 
 function shareLink(){
-  var by = new TextEncoder().encode(serialize()), bin = "";
-  by.forEach(function(b){ bin += String.fromCharCode(b); });
-  return location.origin + location.pathname + "#d=" + btoa(bin).replace(/\+/g,"-").replace(/\//g,"_");
+  // stejné kódování jako pro GitHub, jen v URL-bezpečné podobě
+  return location.origin + location.pathname + "#d="
+       + b64enc(serialize()).replace(/\+/g,"-").replace(/\//g,"_");
 }
 
 /* =========================================================
@@ -1944,6 +1928,12 @@ function shareLink(){
    nikdy se nezapisují do index.html ani do odkazu s daty.
    ========================================================= */
 var GH_KEY = "vystoupeni.github";
+/** datový blok ve zdroji stránky — jedno místo pro hledání i výměnu */
+var DATOVY_BLOK = /(<script id="data" type="application\/json">)[\s\S]*?(<\/script>)/;
+/** vymění datový blok ve zdroji stránky za aktuální data */
+function vlozData(src){
+  return src.replace(DATOVY_BLOK, function(_, a, b){ return a + "\n" + serialize() + "\n" + b; });
+}
 
 function ghLoad(){ try{ return JSON.parse(localStorage.getItem(GH_KEY) || "null"); }catch(e){ return null; } }
 function ghStore(c){ try{ localStorage.setItem(GH_KEY, JSON.stringify(c)); return true; }catch(e){ return false; } }
@@ -1960,6 +1950,7 @@ function b64enc(str){
   return btoa(bin);
 }
 
+
 function ghFetch(cfg, path, opts){
   opts = opts || {};
   opts.headers = {
@@ -1968,6 +1959,12 @@ function ghFetch(cfg, path, opts){
     "X-GitHub-Api-Version": "2022-11-28"
   };
   return fetch("https://api.github.com/repos/" + cfg.repo + path, opts);
+}
+
+/** společná kontrola odpovědi GitHubu */
+function ghOdpoved(r){
+  if(!r.ok) throw new Error(ghChyba(r.status));
+  return r.json();
 }
 
 function ghChyba(status){
@@ -1983,10 +1980,7 @@ function ghChyba(status){
 /** načte aktuální index.html z repozitáře */
 function ghNacti(cfg){
   return ghFetch(cfg, "/contents/" + encodeURI(cfg.path) + "?ref=" + encodeURIComponent(cfg.branch))
-    .then(function(r){
-      if(!r.ok) throw new Error(ghChyba(r.status));
-      return r.json();
-    })
+    .then(ghOdpoved)
     .then(function(j){
       if(!j.content) throw new Error("Soubor je moc velký na přímé čtení přes API.");
       return { sha:j.sha, text:b64dec(j.content) };
@@ -1998,17 +1992,16 @@ function ghPublikuj(){
   var cfg = ghLoad();
   if(!cfg){ toast("Nejdřív připoj GitHub v sekci Uložení na web."); return Promise.resolve(); }
 
-  var btns = [document.getElementById("btnPublish"), document.getElementById("ghSaveBtn")].filter(Boolean);
+  var btns = [$("btnPublish"), $("ghSaveBtn")].filter(Boolean);
   btns.forEach(function(b){ b.classList.add("busy"); b.disabled = true; });
 
-  var novaData = serialize(); // orazítkuje i datum aktualizace
+  serialize(); // orazítkuje datum aktualizace ještě před čtením ze serveru
 
   return ghNacti(cfg)
     .then(function(f){
-      if(!/<script id="data" type="application\/json">[\s\S]*?<\/script>/.test(f.text))
+      if(!DATOVY_BLOK.test(f.text))
         throw new Error("V souboru na GitHubu nenajdu datový blok. Je " + cfg.path + " opravdu tahle aplikace?");
-      var out = f.text.replace(/(<script id="data" type="application\/json">)[\s\S]*?(<\/script>)/,
-        function(_,a,b){ return a + "\n" + novaData + "\n" + b; });
+      var out = vlozData(f.text);
       if(out === f.text) throw new Error("Nebylo co uložit — data jsou stejná jako na webu.");
       return ghFetch(cfg, "/contents/" + encodeURI(cfg.path), {
         method: "PUT",
@@ -2020,10 +2013,7 @@ function ghPublikuj(){
         })
       });
     })
-    .then(function(r){
-      if(!r.ok) throw new Error(ghChyba(r.status));
-      return r.json();
-    })
+    .then(ghOdpoved)
     .then(function(j){
       var url = j && j.commit && j.commit.html_url;
       renderGh(url ? { ulozeno:true, odkaz:url } : { ulozeno:true });
@@ -2043,7 +2033,7 @@ function ghPublikuj(){
 function ghOtestuj(){
   var cfg = ghLoad();
   if(!cfg) return;
-  var b = document.getElementById("ghTestBtn");
+  var b = $("ghTestBtn");
   if(b){ b.classList.add("busy"); b.disabled = true; }
   ghNacti(cfg)
     .then(function(){ renderGh({ test:"Spojení funguje — soubor se načetl a token platí. (Tímto se ověřuje čtení; "
@@ -2053,7 +2043,7 @@ function ghOtestuj(){
 }
 
 function renderGh(stav){
-  var box = document.getElementById("ghBox");
+  var box = $("ghBox");
   if(!box) return;
   stav = stav || {};
   var cfg = ghLoad();
@@ -2100,18 +2090,18 @@ function renderGh(stav){
   box.innerHTML = h;
   oznacitVse("ghBox");
 
-  var el;
-  if((el = document.getElementById("ghSaveBtn")))   el.onclick = ghPublikuj;
-  if((el = document.getElementById("ghTestBtn")))   el.onclick = ghOtestuj;
-  if((el = document.getElementById("ghForgetBtn"))) el.onclick = function(){
+  klik("ghSaveBtn", ghPublikuj);
+  klik("ghTestBtn", ghOtestuj);
+  klik("ghForgetBtn", function(){
     if(!confirm("Odpojit GitHub a smazat token z tohoto prohlížeče?")) return;
     ghForget(); renderGh(); toast("Odpojeno, token smazán z prohlížeče.");
-  };
-  if((el = document.getElementById("ghConnectBtn"))) el.onclick = function(){
-    var repo   = (document.getElementById("ghRepo").value || "").trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,"");
-    var branch = (document.getElementById("ghBranch").value || "main").trim();
-    var path   = (document.getElementById("ghPath").value || "index.html").trim().replace(/^\//,"");
-    var token  = (document.getElementById("ghToken").value || "").trim();
+  });
+  klik("ghConnectBtn", function(){
+    var el     = this;
+    var repo   = ($("ghRepo").value || "").trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,"");
+    var branch = ($("ghBranch").value || "main").trim();
+    var path   = ($("ghPath").value || "index.html").trim().replace(/^\//,"");
+    var token  = ($("ghToken").value || "").trim();
     if(!/^[\w.-]+\/[\w.-]+$/.test(repo)) return renderGh({ chyba:"Repozitář zadej ve tvaru jmeno/vystoupeni." });
     if(!token) return renderGh({ chyba:"Vyplň token." });
 
@@ -2119,7 +2109,7 @@ function renderGh(stav){
     el.classList.add("busy"); el.disabled = true;
     ghNacti(cfg)
       .then(function(f){
-        if(!/<script id="data" type="application\/json">/.test(f.text))
+        if(!DATOVY_BLOK.test(f.text))
           throw new Error("Soubor " + path + " se načetl, ale nevypadá jako tahle aplikace — zkontroluj cestu.");
         if(!ghStore(cfg)) throw new Error("Prohlížeč nedovolil uložit nastavení (nemáš zapnuté blokování úložiště?).");
         renderGh({ test:"Připojeno — soubor se načetl a token má právo čtení. Právo zápisu se ověří až prvním "
@@ -2127,25 +2117,26 @@ function renderGh(stav){
       })
       .catch(function(e){ renderGh({ chyba:e.message }); })
       .then(function(){ el.classList.remove("busy"); el.disabled = false; });
-  };
+  });
+}
+
+/** nabídne soubor ke stažení */
+function stahni(obsah, typ, jmeno){
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([obsah], { type:typ }));
+  a.download = jmeno; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
 }
 
 function exportHtml(){
   fetch(location.pathname + "?v=" + Date.now(), { cache:"no-store" })
     .then(function(r){ if(!r.ok) throw 0; return r.text(); })
     .then(function(src){
-      var out = src.replace(/(<script id="data" type="application\/json">)[\s\S]*?(<\/script>)/,
-        function(_,a,b){ return a + "\n" + serialize() + "\n" + b; });
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([out],{type:"text/html"}));
-      a.download = "index.html"; a.click();
-      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+      stahni(vlozData(src), "text/html", "index.html");
       toast("Staženo — nahraj index.html místo původního souboru.");
     })
     .catch(function(){
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([serialize()],{type:"application/json"}));
-      a.download = "data.json"; a.click();
+      stahni(serialize(), "application/json", "data.json");
       toast("Web nešel načíst, stáhla se aspoň data (data.json).");
     });
 }
@@ -2156,8 +2147,8 @@ function exportHtml(){
 if(EDIT) document.body.classList.add("editing");
 renderAll(false);
 
-document.getElementById("evClose").onclick = zavriNabidku;
-document.getElementById("evBack").onclick  = zavriNabidku;
+klik("evClose", zavriNabidku);
+klik("evBack",  zavriNabidku);
 
 // Při přechodu mezi mobilním a širokým rozvržením překreslíme, ať se použije správná varianta tabulek.
 (function(){
@@ -2168,48 +2159,48 @@ document.getElementById("evBack").onclick  = zavriNabidku;
 })();
 
 if(EDIT){
-  document.getElementById("btnAddEvent").onclick = function(){ newEvent(null); };
-  document.getElementById("btnDupEvent").onclick = function(){ if(DATA.akce[state.akce]) newEvent(DATA.akce[state.akce]); };
-  document.getElementById("btnDelEvent").onclick = function(){
+  klik("btnAddEvent", function(){ newEvent(null); });
+  klik("btnDupEvent", function(){ if(DATA.akce[state.akce]) newEvent(DATA.akce[state.akce]); });
+  klik("btnDelEvent", function(){
     if(!DATA.akce.length) return;
     if(!confirm("Opravdu smazat akci „"+nazevAkce(DATA.akce[state.akce])+"“?")) return;
     DATA.akce.splice(state.akce,1); state.akce = Math.max(0,state.akce-1); renderAll(true);
-  };
-  document.getElementById("btnAddInterni").onclick = function(){ pridejJizdu("interni"); };
-  document.getElementById("btnAddExterni").onclick = function(){ pridejJizdu("externi"); };
-  document.getElementById("btnAddNInterni").onclick = function(){ pridejNaklad("interni"); };
-  document.getElementById("btnAddNIndiv").onclick   = function(){ pridejNaklad("externiIndiv"); };
-  document.getElementById("btnAddNHrom").onclick    = function(){ pridejNaklad("externiHromadny"); };
-  document.getElementById("btnAddPerson").onclick = function(){
+  });
+  klik("btnAddInterni",  function(){ pridejJizdu("interni"); });
+  klik("btnAddExterni",  function(){ pridejJizdu("externi"); });
+  klik("btnAddNInterni", function(){ pridejNaklad("interni"); });
+  klik("btnAddNIndiv",   function(){ pridejNaklad("externiIndiv"); });
+  klik("btnAddNHrom",    function(){ pridejNaklad("externiHromadny"); });
+  klik("btnAddPerson", function(){
     var n = "Nový", i = 2;
     while(DATA.lide.indexOf(n) !== -1) n = "Nový "+(i++);
     DATA.lide.push(n); renderAll(false);
-  };
-  document.getElementById("btnPublish").onclick = ghPublikuj;
-  document.getElementById("btnExport").onclick = exportHtml;
+  });
+  klik("btnPublish", ghPublikuj);
+  klik("btnExport", exportHtml);
   renderGh();
-  document.getElementById("btnLink").onclick = function(){ copy(shareLink(), "Odkaz zkopírován do schránky."); };
-  document.getElementById("btnCopyData").onclick = function(){ copy(serialize(), "Data zkopírována do schránky."); };
-  document.getElementById("btnShowImport").onclick = function(){
-    var box = document.getElementById("impBox");
+  klik("btnLink", function(){ copy(shareLink(), "Odkaz zkopírován do schránky."); });
+  klik("btnCopyData", function(){ copy(serialize(), "Data zkopírována do schránky."); });
+  klik("btnShowImport", function(){
+    var box = $("impBox");
     box.classList.toggle("open");
-    if(box.classList.contains("open")) setTimeout(function(){ document.getElementById("impText").focus(); }, 260);
-  };
-  document.getElementById("btnCancelImport").onclick = function(){
-    document.getElementById("impBox").classList.remove("open");
-    document.getElementById("impText").value = "";
-    document.getElementById("impMsg").innerHTML = "";
-  };
-  document.getElementById("btnDoImport").onclick = function(){
-    var t = (document.getElementById("impText").value || "").trim();
-    var msg = document.getElementById("impMsg");
+    if(box.classList.contains("open")) setTimeout(function(){ $("impText").focus(); }, 260);
+  });
+  klik("btnCancelImport", function(){
+    $("impBox").classList.remove("open");
+    $("impText").value = "";
+    $("impMsg").innerHTML = "";
+  });
+  klik("btnDoImport", function(){
+    var t = ($("impText").value || "").trim();
+    var msg = $("impMsg");
     if(!t){ msg.innerHTML = '<div class="warnbox">⚠️ Nejdřív vlož data.</div>'; return; }
     var r = importData(t);
     if(r.chyba){ msg.innerHTML = '<div class="warnbox">⚠️ '+esc(r.chyba)+'</div>'; return; }
     msg.innerHTML = '<div class="okbox">✓ '+esc(r.ok)+'</div>';
     toast("Data načtena. Ještě je ulož na web.");
-  };
-  document.getElementById("btnLeave").onclick = function(){ location.href = location.pathname; };
+  });
+  klik("btnLeave", function(){ location.href = location.pathname; });
 }
 
 /* ---- přenos dat mezi verzemi kódu ---- */
@@ -2234,6 +2225,7 @@ window.__vypocet = function(i){
   return compute(DATA.akce[i], DATA.lide, DATA.bonusOrganizatoraProcent);
 };
 window.__data = function(){ return DATA; };
+window.__prekresli = function(){ renderAll(false); };
 
 })();
 </script>
