@@ -624,7 +624,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-27",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -640,11 +640,6 @@
     "Patrik": "5041810053/0800",
     "Miloš": "271241340/0600",
     "Kája": "2894212123/0800"
-  },
-  "potvrzeni": {
-    "url": "",
-    "hlavicka": "",
-    "hodnota": ""
   },
   "akce": [
     {
@@ -715,8 +710,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "almh53llc"
+      }
     },
     {
       "nazev": "Slavnosti mrkve 2026",
@@ -749,8 +743,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "a6redu5ci"
+      }
     }
   ]
 }
@@ -1588,7 +1581,7 @@ function renderContent(animate){
         .then(function(){ toast(chce ? "Označeno, že peníze dorazily." : "Označení zrušeno."); })
         .catch(function(e){
           POTVRZENO[k] = !chce;
-          toast(e.message || "Nepodařilo se uložit — zkus to znovu.");
+          toast("Nepodařilo se uložit. " + potvrzeniChybaText(e));
         })
         .then(function(){ renderContent(false); });
     };
@@ -2029,20 +2022,38 @@ var POTVRZENI_NACTENO = 0;   // čas posledního načtení
 function potvrzeniZapnuto(){ return !!(DATA.potvrzeni && DATA.potvrzeni.url); }
 function klicPlatby(ev, jmeno){ return ev.id + "|" + jmeno; }
 
-function potvrzeniHlavicky(){
-  var c = DATA.potvrzeni || {}, h = { "Content-Type": "application/json" };
+/** hlavičky požadavku; Content-Type přidáváme jen u zápisu — u čtení by zbytečně
+    vyvolal CORS preflight, který některá úložiště neumí zodpovědět */
+function potvrzeniHlavicky(zapis){
+  var c = DATA.potvrzeni || {}, h = { "Accept": "application/json" };
+  if(zapis) h["Content-Type"] = "application/json";
   if(c.hlavicka && c.hodnota) h[c.hlavicka] = c.hodnota;
   return h;
+}
+
+/** převede jakýkoli průšvih na srozumitelnou českou větu */
+function potvrzeniChybaText(e){
+  if(e && e.stav === 404) return "Úložiště na téhle adrese neexistuje (404) — zkontroluj adresu.";
+  if(e && e.stav === 405) return "Úložiště na téhle adrese nedovoluje zápis (405) — nejspíš to není API adresa.";
+  if(e && e.stav) return "Úložiště odpovědělo chybou " + e.stav + ".";
+  if(e && e.sit) return "Prohlížeč se k úložišti vůbec nedostal. Bývá to blokátor reklam nebo "
+                      + "ochrana soukromí v prohlížeči, případně úložiště nepovoluje přístup z jiné stránky (CORS).";
+  return (e && e.message) || "Spojení se nezdařilo.";
+}
+
+/** fetch, který síťový pád rozliší od chybové odpovědi serveru */
+function potvrzeniFetch(vol){
+  return fetch(DATA.potvrzeni.url, vol).then(function(r){
+    if(!r.ok){ var x = new Error("stav " + r.status); x.stav = r.status; throw x; }
+    return r;
+  }, function(){ var x = new Error("síť"); x.sit = true; throw x; });
 }
 
 /** stáhne aktuální stav ze serveru */
 function potvrzeniNacti(){
   if(!potvrzeniZapnuto()) return Promise.resolve({});
-  return fetch(DATA.potvrzeni.url, { headers: potvrzeniHlavicky(), cache: "no-store" })
-    .then(function(r){
-      if(!r.ok) throw new Error("Úložiště odpovědělo chybou " + r.status + ".");
-      return r.json();
-    })
+  return potvrzeniFetch({ headers: potvrzeniHlavicky(false), cache: "no-store" })
+    .then(function(r){ return r.json(); })
     .then(function(j){ return (j && typeof j === "object" && !Array.isArray(j)) ? j : {}; });
 }
 
@@ -2050,12 +2061,9 @@ function potvrzeniNacti(){
 function potvrzeniUloz(klic, hodnota){
   return potvrzeniNacti().then(function(server){
     if(hodnota) server[klic] = true; else delete server[klic];
-    return fetch(DATA.potvrzeni.url, {
-      method: "PUT", headers: potvrzeniHlavicky(), body: JSON.stringify(server)
-    }).then(function(r){
-      if(!r.ok) throw new Error("Uložení se nezdařilo — úložiště odpovědělo " + r.status + ".");
-      return server;
-    });
+    return potvrzeniFetch({
+      method: "PUT", headers: potvrzeniHlavicky(true), body: JSON.stringify(server)
+    }).then(function(){ return server; });
   });
 }
 
@@ -2065,7 +2073,7 @@ function obnovPotvrzeni(){
   POTVRZENI_NACTENO = Date.now();
   return potvrzeniNacti()
     .then(function(stav){ POTVRZENO = stav; POTVRZENI_CHYBA = ""; })
-    .catch(function(e){ POTVRZENI_CHYBA = e.message || "Úložiště je nedostupné."; })
+    .catch(function(e){ POTVRZENI_CHYBA = potvrzeniChybaText(e); })
     .then(function(){ renderContent(false); if(EDIT) renderPotvrzeni(); });
 }
 
@@ -2340,15 +2348,19 @@ function renderPotvrzeni(stav){
   klik("ptTestBtn", function(){
     var b = this;
     b.classList.add("busy"); b.disabled = true;
-    var zkusebni = "__zkouska";
-    potvrzeniUloz(zkusebni, true)
+    var zkusebni = "__zkouska", cetlo = false;
+    potvrzeniNacti()
+      .then(function(){ cetlo = true; return potvrzeniUloz(zkusebni, true); })
       .then(function(){ return potvrzeniUloz(zkusebni, false); })
       .then(function(){ return obnovPotvrzeni(); })
       .then(function(){
         renderPotvrzeni(POTVRZENI_CHYBA ? { chyba: POTVRZENI_CHYBA }
                                         : { ok: "Úložiště funguje — zápis i čtení proběhly." });
       })
-      .catch(function(e){ renderPotvrzeni({ chyba: e.message || "Spojení se nezdařilo." }); });
+      .catch(function(e){
+        renderPotvrzeni({ chyba: (cetlo ? "Čtení funguje, ale zápis ne. " : "Čtení se nezdařilo. ")
+                                 + potvrzeniChybaText(e) });
+      });
   });
 
   klik("ptNewBtn", function(){
@@ -2364,7 +2376,7 @@ function renderPotvrzeni(stav){
         return obnovPotvrzeni();
       })
       .then(function(){ renderPotvrzeni({ ok:"Úložiště založeno a nastaveno. Ještě to ulož na web." }); })
-      .catch(function(e){ renderPotvrzeni({ chyba: e.message || "Založení se nezdařilo." }); });
+      .catch(function(e){ renderPotvrzeni({ chyba: potvrzeniChybaText(e) }); });
   });
 }
 
