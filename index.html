@@ -211,6 +211,11 @@
   .platba.ano{border-color:transparent;background:rgba(31,122,77,.12);color:var(--pos);font-weight:600}
   @media (prefers-color-scheme: dark){.platba.ano{background:rgba(95,217,154,.14)}}
   .platba input:disabled{opacity:.5;cursor:progress}
+  /* po minutě se zaškrtnutí zamkne — zůstane vidět, ale nejde přepnout */
+  .platba.zamek{cursor:default;border-color:transparent}
+  .platba.zamek .fajf{display:inline-flex;align-items:center;justify-content:center;
+       width:15px;height:15px;border-radius:4px;background:var(--pos);color:#fff;
+       font-size:10px;line-height:1;font-weight:700}
   .amount{grid-area:amt;font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.018em}
   .chev{grid-area:chev;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
   [aria-expanded="true"] > .chev{transform:rotate(90deg)}
@@ -626,7 +631,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-27",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -642,11 +647,6 @@
     "Patrik": "5041810053/0800",
     "Miloš": "271241340/0600",
     "Kája": "2894212123/0800"
-  },
-  "potvrzeni": {
-    "url": "https://airtribe-b5446-default-rtdb.europe-west1.firebasedatabase.app/platby.json",
-    "hlavicka": "",
-    "hodnota": ""
   },
   "akce": [
     {
@@ -717,8 +717,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "aj7mnjwpv"
+      }
     },
     {
       "nazev": "Slavnosti mrkve 2026",
@@ -751,8 +750,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "at7ptnz3x"
+      }
     }
   ]
 }
@@ -825,13 +823,21 @@ function normalize(d){
   d.lide.forEach(function(x){ if(ucty[x]) d.ucty[x] = String(ucty[x]).trim(); });
   // Adresa sdíleného úložiště pro potvrzení plateb (viz oddíl Potvrzení plateb).
   var pot = d.potvrzeni && typeof d.potvrzeni === "object" ? d.potvrzeni : {};
+  /* jednoduchý stálý otisk textu — jen na náhradní id akce, nic bezpečnostního */
+  function odvozeneId(ev, i){
+    var s = i + "|" + (ev.datum || "") + "|" + (ev.nazev || ""), h = 5381, j;
+    for(j = 0; j < s.length; j++) h = ((h * 33) ^ s.charCodeAt(j)) >>> 0;
+    return "a" + h.toString(36);
+  }
   d.potvrzeni = { url: String(pot.url || "").trim(),
                   hlavicka: String(pot.hlavicka || "").trim(),
                   hodnota: String(pot.hodnota || "").trim() };
   d.akce = Array.isArray(d.akce) ? d.akce : [];
-  d.akce.forEach(function(ev){
+  d.akce.forEach(function(ev, i){
     // Stálé id akce — potvrzení plateb se na něj váže, ať přejmenování nic nerozhodí.
-    if(typeof ev.id !== "string" || !ev.id) ev.id = "a" + Math.random().toString(36).slice(2, 10);
+    // Když ještě chybí, odvodíme ho z pořadí, data a názvu, aby všem prohlížečům
+    // vyšlo stejné i předtím, než se soubor poprvé uloží s vyplněnými id.
+    if(typeof ev.id !== "string" || !ev.id) ev.id = odvozeneId(ev, i);
     if(typeof ev.nazev !== "string") ev.nazev = "";
     if(typeof ev.datum !== "string") ev.datum = "";
     AMOUNTS.forEach(function(a){ ev[a.key] = Number(ev[a.key]) || 0; });
@@ -1583,18 +1589,21 @@ function renderContent(animate){
 
   naVse(host, "input[data-platba]", function(cb){
     cb.onchange = function(){
-      var k = cb.dataset.platba, chce = cb.checked;
-      POTVRZENO[k] = chce;                 // ať to hned vidí, než doletí odpověď
+      var k = cb.dataset.platba, chce = cb.checked, puvodni = POTVRZENO[k], ted = Date.now();
+      POTVRZENO[k] = chce ? ted : undefined;   // ať to hned vidí, než doletí odpověď
       cb.disabled = true;
-      potvrzeniUloz(k, chce)
-        .then(function(){ toast(chce ? "Označeno, že peníze dorazily." : "Označení zrušeno."); })
+      potvrzeniUloz(k, chce ? ted : false)
+        .then(function(){
+          toast(chce ? "Označeno. Do minuty to jde ještě vzít zpět." : "Označení zrušeno.");
+        })
         .catch(function(e){
-          POTVRZENO[k] = !chce;
+          POTVRZENO[k] = puvodni;
           toast("Nepodařilo se uložit. " + potvrzeniChybaText(e));
         })
         .then(function(){ renderContent(false); });
     };
   });
+  naplanujZamek(host);
 
   renderKontrola(R, ev);
 }
@@ -1624,10 +1633,35 @@ function renderKontrola(R, ev){
 /** zaškrtávátko „peníze dorazily“ — vidí a přepíná ho každý, kdo má odkaz */
 function platbaChip(ev, jmeno){
   if(!potvrzeniZapnuto()) return "";
-  var k = klicPlatby(ev, jmeno), on = POTVRZENO[k] === true;
+  var k = klicPlatby(ev, jmeno), v = POTVRZENO[k], on = !!v;
+  var zamek = on && !EDIT && platbaZamcena(v);
+  if(zamek)
+    return '<div class="platbarow"><span class="platba ano zamek" '
+         + 'title="Potvrzeno — vzít zpět to už může jen správce v editaci.">'
+         + '<span class="fajf" aria-hidden="true">✓</span>peníze dorazily</span></div>';
   return '<div class="platbarow"><label class="platba'+(on ? " ano" : "")+'">'
        + '<input type="checkbox" data-platba="'+esc(k)+'"'+(on ? " checked" : "")+'>'
        + (on ? "peníze dorazily" : "přišly mi peníze") + '</label></div>';
+}
+
+/** naplánuje překreslení na okamžik, kdy se nejbližší zaškrtnutí zamkne */
+function naplanujZamek(host){
+  clearTimeout(PLATBA_CASOVAC);
+  if(EDIT) return;
+  var nejdriv = 0;
+  naVse(host, "input[data-platba]", function(cb){
+    var v = POTVRZENO[cb.dataset.platba];
+    if(typeof v !== "number") return;
+    var zbyva = ZAMEK_MS - (Date.now() - v);
+    if(zbyva > 0 && (!nejdriv || zbyva < nejdriv)) nejdriv = zbyva;
+  });
+  if(nejdriv) PLATBA_CASOVAC = setTimeout(function(){ renderContent(false); }, nejdriv + 150);
+}
+
+/** zaškrtnutí se po minutě zamkne; hodnota true je starý zápis bez času → bereme jako zamčený */
+function platbaZamcena(v){
+  if(v === true) return true;
+  return typeof v === "number" && (Date.now() - v) >= ZAMEK_MS;
 }
 
 function card(l,v,s,acc){
@@ -2027,6 +2061,8 @@ function shareLink(){
 var POTVRZENO = {};          // { "idAkce|jméno": true }
 var POTVRZENI_CHYBA = "";    // poslední chyba komunikace, ať ji můžeme ukázat
 var POTVRZENI_NACTENO = 0;   // čas posledního načtení
+var ZAMEK_MS = 60000;        // po minutě už zaškrtnutí nejde vzít zpět (kromě editace)
+var PLATBA_CASOVAC = 0;      // odpočet do zamčení, ať se chip přepne sám
 
 function potvrzeniZapnuto(){ return !!(DATA.potvrzeni && DATA.potvrzeni.url); }
 function klicPlatby(ev, jmeno){ return ev.id + "|" + jmeno; }
@@ -2069,7 +2105,9 @@ function potvrzeniNacti(){
 /** přepíše stav na serveru — ale nejdřív ho načte a sloučí, ať se dva lidé nepřepíšou */
 function potvrzeniUloz(klic, hodnota){
   return potvrzeniNacti().then(function(server){
-    if(hodnota) server[klic] = true; else delete server[klic];
+    // ukládáme čas zaškrtnutí — podle něj se pozná, kdy se má zamknout
+    if(hodnota) server[klic] = (typeof hodnota === "number" ? hodnota : Date.now());
+    else delete server[klic];
     return potvrzeniFetch({
       method: "PUT", headers: potvrzeniHlavicky(true), body: JSON.stringify(server)
     }).then(function(){ return server; });
@@ -2305,7 +2343,8 @@ function renderPotvrzeni(stav){
 
   h += '<div class="ghstate"><span class="dot ' + (c.url ? "on" : "off") + '"></span>'
     +  '<span class="lbl">' + (c.url
-         ? 'Zapnuto — zaškrtávátko „přišly mi peníze“ vidí a přepíná každý, kdo má odkaz.'
+         ? 'Zapnuto — zaškrtávátko „přišly mi peníze“ vidí a přepíná každý, kdo má odkaz. '
+           + 'Po minutě se zaškrtnutí zamkne; vzít zpět ho jde už jen tady v editaci.'
          : 'Vypnuto — dokud tu není adresa úložiště, zaškrtávátko se nikomu neukazuje.') + '</span>'
     +  (c.url ? '<button class="btn" id="ptTestBtn">Otestovat</button>'
               + '<button class="btn danger" id="ptOffBtn">Vypnout</button>' : '')
