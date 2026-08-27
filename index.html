@@ -365,13 +365,16 @@
   .ucetin{font:inherit;font-variant-numeric:tabular-nums;border-radius:9px;
        border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
   .matrix-edit td .ucetin{font-size:12.5px;padding:7px 10px;width:100%;max-width:190px}
+  table.grid.matrix-edit thead th.thucet,
+  table.grid.matrix-edit tbody td.tducet{text-align:left;padding-left:0}
   .pcard .ucetin{font-size:12.5px;padding:8px 11px;width:100%}
   .ucetin::placeholder{color:var(--muted-2)}
   /* zamčené číslo účtu — přepsat ho jde až po kliknutí na tužku vedle */
   .ucetrow{display:flex;align-items:center;gap:6px}
-  .matrix-edit td .ucetrow{margin-left:8px;max-width:230px}
+  .matrix-edit td.tducet .ucetrow{max-width:240px}
   .pcard .ucetrow{margin:0 0 11px}
-  .ucetin[readonly]{border-style:dashed;cursor:default}
+  /* zamčené pole nereaguje na myš vůbec — měnit se dá jen tlačítkem vedle */
+  .ucetin[readonly]{border-style:dashed;pointer-events:none;user-select:none}
   .ucetin[readonly]:focus{outline:none}
   .btn.ucetedit{flex:0 0 auto;padding:6px 9px;font-size:13px;line-height:1.1}
 
@@ -1693,7 +1696,7 @@ function renderEditor(){
   function ucetPole(p, pi, siroky){
     return '<div class="ucetrow">'
          + '<input type="text" class="ucetin' + (siroky ? " siroky" : "") + '" id="ucet_'+pi+'"'
-         + ' data-ucet="'+esc(p)+'" readonly value="'+esc(DATA.ucty[p] || "")+'"'
+         + ' data-ucet="'+esc(p)+'" readonly tabindex="-1" value="'+esc(DATA.ucty[p] || "")+'"'
          + ' placeholder="číslo účtu" aria-label="Číslo účtu — '+esc(p)+'">'
          + '<button class="btn ucetedit" type="button" data-ucetedit="'+pi+'"'
          + ' title="Odemknout číslo účtu" aria-label="Upravit číslo účtu — '+esc(p)+'">✎</button>'
@@ -1724,7 +1727,8 @@ function renderEditor(){
                 + f.ikona+' '+esc(f.label)+'<span class="qmn">i</span></button>';
          }).join("") + '</div>';
   }else{
-    t = '<div class="scroll"><table class="grid matrix matrix-edit"><thead><tr><th>Člověk</th>'
+    t = '<div class="scroll"><table class="grid matrix matrix-edit"><thead><tr>'
+      + '<th>Člověk</th><th class="thucet">Číslo účtu</th>'
       + FLAGS.map(function(f){
           return '<th class="col"><button class="hbtn" type="button" data-x="ce_'+f.key+'" data-group="mxe" aria-expanded="false">'
                + '<span class="ic">'+f.ikona+'</span>'+esc(f.label)+'</button></th>';
@@ -1732,8 +1736,8 @@ function renderEditor(){
 
     DATA.lide.forEach(function(p,pi){
       var f = ev.ucastnici[p] || blankFlags();
-      t += '<tr><td><input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'">'
-        +  ucetPole(p, pi, false) + '</td>'
+      t += '<tr><td><input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'"></td>'
+        +  '<td class="tducet">' + ucetPole(p, pi, false) + '</td>'
         +  FLAGS.map(function(x){
              return '<td><input type="checkbox" id="cb_'+pi+'_'+x.key+'" data-p="'+esc(p)+'" data-k="'+x.key+'" title="'+esc(x.label)+'"'
                   + (f[x.key] ? " checked":"") + '></td>';
@@ -1770,7 +1774,7 @@ function renderEditor(){
       if(hodnota) DATA.ucty[kdo] = hodnota; else delete DATA.ucty[kdo];
       prekresliObsah();
     };
-    inp.onblur = function(){ inp.readOnly = true; };   // po odchodu se zase zamkne
+    inp.onblur = function(){ inp.readOnly = true; inp.tabIndex = -1; };  // po odchodu se zase zamkne
     inp.onkeydown = function(e){ if(e.key === "Enter" || e.key === "Escape") inp.blur(); };
   });
   naVse(m, 'button[data-ucetedit]', function(b){
@@ -1778,6 +1782,7 @@ function renderEditor(){
       var inp = $("ucet_" + b.dataset.ucetedit);
       if(!inp) return;
       inp.readOnly = false;
+      inp.tabIndex = 0;
       inp.focus();
       try{ inp.setSelectionRange(inp.value.length, inp.value.length); }catch(e){}
     };
