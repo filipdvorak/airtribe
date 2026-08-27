@@ -198,8 +198,11 @@
   .tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:5px;min-width:0}
   .tag{font-size:11px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
        padding:1.5px 8px;border-radius:999px;white-space:nowrap}
-  /* potvrzení platby — jediné, co ve čtecím režimu může kdokoli přepnout */
-  .platba{display:inline-flex;align-items:center;gap:7px;margin:-4px 19px 13px;padding:6px 11px;
+  /* potvrzení platby — jediné, co ve čtecím režimu může kdokoli přepnout;
+     oddělené vlastní linkou, ať se neplete s údaji o výplatě */
+  .platbarow{margin:0 19px;border-top:1px dashed var(--line)}
+  @media (max-width:640px){ .platbarow{margin:0 15px} }
+  .platba{display:inline-flex;align-items:center;gap:7px;margin:11px 0 14px;padding:7px 13px;
        border:1px solid var(--line);border-radius:999px;background:var(--panel-2);
        font-size:12px;color:var(--muted);cursor:pointer;
        transition:border-color .18s var(--ease),background .18s var(--ease),color .18s var(--ease)}
@@ -208,7 +211,6 @@
   .platba.ano{border-color:transparent;background:rgba(31,122,77,.12);color:var(--pos);font-weight:600}
   @media (prefers-color-scheme: dark){.platba.ano{background:rgba(95,217,154,.14)}}
   .platba input:disabled{opacity:.5;cursor:progress}
-  @media (max-width:640px){ .platba{margin-left:15px;margin-right:15px} }
   .amount{grid-area:amt;font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.018em}
   .chev{grid-area:chev;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
   [aria-expanded="true"] > .chev{transform:rotate(90deg)}
@@ -624,7 +626,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-27",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -640,11 +642,6 @@
     "Patrik": "5041810053/0800",
     "Miloš": "271241340/0600",
     "Kája": "2894212123/0800"
-  },
-  "potvrzeni": {
-    "url": "https://airtribe-b5446-default-rtdb.europe-west1.firebasedatabase.app/platby.json",
-    "hlavicka": "",
-    "hodnota": ""
   },
   "akce": [
     {
@@ -715,8 +712,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "acgon8tv2"
+      }
     },
     {
       "nazev": "Slavnosti mrkve 2026",
@@ -749,8 +745,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "agf6j6hnv"
+      }
     }
   ]
 }
@@ -1623,9 +1618,9 @@ function renderKontrola(R, ev){
 function platbaChip(ev, jmeno){
   if(!potvrzeniZapnuto()) return "";
   var k = klicPlatby(ev, jmeno), on = POTVRZENO[k] === true;
-  return '<label class="platba'+(on ? " ano" : "")+'">'
+  return '<div class="platbarow"><label class="platba'+(on ? " ano" : "")+'">'
        + '<input type="checkbox" data-platba="'+esc(k)+'"'+(on ? " checked" : "")+'>'
-       + (on ? "peníze dorazily" : "přišly mi peníze") + '</label>';
+       + (on ? "peníze dorazily" : "přišly mi peníze") + '</label></div>';
 }
 
 function card(l,v,s,acc){
