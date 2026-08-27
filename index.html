@@ -2308,7 +2308,7 @@ function renderPotvrzeni(stav){
     +  '<div class="fields">'
     +  '<div class="field"><label>Adresa úložiště</label>'
     +    '<div class="fh">Musí umět <code>GET</code> (přečíst) a <code>PUT</code> (uložit) JSON.</div>'
-    +    '<input type="text" id="ptUrl" value="' + esc(c.url) + '" placeholder="https://jsonblob.com/api/jsonBlob/…" autocomplete="off"></div>'
+    +    '<input type="text" id="ptUrl" value="' + esc(c.url) + '" placeholder="https://…firebasedatabase.app/platby.json" autocomplete="off"></div>'
     +  '<div class="field"><label>Hlavička navíc (nepovinné)</label>'
     +    '<div class="fh">Jen když ji úložiště vyžaduje, např. <code>X-Master-Key</code>.</div>'
     +    '<input type="text" id="ptHlavicka" value="' + esc(c.hlavicka) + '" placeholder="ponech prázdné" autocomplete="off"></div>'
@@ -2316,11 +2316,12 @@ function renderPotvrzeni(stav){
     +    '<div class="fh">Pozor: uloží se do stránky, takže ji uvidí každý. Radši volit úložiště bez klíče.</div>'
     +    '<input type="text" id="ptHodnota" value="' + esc(c.hodnota) + '" placeholder="ponech prázdné" autocomplete="off"></div>'
     +  '</div>'
-    +  '<div class="toolrow"><button class="btn" id="ptSaveBtn">Uložit nastavení</button>'
-    +  '<button class="btn" id="ptNewBtn">Založit nové úložiště</button></div>'
-    +  '<p class="hint"><b>Založit nové úložiště</b> zkusí vyrobit prázdný soubor na jsonblob.com (zdarma, bez účtu) '
-    +  'a adresu rovnou vyplní. Když to nepůjde, založ si ho ručně na <code>jsonblob.com</code> '
-    +  '(vlož tam <code>{}</code> a ulož) a adresu sem zkopíruj. Nastavení se pak nezapomeň <b>uložit na web</b>, '
+    +  '<div class="toolrow"><button class="btn" id="ptSaveBtn">Uložit nastavení</button></div>'
+    +  '<p class="hint">Osvědčené úložiště je <b>Firebase Realtime Database</b> (zdarma, stačí účet Google). '
+    +  'Adresa pak vypadá takhle: <code>https://<i>něco</i>.firebasedatabase.app/platby.json</code> — '
+    +  'to <code>.json</code> na konci je důležité. Postup je v README. '
+    +  'Pozor, ne každé úložiště umí zápis z cizí stránky: <code>jsonblob.com</code> to <b>neumí</b> '
+    +  '(čtení projde, zápis skončí chybou). Nastavení se nezapomeň <b>uložit na web</b>, '
     +  'aby se adresa dostala i k ostatním.</p>';
 
   box.innerHTML = h;
@@ -2358,26 +2359,15 @@ function renderPotvrzeni(stav){
                                         : { ok: "Úložiště funguje — zápis i čtení proběhly." });
       })
       .catch(function(e){
-        renderPotvrzeni({ chyba: (cetlo ? "Čtení funguje, ale zápis ne. " : "Čtení se nezdařilo. ")
-                                 + potvrzeniChybaText(e) });
+        var t;
+        if(cetlo && e && e.sit)
+          t = "Čtení funguje, ale zápis ne — tohle úložiště nedovoluje zapisovat z cizí stránky. "
+            + "Nedá se to obejít, je potřeba jiné úložiště (viz nápověda pod poli).";
+        else t = (cetlo ? "Čtení funguje, ale zápis ne. " : "Čtení se nezdařilo. ") + potvrzeniChybaText(e);
+        renderPotvrzeni({ chyba: t });
       });
   });
 
-  klik("ptNewBtn", function(){
-    var b = this;
-    b.classList.add("busy"); b.disabled = true;
-    fetch("https://jsonblob.com/api/jsonBlob", {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}"
-    })
-      .then(function(r){
-        var kam = r.headers.get("Location") || r.headers.get("location");
-        if(!r.ok || !kam) throw new Error("Úložiště se nepodařilo založit automaticky — vyrob ho ručně na jsonblob.com a adresu sem vlož.");
-        DATA.potvrzeni = { url: kam, hlavicka:"", hodnota:"" };
-        return obnovPotvrzeni();
-      })
-      .then(function(){ renderPotvrzeni({ ok:"Úložiště založeno a nastaveno. Ještě to ulož na web." }); })
-      .catch(function(e){ renderPotvrzeni({ chyba: potvrzeniChybaText(e) }); });
-  });
 }
 
 function exportHtml(){
