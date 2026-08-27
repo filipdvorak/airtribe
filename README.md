@@ -12,10 +12,14 @@ Celá aplikace je jeden soubor `index.html`. Žádný server, žádná databáze
 
 ### Ostatní — jen čtení
 
-Otevřou odkaz a vidí u každé akce, kolik komu vychází. Po kliknutí na jméno se rozbalí
+Otevřou odkaz a vidí u každé akce, kolik komu vychází — pod jménem je drobně jeho číslo
+účtu, ať se peníze dají hned poslat. Po kliknutí na jméno se rozbalí
 rozpad částky krok po kroku, u každého kroku je **i** s vysvětlením a vzorcem. V každém
-oddílu je rozbalená vždy jen jedna položka — otevřením další se předchozí zavře. Nic
-nemohou změnit — v tomhle zobrazení nejsou žádná editovatelná pole.
+oddílu je rozbalená vždy jen jedna položka — otevřením další se předchozí zavře.
+
+Jediné, co v tomhle zobrazení jde přepnout, je zaškrtávátko **přišly mi peníze** u jména.
+Kdo si ho zaškrtne, uvidí to i ostatní — viz *Potvrzení plateb* níže. Nic dalšího změnit
+nejde, žádná jiná editovatelná pole tu nejsou.
 
 Po otevření se ukáže naposledy vytvořená akce. V přilepeném pruhu nahoře je vidět vždy
 jen právě vybraná akce s jejím datem a vedle ní vlevo tlačítko ☰. To vysune od levého
@@ -35,7 +39,8 @@ https://vystoupeni.vercel.app/?edit
 ```
 
 Můžeš měnit název, datum a výdělek, zaškrtávat, kdo se čeho účastnil, a přidávat či mazat
-lidi. Čísla se přepočítají okamžitě. Tlačítka **+ Nová akce**, **⧉ Duplikovat akci**
+lidi. U každého člověka je vedle jména políčko na číslo účtu — vyplněné se ukáže drobným
+písmem pod jménem ve výpisu; při přejmenování jde s ním a při smazání zmizí. Čísla se přepočítají okamžitě. Tlačítka **+ Nová akce**, **⧉ Duplikovat akci**
 a **🗑 Smazat akci** jsou hned nad shrnujícími kartami. Přejmenovat akci jde i rovnou
 v seznamu pod ☰ — tužka u ní otevře pole pro nový název, takže na ni nemusíš nejdřív
 přepínat.
@@ -107,6 +112,39 @@ Všechny částky jsou počítané a zobrazované přesně na haléře.
 
 ---
 
+## Potvrzení plateb
+
+Zaškrtávátko **přišly mi peníze** u jména je jediná věc, kterou ve čtecím režimu ovládají
+i ostatní. Zaškrtnutí uvidí všichni, takže je hned jasné, komu už peníze dorazily a komu
+ještě ne.
+
+Má to jeden háček, který stojí za vysvětlení: web je jediný soubor a zapisovat do něj umí
+jen ty svým tokenem. Účastník tedy nemá kam uložit něco, co uvidí ostatní. Zaškrtnutí proto
+putují **mimo tenhle web**, do malého sdíleného souboru na adrese, kterou nastavíš
+v editaci v oddílu **Potvrzení plateb**. Ukládá se do něj jenom to, komu už peníze dorazily
+— žádná jména, částky ani nic dalšího tam nejdou.
+
+Nastavení zabere chvilku:
+
+1. V editaci otevři **Potvrzení plateb** a dej **Založit nové úložiště**. Aplikace zkusí
+   vyrobit prázdný soubor na `jsonblob.com` (zdarma, bez účtu) a adresu rovnou vyplní.
+   Kdyby to nešlo, založ ho ručně na <https://jsonblob.com> — vlož tam `{}`, ulož a adresu
+   zkopíruj do políčka.
+2. Klikni **Otestovat** — aplikace do úložiště zkusmo zapíše a zase po sobě uklidí, takže
+   se hned pozná, jestli všechno hraje.
+3. Dej **💾 Uložit na web**, aby se adresa dostala i k ostatním.
+
+Dokud adresa není vyplněná, zaškrtávátko se nikomu neukazuje a aplikace se chová jako dřív.
+Tlačítkem **Vypnout** ho kdykoli schováš.
+
+Co je dobré vědět: kdo má odkaz na web, může zaškrtnutí měnit — úložiště nikoho nerozlišuje.
+Na „už mi přišly peníze" to stačí, na nic citlivějšího bych se na to nespoléhal. Když dva
+lidé zaškrtnou naráz, nic se neztratí — aplikace si před uložením vždy načte aktuální stav
+a spojí ho se svým. Když úložiště zrovna nejede, zaškrtnutí se vrátí zpátky a aplikace to
+řekne; spočítané částky to nijak neovlivní.
+
+---
+
 ## Profilové obrázky
 
 Ve výchozím stavu stojí u výplaty jen jméno. Když k někomu chceš fotku, stačí
@@ -133,7 +171,7 @@ je krok za krokem v **[NASAZENI.md](NASAZENI.md)**.
 ## Struktura
 
 ```
-index.html   celá aplikace — HTML, CSS, JS i data v jednom souboru
+index.html   celá aplikace — HTML, CSS, JS, favikon i data v jednom souboru
 vercel.json  hlavičky, aby prohlížeč vždy načetl aktuální verzi
 NASAZENI.md  nasazení, token a běžná údržba
 README.md    tento popis
