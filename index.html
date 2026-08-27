@@ -631,7 +631,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-27",
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -647,11 +647,6 @@
     "Patrik": "5041810053/0800",
     "Miloš": "271241340/0600",
     "Kája": "2894212123/0800"
-  },
-  "potvrzeni": {
-    "url": "https://airtribe-b5446-default-rtdb.europe-west1.firebasedatabase.app/platby.json",
-    "hlavicka": "",
-    "hodnota": ""
   },
   "akce": [
     {
@@ -722,8 +717,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "appu12b"
+      }
     },
     {
       "nazev": "Slavnosti mrkve 2026",
@@ -756,8 +750,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "afivn0y"
+      }
     }
   ]
 }
@@ -822,6 +815,7 @@ function normalize(d){
   d.podtitul = d.podtitul || "";
   d.mena     = d.mena || "Kč";
   d.aktualizovano = d.aktualizovano || "";
+  d.ulozenoMs = Number(d.ulozenoMs) || 0;   // kdy se data naposledy ukládala (na porovnání se zálohou)
   d.bonusOrganizatoraProcent = (typeof d.bonusOrganizatoraProcent === "number") ? d.bonusOrganizatoraProcent : 5;
   d.lide = Array.isArray(d.lide) ? d.lide.slice() : [];
   // Čísla účtů patří k lidem (ne k akcím) — a držíme jen ta, ke kterým někdo existuje.
@@ -2023,12 +2017,19 @@ function newEvent(src){
   DATA.akce.push(ev); state.akce = DATA.akce.length-1; state.otevreny = null; renderAll(true);
 }
 
-function serialize(){
+/** orazítkuje data časem uložení; volá se jednou za akci ukládání,
+    ať má soubor i záloha v úložišti stejné razítko */
+function orazitkuj(){
   var d = new Date();
   DATA.aktualizovano = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  DATA.ulozenoMs = Date.now();
+}
+
+function serialize(){
+  if(!DATA.ulozenoMs) orazitkuj();
   return JSON.stringify({
     titul:DATA.titul, podtitul:DATA.podtitul, mena:DATA.mena,
-    aktualizovano:DATA.aktualizovano,
+    aktualizovano:DATA.aktualizovano, ulozenoMs:DATA.ulozenoMs,
     bonusOrganizatoraProcent:DATA.bonusOrganizatoraProcent,
     lide:DATA.lide, ucty:DATA.ucty, potvrzeni:DATA.potvrzeni, akce:DATA.akce
   }, null, 2);
@@ -2056,7 +2057,7 @@ function copy(text, ok){
 function shareLink(){
   // stejné kódování jako pro GitHub, jen v URL-bezpečné podobě
   return location.origin + location.pathname + "#d="
-       + b64enc(serialize()).replace(/\+/g,"-").replace(/\//g,"_");
+       + (orazitkuj(), b64enc(serialize()).replace(/\+/g,"-").replace(/\//g,"_"));
 }
 
 /* =========================================================
@@ -2070,6 +2071,18 @@ var POTVRZENI_CHYBA = "";    // poslední chyba komunikace, ať ji můžeme uká
 var POTVRZENI_NACTENO = 0;   // čas posledního načtení
 var ZAMEK_MS = 60000;        // po minutě už zaškrtnutí nejde vzít zpět (kromě editace)
 var PLATBA_CASOVAC = 0;      // odpočet do zamčení, ať se chip přepne sám
+
+/* Adresu úložiště si pamatujeme i v prohlížeči. Když se nahraje čerstvý index.html
+   (v němž adresa ještě není), aplikace ji vezme odsud, stáhne zálohu dat a je zpátky. */
+var ULOZ_KEY = "vystoupeni.uloziste";
+function ulozisteZapamatuj(u){ try{ if(u) localStorage.setItem(ULOZ_KEY, u); }catch(e){} }
+function ulozisteZPameti(){ try{ return localStorage.getItem(ULOZ_KEY) || ""; }catch(e){ return ""; } }
+function ulozisteDoplnZPameti(){
+  if(HASH_DATA) return;
+  if(DATA.potvrzeni && DATA.potvrzeni.url){ ulozisteZapamatuj(DATA.potvrzeni.url); return; }
+  var u = ulozisteZPameti();
+  if(u) DATA.potvrzeni = { url:u, hlavicka:"", hodnota:"" };
+}
 
 function potvrzeniZapnuto(){ return !!(DATA.potvrzeni && DATA.potvrzeni.url); }
 function klicPlatby(ev, jmeno){ return ev.id + "|" + jmeno; }
@@ -2121,14 +2134,60 @@ function potvrzeniUloz(klic, hodnota){
   });
 }
 
+/* --- záloha celých dat do téhož úložiště -------------------------------
+   Do souboru na GitHubu se data ukládají dál; tohle je jen kopie navíc,
+   aby se po nahrání nové verze index.html nemuselo nic vyplňovat znovu.
+   Pozná se podle razítka ulozenoMs, která verze je novější. */
+var ZALOHA_KLIC = "__data";
+
+/** pošle kopii dat do úložiště (vedle zaškrtnutí, nepřepíše je) */
+function zalohujData(){
+  if(!potvrzeniZapnuto()) return Promise.resolve(false);
+  var kopie = JSON.parse(serialize());
+  return potvrzeniNacti().then(function(server){
+    server[ZALOHA_KLIC] = kopie;
+    return potvrzeniFetch({ method:"PUT", headers: potvrzeniHlavicky(true),
+                            body: JSON.stringify(server) });
+  }).then(function(){ return true; });
+}
+
+/** když je v úložišti novější kopie než v souboru, načte ji */
+var ZALOHA_PROVERENA = false;   // zkoušíme jen při prvním načtení, ať to nesmete rozdělanou editaci
+
+function obnovZeZalohy(stav){
+  if(ZALOHA_PROVERENA) return false;
+  ZALOHA_PROVERENA = true;
+  if(HASH_DATA) return false;                       // verze z odkazu si vládne sama
+  var z = stav && stav[ZALOHA_KLIC];
+  if(!z || typeof z !== "object") return false;
+  if(!(Number(z.ulozenoMs) > (Number(DATA.ulozenoMs) || 0))) return false;
+  DATA = normalize(z);
+  ulozisteZapamatuj(DATA.potvrzeni && DATA.potvrzeni.url);
+  state.akce = Math.max(0, Math.min(state.akce, DATA.akce.length - 1));
+  state.otevreny = null;
+  return true;
+}
+
 /** načte stav a překreslí; ticho, když úložiště není nastavené */
 function obnovPotvrzeni(){
   if(!potvrzeniZapnuto()) return Promise.resolve();
   POTVRZENI_NACTENO = Date.now();
+  var obnoveno = false;
   return potvrzeniNacti()
-    .then(function(stav){ POTVRZENO = stav; POTVRZENI_CHYBA = ""; })
+    .then(function(stav){
+      POTVRZENO = stav; POTVRZENI_CHYBA = "";
+      obnoveno = obnovZeZalohy(stav);
+    })
     .catch(function(e){ POTVRZENI_CHYBA = potvrzeniChybaText(e); })
-    .then(function(){ renderContent(false); if(EDIT) renderPotvrzeni(); });
+    .then(function(){
+      if(obnoveno){
+        renderAll(false);
+        toast("Načtena novější data z úložiště.");
+      } else {
+        renderContent(false);
+        if(EDIT) renderPotvrzeni();
+      }
+    });
 }
 
 /* =========================================================
@@ -2204,7 +2263,7 @@ function ghPublikuj(){
   var btns = [$("btnPublish"), $("ghSaveBtn")].filter(Boolean);
   btns.forEach(function(b){ b.classList.add("busy"); b.disabled = true; });
 
-  serialize(); // orazítkuje datum aktualizace ještě před čtením ze serveru
+  orazitkuj(); // razítko uděláme jednou — do souboru i do zálohy půjde stejné
 
   return ghNacti(cfg)
     .then(function(f){
@@ -2225,8 +2284,15 @@ function ghPublikuj(){
     .then(ghOdpoved)
     .then(function(j){
       var url = j && j.commit && j.commit.html_url;
-      renderGh(url ? { ulozeno:true, odkaz:url } : { ulozeno:true });
-      toast("Uloženo. Web se aktualizuje do zhruba 20 vteřin.");
+      // kopie dat do úložiště — aby po nahrání nové verze souboru nic nechybělo
+      return zalohujData()
+        .catch(function(){ return "chyba"; })
+        .then(function(vysl){
+          renderGh(url ? { ulozeno:true, odkaz:url } : { ulozeno:true });
+          toast(vysl === "chyba"
+            ? "Uloženo na web, ale záloha dat do úložiště se nezdařila."
+            : "Uloženo. Web se aktualizuje do zhruba 20 vteřin.");
+        });
     })
     .catch(function(e){
       var msg = (e && e.message) || "Uložení se nezdařilo.";
@@ -2358,8 +2424,10 @@ function renderPotvrzeni(stav){
     +  '</div>';
 
   h += '<p class="hint">Zaškrtnutí se ukládají mimo tenhle web, do malého sdíleného souboru na zadané adrese — '
-    +  'jinak by je účastníci neměli kam zapsat. Ukládá se do něj <b>jen</b> to, komu už peníze dorazily; '
-    +  'jména, částky ani nic dalšího tam nejdou. Kdo má odkaz na web, může zaškrtnutí měnit.</p>'
+    +  'jinak by je účastníci neměli kam zapsat. Při každém <b>Uložit na web</b> tam navíc putuje '
+    +  '<b>kopie všech dat</b>, takže po nahrání nové verze <code>index.html</code> nemusíš nic vyplňovat znovu — '
+    +  'aplikace si všimne, že je v úložišti novější verze, a načte ji. '
+    +  'Kdo má odkaz na web, může do úložiště zapisovat; originál dat je vždycky i v souboru na GitHubu.</p>'
     +  '<div class="fields">'
     +  '<div class="field"><label>Adresa úložiště</label>'
     +    '<div class="fh">Musí umět <code>GET</code> (přečíst) a <code>PUT</code> (uložit) JSON.</div>'
@@ -2386,6 +2454,7 @@ function renderPotvrzeni(stav){
     DATA.potvrzeni = { url: ($("ptUrl").value || "").trim(),
                        hlavicka: ($("ptHlavicka").value || "").trim(),
                        hodnota: ($("ptHodnota").value || "").trim() };
+    ulozisteZapamatuj(DATA.potvrzeni.url);
     obnovPotvrzeni().then(function(){
       renderPotvrzeni({ ok: DATA.potvrzeni.url
         ? "Nastaveno. Ještě to ulož na web, ať adresu dostanou i ostatní."
@@ -2426,6 +2495,7 @@ function renderPotvrzeni(stav){
 }
 
 function exportHtml(){
+  orazitkuj();
   fetch(location.pathname + "?v=" + Date.now(), { cache:"no-store" })
     .then(function(r){ if(!r.ok) throw 0; return r.text(); })
     .then(function(src){
@@ -2433,7 +2503,7 @@ function exportHtml(){
       toast("Staženo — nahraj index.html místo původního souboru.");
     })
     .catch(function(){
-      stahni(serialize(), "application/json", "data.json");
+      orazitkuj(); stahni(serialize(), "application/json", "data.json");
       toast("Web nešel načíst, stáhla se aspoň data (data.json).");
     });
 }
@@ -2443,6 +2513,7 @@ function exportHtml(){
    ========================================================= */
 if(EDIT) document.body.classList.add("editing");
 renderAll(false);
+ulozisteDoplnZPameti();
 obnovPotvrzeni();
 
 // Když se člověk vrátí na kartu, ukážeme, co mezitím zaškrtli ostatní.
@@ -2484,7 +2555,7 @@ if(EDIT){
   renderGh();
   renderPotvrzeni();
   klik("btnLink", function(){ copy(shareLink(), "Odkaz zkopírován do schránky."); });
-  klik("btnCopyData", function(){ copy(serialize(), "Data zkopírována do schránky."); });
+  klik("btnCopyData", function(){ orazitkuj(); copy(serialize(), "Data zkopírována do schránky."); });
   klik("btnShowImport", function(){
     var box = $("impBox");
     box.classList.toggle("open");

@@ -126,16 +126,85 @@ v editaci v oddílu **Potvrzení plateb**. Ukládá se do něj jenom to, komu u�
 
 Nastavení zabere chvilku:
 
-1. V editaci otevři **Potvrzení plateb** a dej **Založit nové úložiště**. Aplikace zkusí
-   vyrobit prázdný soubor na `jsonblob.com` (zdarma, bez účtu) a adresu rovnou vyplní.
-   Kdyby to nešlo, založ ho ručně na <https://jsonblob.com> — vlož tam `{}`, ulož a adresu
-   zkopíruj do políčka.
+### Založení úložiště (Firebase Realtime Database)
+
+Úložiště musí umět **`GET`** (přečíst) i **`PUT`** (uložit) JSON a — to je ten zádrhel —
+musí zápis povolit i stránce běžící na jiné adrese (CORS). Většina „jednorázových" JSON
+schránek to neumí; `jsonblob.com` například pustí čtení, ale zápis z prohlížeče odmítne.
+Osvědčená volba zdarma je Firebase Realtime Database:
+
+1. Na <https://console.firebase.google.com> dej **Add project**, vymysli název,
+   analytiku můžeš vypnout.
+2. V levém menu **Build → Realtime Database → Create Database**. Jako umístění zvol
+   `europe-west1`, pak **Start in test mode** a **Enable**.
+3. Nahoře přepni na záložku **Rules** a přepiš je na tohle (jinak by za měsíc přestaly
+   platit a zápis by se zasekl). Otevřená je jen větev `platby`, zbytek zůstává zavřený:
+
+   ```json
+   {
+     "rules": {
+       "platby": { ".read": true, ".write": true }
+     }
+   }
+   ```
+
+   Dej **Publish**.
+4. Na záložce **Data** je nahoře adresa databáze, něco jako
+   `https://nazev-projektu-default-rtdb.europe-west1.firebasedatabase.app`.
+   Do aplikace patří tahle adresa **plus `/platby.json`** na konci:
+
+   ```
+   https://nazev-projektu-default-rtdb.europe-west1.firebasedatabase.app/platby.json
+   ```
+
+### Zapojení do aplikace
+
+1. Otevři aplikaci s `?edit`, rozbal **Potvrzení plateb** a adresu vlož do políčka
+   **Adresa úložiště**. Políčka pro hlavičku nech prázdná. Dej **Uložit nastavení**.
 2. Klikni **Otestovat** — aplikace do úložiště zkusmo zapíše a zase po sobě uklidí, takže
    se hned pozná, jestli všechno hraje.
 3. Dej **💾 Uložit na web**, aby se adresa dostala i k ostatním.
 
 Dokud adresa není vyplněná, zaškrtávátko se nikomu neukazuje a aplikace se chová jako dřív.
 Tlačítkem **Vypnout** ho kdykoli schováš.
+
+### Zámek po minutě
+
+Zaškrtnutí jde vzít zpět jenom **jednu minutu** — to je na opravu překliku dost, na
+rozmýšlení ne. Potom se z něj stane obyčejný štítek „peníze dorazily", na který se nedá
+kliknout, a přepne se sám, i když stránku nikdo neobnoví. Odškrtnout ho může už jen ten,
+kdo otevře web s `?edit` — tam zámek neplatí nikdy. Do úložiště se proto místo `true`
+ukládá čas zaškrtnutí; staré záznamy s hodnotou `true` se berou jako už zamčené.
+
+Je to zámek na dveřích, ne trezor: kdo má odkaz, může do úložiště zapsat cokoli i mimo
+aplikaci. Proti překliku to funguje spolehlivě, proti záměrnému přepsání ne.
+
+---
+
+## Záloha dat (nemuset po nahrání nové verze nic vyplňovat)
+
+Data žijí v souboru `index.html`. To má jednu nepříjemnost: když nahraješ novou verzi
+souboru, přijdeš s ní i o všechno vyplněné. Proto se při každém **💾 Uložit na web**
+posílá kopie všech dat i do stejného úložiště, jaké se používá na potvrzení plateb
+(uloží se tam pod klíč `__data`, vedle zaškrtnutí, která nepřepíše).
+
+Když se pak otevře stránka, ve které jsou data starší než v úložišti, aplikace si
+tu novější verzi sama stáhne a řekne o tom: *„Načtena novější data z úložiště."*
+Nahrání nové verze `index.html` tak neznamená nic víc než nahrání souboru.
+
+Které jsou novější, se pozná podle razítka `ulozenoMs` — počtu milisekund, kdy se data
+naposledy ukládala. Do souboru i do zálohy jde stejné razítko, takže se nemůže stát,
+že by se aplikace přetahovala sama se sebou.
+
+Aby to vyšlo i tehdy, když v čerstvě nahraném souboru ještě není adresa úložiště,
+pamatuje si ji tvůj prohlížeč zvlášť (v `localStorage`). Poprvé ji tedy zadáš jednou
+a pak už se o ni nemusíš starat.
+
+Obnova se dělá **jen při načtení stránky**, nikdy ne během editace — rozdělanou práci
+tedy nemá jak přepsat. A verze načtená z odkazu (`#d=…`) se ze zálohy nepřepisuje nikdy.
+
+Pořád platí, že originál dat je i v souboru na GitHubu, včetně historie commitů. Kdyby
+někdo do úložiště zapsal nesmysl, stačí soubor otevřít a znovu uložit na web.
 
 Co je dobré vědět: kdo má odkaz na web, může zaškrtnutí měnit — úložiště nikoho nerozlišuje.
 Na „už mi přišly peníze" to stačí, na nic citlivějšího bych se na to nespoléhal. Když dva
