@@ -337,7 +337,6 @@
   .okbox a{color:var(--accent-ink)}
   .btn.danger:hover{border-color:var(--neg);color:var(--neg)}
   .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;padding:17px 19px}
-  .fields.jedno{grid-template-columns:minmax(0,340px);padding-top:4px}
   .fields .field{display:flex;flex-direction:column;background:var(--panel-2);border:1px solid var(--line);
     border-radius:13px;padding:12px 13px 13px;transition:border-color .18s var(--ease)}
   .fields .field:focus-within{border-color:var(--accent)}
@@ -365,9 +364,16 @@
   /* číslo účtu — v tabulce vedle jména, na mobilu pod ním */
   .ucetin{font:inherit;font-variant-numeric:tabular-nums;border-radius:9px;
        border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
-  .matrix-edit td .ucetin{font-size:12.5px;padding:7px 10px;width:100%;max-width:190px;margin-left:8px}
-  .pcard .ucetin{font-size:12.5px;padding:8px 11px;width:100%;margin:0 0 11px}
+  .matrix-edit td .ucetin{font-size:12.5px;padding:7px 10px;width:100%;max-width:190px}
+  .pcard .ucetin{font-size:12.5px;padding:8px 11px;width:100%}
   .ucetin::placeholder{color:var(--muted-2)}
+  /* zamčené číslo účtu — přepsat ho jde až po kliknutí na tužku vedle */
+  .ucetrow{display:flex;align-items:center;gap:6px}
+  .matrix-edit td .ucetrow{margin-left:8px;max-width:230px}
+  .pcard .ucetrow{margin:0 0 11px}
+  .ucetin[readonly]{border-style:dashed;cursor:default}
+  .ucetin[readonly]:focus{outline:none}
+  .btn.ucetedit{flex:0 0 auto;padding:6px 9px;font-size:13px;line-height:1.1}
 
   /* pole s procentem uvnitř vysvětlivky u sloupce Organizátor */
   .spolu .xcard{margin-bottom:0;border-radius:11px 11px 0 0}
@@ -572,51 +578,6 @@
       <div class="collapse" id="bPlatby"><div class="inner"><div id="platbyBox"></div></div></div>
     </div>
 
-    <div class="panel skl tichy">
-      <button class="phead sklhd" type="button" data-skl="bPrenos" aria-expanded="false">
-        <span class="pic">📦</span><h2>Přenos dat do nové verze</h2><span class="sklchev">›</span></button>
-      <div class="collapse" id="bPrenos"><div class="inner">
-      <p class="hint">
-        <b>Postup:</b> 1. tady dole klikni na <b>Zkopírovat data</b> a schovej si je (třeba do poznámek).
-        2. Nahraj na GitHub nový <code>index.html</code>. 3. Otevři web s <code>?edit</code>, data sem vlož a dej
-        <b>Načíst data</b>. 4. Zkontroluj čísla a klikni <b>💾 Uložit na web</b>.
-      </p>
-      <div class="toolrow">
-        <button class="btn" id="btnCopyData">⧉ Zkopírovat data</button>
-        <button class="btn" id="btnShowImport">⇩ Vložit data z jiné verze</button>
-      </div>
-      <div class="collapse" id="impBox"><div class="inner">
-        <div class="fields" style="grid-template-columns:1fr">
-          <div class="field">
-            <label>Data ve formátu JSON</label>
-            <div class="fh">Vlož sem to, co ti dalo tlačítko Zkopírovat data. Nahradí to obsah v prohlížeči —
-              na web se nic nezapíše, dokud nedáš Uložit na web.</div>
-            <textarea id="impText" rows="7" placeholder='{ "titul": "…", "lide": [ … ], "akce": [ … ] }'></textarea>
-          </div>
-        </div>
-        <div class="toolrow">
-          <button class="btn" id="btnDoImport">Načíst data</button>
-          <button class="btn" id="btnCancelImport">Zrušit</button>
-        </div>
-        <div id="impMsg"></div>
-      </div></div>
-      </div></div>
-    </div>
-
-    <div class="panel skl tichy">
-      <button class="phead sklhd" type="button" data-skl="bDalsi" aria-expanded="false">
-        <span class="pic">🧰</span><h2>Další možnosti</h2><span class="sklchev">›</span></button>
-      <div class="collapse" id="bDalsi"><div class="inner">
-        <div class="toolrow">
-          <button class="btn" id="btnExport">⬇ Stáhnout soubor webu</button>
-          <button class="btn" id="btnLink">🔗 Odkaz s daty</button>
-        </div>
-        <p class="hint">
-          <b>Stáhnout soubor webu</b> — nový <code>index.html</code> k ručnímu nahrání, když nechceš použít token.<br>
-          <b>Odkaz s daty</b> — jednorázový odkaz s daty uvnitř, na rychlou ukázku. Na trvalé sdílení se nehodí.
-        </p>
-      </div></div>
-    </div>
   </div>
 
   <footer class="foot"><span id="footNote"></span></footer>
@@ -920,19 +881,7 @@ function normalize(d){
   return d;
 }
 
-function fromHash(){
-  var m = /[#&]d=([^&]+)/.exec(location.hash || "");
-  if(!m) return null;
-  try{
-    var bin = atob(m[1].replace(/-/g,"+").replace(/_/g,"/"));
-    var by = new Uint8Array(bin.length);
-    for(var i=0;i<bin.length;i++) by[i]=bin.charCodeAt(i);
-    return JSON.parse(new TextDecoder().decode(by));
-  }catch(e){ return null; }
-}
-
-var HASH_DATA = fromHash();
-var DATA = normalize(HASH_DATA || JSON.parse(document.getElementById("data").textContent));
+var DATA = normalize(JSON.parse(document.getElementById("data").textContent));
 
 /* =========================================================
    Výpočet
@@ -1694,7 +1643,6 @@ function renderHeader(){
     var dt = kDatu(DATA.aktualizovano);
     text = "Naposledy aktualizováno " + (dt ? dt.toLocaleDateString("cs-CZ", DLOUHE_DATUM) : DATA.aktualizovano);
   }
-  if(HASH_DATA) text += (text ? " • " : "") + "verze z odkazu";
   $("footNote").textContent = text;
 }
 
@@ -1740,6 +1688,18 @@ function renderEditor(){
   }
   navesPole("evFields");
 
+  /* Číslo účtu je zamčené — odemkne ho až tlačítko vedle, ať ho nikdo nepřepíše omylem.
+     Po opuštění pole se zase samo zamkne. */
+  function ucetPole(p, pi, siroky){
+    return '<div class="ucetrow">'
+         + '<input type="text" class="ucetin' + (siroky ? " siroky" : "") + '" id="ucet_'+pi+'"'
+         + ' data-ucet="'+esc(p)+'" readonly value="'+esc(DATA.ucty[p] || "")+'"'
+         + ' placeholder="číslo účtu" aria-label="Číslo účtu — '+esc(p)+'">'
+         + '<button class="btn ucetedit" type="button" data-ucetedit="'+pi+'"'
+         + ' title="Odemknout číslo účtu" aria-label="Upravit číslo účtu — '+esc(p)+'">✎</button>'
+         + '</div>';
+  }
+
   var t;
   if(jeUzko()){
     // Mobil: jeden člověk = jedna kartička s pojmenovanými přepínači. Žádné vodorovné posouvání.
@@ -1749,8 +1709,7 @@ function renderEditor(){
       t += '<div class="pcard"><div class="pchead">'
         +  '<input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'" placeholder="jméno">'
         +  '<button class="btn danger" data-del="'+pi+'" title="Odebrat">✕</button></div>'
-        +  '<input type="text" class="ucetin siroky" id="ucet_'+pi+'" data-ucet="'+esc(p)+'"'
-        +  ' value="'+esc(DATA.ucty[p] || "")+'" placeholder="číslo účtu" aria-label="Číslo účtu — '+esc(p)+'">'
+        +  ucetPole(p, pi, true)
         +  '<div class="tgs">'
         +  FLAGS.map(function(x){
              return tg(x.ikona+' '+esc(x.label),
@@ -1774,8 +1733,7 @@ function renderEditor(){
     DATA.lide.forEach(function(p,pi){
       var f = ev.ucastnici[p] || blankFlags();
       t += '<tr><td><input type="text" id="per_'+pi+'" data-person="'+pi+'" value="'+esc(p)+'">'
-        +  '<input type="text" class="ucetin" id="ucet_'+pi+'" data-ucet="'+esc(p)+'"'
-        +  ' value="'+esc(DATA.ucty[p] || "")+'" placeholder="číslo účtu" aria-label="Číslo účtu — '+esc(p)+'"></td>'
+        +  ucetPole(p, pi, false) + '</td>'
         +  FLAGS.map(function(x){
              return '<td><input type="checkbox" id="cb_'+pi+'_'+x.key+'" data-p="'+esc(p)+'" data-k="'+x.key+'" title="'+esc(x.label)+'"'
                   + (f[x.key] ? " checked":"") + '></td>';
@@ -1811,6 +1769,17 @@ function renderEditor(){
       var kdo = inp.dataset.ucet, hodnota = inp.value.trim();
       if(hodnota) DATA.ucty[kdo] = hodnota; else delete DATA.ucty[kdo];
       prekresliObsah();
+    };
+    inp.onblur = function(){ inp.readOnly = true; };   // po odchodu se zase zamkne
+    inp.onkeydown = function(e){ if(e.key === "Enter" || e.key === "Escape") inp.blur(); };
+  });
+  naVse(m, 'button[data-ucetedit]', function(b){
+    b.onclick = function(){
+      var inp = $("ucet_" + b.dataset.ucetedit);
+      if(!inp) return;
+      inp.readOnly = false;
+      inp.focus();
+      try{ inp.setSelectionRange(inp.value.length, inp.value.length); }catch(e){}
     };
   });
   naVse(m, 'input[data-person]', function(inp){
@@ -2088,12 +2057,6 @@ function copy(text, ok){
   else fb();
 }
 
-function shareLink(){
-  // stejné kódování jako pro GitHub, jen v URL-bezpečné podobě
-  return location.origin + location.pathname + "#d="
-       + (orazitkuj(), b64enc(serialize()).replace(/\+/g,"-").replace(/\//g,"_"));
-}
-
 /* =========================================================
    Potvrzení plateb
    Malé sdílené úložiště (obyčejný JSON na jedné adrese), do kterého smí zapsat
@@ -2112,7 +2075,6 @@ var ULOZ_KEY = "vystoupeni.uloziste";
 function ulozisteZapamatuj(u){ try{ if(u) localStorage.setItem(ULOZ_KEY, u); }catch(e){} }
 function ulozisteZPameti(){ try{ return localStorage.getItem(ULOZ_KEY) || ""; }catch(e){ return ""; } }
 function ulozisteDoplnZPameti(){
-  if(HASH_DATA) return;
   if(DATA.potvrzeni && DATA.potvrzeni.url){ ulozisteZapamatuj(DATA.potvrzeni.url); return; }
   var u = ulozisteZPameti();
   if(u) DATA.potvrzeni = { url:u, hlavicka:"", hodnota:"" };
@@ -2191,7 +2153,6 @@ var ZALOHA_PROVERENA = false;   // zkoušíme jen při prvním načtení, ať to
 function obnovZeZalohy(stav){
   if(ZALOHA_PROVERENA) return false;
   ZALOHA_PROVERENA = true;
-  if(HASH_DATA) return false;                       // verze z odkazu si vládne sama
   var z = stav && stav[ZALOHA_KLIC];
   if(!z || typeof z !== "object") return false;
   if(!(Number(z.ulozenoMs) > (Number(DATA.ulozenoMs) || 0))) return false;
@@ -2396,9 +2357,14 @@ function renderGh(stav){
       +  'Kdyby ti přece jen unikl, na GitHubu ho jedním kliknutím zrušíš.</div>';
   }
 
+  h += '<div class="toolrow"><button class="btn" id="btnExport">⬇ Stáhnout soubor webu</button></div>'
+    +  '<p class="hint">Vyrobí nový <code>index.html</code> s aktuálními daty k ručnímu nahrání — '
+    +  'hodí se, když ukládání tokenem zrovna nejde nebo si chceš odložit zálohu stranou.</p>';
+
   box.innerHTML = h;
   oznacitVse("ghBox");
 
+  klik("btnExport", exportHtml);
   klik("ghSaveBtn", ghPublikuj);
   klik("ghTestBtn", ghOtestuj);
   klik("ghForgetBtn", function(){
@@ -2585,47 +2551,9 @@ if(EDIT){
     DATA.lide.push(n); renderAll(false);
   });
   klik("btnPublish", ghPublikuj);
-  klik("btnExport", exportHtml);
   renderGh();
   renderPotvrzeni();
-  klik("btnLink", function(){ copy(shareLink(), "Odkaz zkopírován do schránky."); });
-  klik("btnCopyData", function(){ orazitkuj(); copy(serialize(), "Data zkopírována do schránky."); });
-  klik("btnShowImport", function(){
-    var box = $("impBox");
-    box.classList.toggle("open");
-    if(box.classList.contains("open")) setTimeout(function(){ $("impText").focus(); }, 260);
-  });
-  klik("btnCancelImport", function(){
-    $("impBox").classList.remove("open");
-    $("impText").value = "";
-    $("impMsg").innerHTML = "";
-  });
-  klik("btnDoImport", function(){
-    var t = ($("impText").value || "").trim();
-    var msg = $("impMsg");
-    if(!t){ msg.innerHTML = '<div class="warnbox">⚠️ Nejdřív vlož data.</div>'; return; }
-    var r = importData(t);
-    if(r.chyba){ msg.innerHTML = '<div class="warnbox">⚠️ '+esc(r.chyba)+'</div>'; return; }
-    msg.innerHTML = '<div class="okbox">✓ '+esc(r.ok)+'</div>';
-    toast("Data načtena. Ještě je ulož na web.");
-  });
   klik("btnLeave", function(){ location.href = location.pathname; });
-}
-
-/* ---- přenos dat mezi verzemi kódu ---- */
-function importData(text){
-  var d;
-  try{ d = JSON.parse(text); }
-  catch(e){ return { chyba:"To není platný JSON — zkontroluj, že jsi zkopíroval celý text včetně složených závorek." }; }
-  if(!d || typeof d !== "object" || Array.isArray(d)) return { chyba:"Data mají být jeden objekt se seznamem lidí a akcí." };
-  if(!Array.isArray(d.lide) || !Array.isArray(d.akce)) return { chyba:"V datech chybí seznam „lide“ nebo „akce“ — nevypadá to jako data z téhle aplikace." };
-  if(!d.lide.length && !d.akce.length) return { chyba:"Data jsou prázdná — nic by se nenačetlo." };
-  DATA = normalize(d);
-  state.akce = 0; state.otevreny = null;
-  renderAll(true);
-  return { ok:"Načteno: "+DATA.lide.length+" "+sklon(DATA.lide.length,"člověk","lidé","lidí")
-              +" a "+DATA.akce.length+" "+sklon(DATA.akce.length,"akce","akce","akcí")
-              +". Zkontroluj čísla a pak dej Uložit na web." };
 }
 
 /* jediné okénko ven — pro automatickou kontrolu výpočtů */
