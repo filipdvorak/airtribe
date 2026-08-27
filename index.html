@@ -194,7 +194,7 @@
   .avatar img{width:100%;height:100%;object-fit:cover;display:block}
   .who{grid-area:who;min-width:0}
   .who .nm{font-weight:600;font-size:15px}
-  .who .ucet{display:block;margin-top:1px;font-size:11.5px;color:var(--muted-2);letter-spacing:.01em}
+  .who .ucet{display:block;width:fit-content;max-width:100%;margin-top:1px;font-size:11.5px;color:var(--muted-2);letter-spacing:.01em}
   .tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:5px;min-width:0}
   .tag{font-size:11px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);
        padding:1.5px 8px;border-radius:999px;white-space:nowrap}
@@ -217,6 +217,12 @@
        width:15px;height:15px;border-radius:4px;background:var(--pos);color:#fff;
        font-size:10px;line-height:1;font-weight:700}
   .amount{grid-area:amt;font-size:20px;font-weight:700;white-space:nowrap;letter-spacing:-.018em}
+  /* kliknutím do schránky — částka, číslo účtu, název akce */
+  .kop{cursor:copy;border-radius:6px;transition:background .15s var(--ease),color .15s var(--ease)}
+  .kop:hover{background:rgba(128,138,158,.20);box-shadow:0 0 0 4px rgba(128,138,158,.20)}
+  .tab .tnm.kop:hover{background:transparent;box-shadow:none;text-decoration:underline;
+       text-decoration-style:dotted;text-underline-offset:4px}
+  @media (hover:none){ .kop:hover{background:transparent;box-shadow:none} }
   .chev{grid-area:chev;width:15px;color:var(--muted-2);transition:transform var(--dur) var(--ease)}
   [aria-expanded="true"] > .chev{transform:rotate(90deg)}
   .detail-inner{padding:14px 19px 18px;background:var(--panel-2);border-top:1px solid var(--line-2)}
@@ -631,8 +637,7 @@
   "titul": "Rozdělování peněz z vystoupení",
   "podtitul": "",
   "mena": "Kč",
-  "aktualizovano": "2026-08-27",
-  "ulozenoMs": 1787857817719,
+  "aktualizovano": "",
   "bonusOrganizatoraProcent": 5,
   "lide": [
     "Filip",
@@ -649,14 +654,9 @@
     "Miloš": "271241340/0600",
     "Kája": "2894212123/0800"
   },
-  "potvrzeni": {
-    "url": "https://airtribe-b5446-default-rtdb.europe-west1.firebasedatabase.app/platby.json",
-    "hlavicka": "",
-    "hodnota": ""
-  },
   "akce": [
     {
-      "nazev": "Vrcovice + Kubata",
+      "nazev": "Vrcovice + Kubata 2026",
       "datum": "2026-06-13",
       "vydelek": 9000,
       "jizdy": [
@@ -723,54 +723,29 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "appu12b"
+      }
     },
     {
-      "nazev": "Slavnosti mrkve",
-      "datum": "2026-08-15",
-      "vydelek": 4000,
-      "jizdy": [
-        {
-          "typ": "interni",
-          "nazev": "Benzín",
-          "castka": 100,
-          "ridici": [
-            "Miloš"
-          ],
-          "pasazeri": [
-            "Miloš",
-            "Patrik"
-          ]
-        }
-      ],
-      "naklady": [
-        {
-          "typ": "interni",
-          "nazev": "Airtrack",
-          "castka": 100,
-          "prijemce": "Miloš",
-          "platci": [
-            "Filip",
-            "Patrik"
-          ]
-        }
-      ],
+      "nazev": "Slavnosti mrkve 2026",
+      "datum": "",
+      "vydelek": 0,
+      "jizdy": [],
+      "naklady": [],
       "ucastnici": {
         "Filip": {
-          "ucastnik": true,
-          "organizator": true
+          "ucastnik": false,
+          "organizator": false
         },
         "Jenda": {
           "ucastnik": false,
           "organizator": false
         },
         "Patrik": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Miloš": {
-          "ucastnik": true,
+          "ucastnik": false,
           "organizator": false
         },
         "Kája": {
@@ -781,8 +756,7 @@
           "ucastnik": false,
           "organizator": false
         }
-      },
-      "id": "afivn0y"
+      }
     }
   ]
 }
@@ -1403,10 +1377,11 @@ function renderTabs(){
          +  ' title="Vybrat akci" aria-label="Vybrat akci"><i></i></button>';
   var akt = DATA.akce[state.akce], dk = datumKratke(akt);
   html += '<button class="tab" role="tab" data-i="'+state.akce+'" aria-selected="true">'
-       +  '<span class="tnm">'+esc(nazevAkce(akt))+'</span>'
+       +  '<span class="tnm kop"'+kopAtr(nazevAkce(akt), "název akce")+'>'+esc(nazevAkce(akt))+'</span>'
        +  (dk ? '<span class="tdat">'+esc(dk)+'</span>' : '')
        +  '</button>';
   el.innerHTML = html;
+  napojKopirovani(el);
 
   vykresliNabidku();
   naVse(el, ".tab[data-i]", function(b){
@@ -1553,9 +1528,11 @@ function renderContent(animate){
       +  ' data-group="vyplaty" data-row="'+i+'" aria-expanded="'+open+'">'
       +  av
       +  '<span class="who"><span class="nm">'+esc(r.jmeno)+'</span>'
-      +  (DATA.ucty[r.jmeno] ? '<span class="ucet num">'+esc(DATA.ucty[r.jmeno])+'</span>' : '')
+      +  (DATA.ucty[r.jmeno]
+            ? '<span class="ucet num kop"'+kopAtr(DATA.ucty[r.jmeno], "číslo účtu")+'>'+esc(DATA.ucty[r.jmeno])+'</span>'
+            : '')
       +  '</span>'
-      +  '<span class="amount num">'+fmt(r.vysledek)+'</span>'
+      +  '<span class="amount num kop"'+kopAtr(castkaKeKopii(r.vysledek), "částku")+'>'+fmt(r.vysledek)+'</span>'
       +  '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg>'
       +  (tags?'<span class="tags">'+tags+'</span>':'')
       +  '</button>'
@@ -1637,6 +1614,7 @@ function renderContent(animate){
     };
   });
   naplanujZamek(host);
+  napojKopirovani(host);
 
   renderKontrola(R, ev);
 }
@@ -2071,6 +2049,30 @@ function toast(msg){
   var t = $("toast");
   t.textContent = msg; t.classList.add("show");
   clearTimeout(toast._t); toast._t = setTimeout(function(){ t.classList.remove("show"); }, 2800);
+}
+
+/* --- kliknutím zkopírovat ------------------------------------------------
+   Částka, číslo účtu a název akce jdou kliknutím rovnou do schránky, ať se
+   při zadávání převodu nic nepřepisuje ručně. */
+/** částka bez měny a bez mezer — "2 580,00 Kč" → "2580,00" */
+function castkaKeKopii(n){ return nf.format(z(n)).replace(/\s| | /g, ""); }
+
+/** doplní atributy pro kliknutí-zkopíruj; prvky sedí uvnitř tlačítek,
+    proto žádné role ani tabindex navíc — klávesnice dál ovládá to tlačítko */
+function kopAtr(text, popis){
+  return ' data-kopie="' + esc(text) + '"'
+       + ' title="Kliknutím zkopírovat ' + esc(popis) + '"';
+}
+
+/** napojí kopírování na všechno s data-kopie uvnitř daného prvku */
+function napojKopirovani(koren){
+  naVse(koren, "[data-kopie]", function(el){
+    el.onclick = function(e){
+      e.preventDefault();
+      e.stopPropagation();          // ať se pod tím nerozbalí řádek výplaty
+      copy(el.dataset.kopie, "Zkopírováno: " + el.dataset.kopie);
+    };
+  });
 }
 
 function copy(text, ok){
