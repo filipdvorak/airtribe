@@ -369,14 +369,16 @@
   table.grid.matrix-edit tbody td.tducet{text-align:left;padding-left:0}
   .pcard .ucetin{font-size:12.5px;padding:8px 11px;width:100%}
   .ucetin::placeholder{color:var(--muted-2)}
-  /* platba za web — zaškrtávátko nad polem s částkou */
-  .webfield .webtg{display:inline-flex;align-items:center;gap:8px;margin:0 0 9px;padding:7px 12px;
+  /* platba za web — vlastní oddíl mezi Náklady a Kontrolou */
+  #webBox .hint{margin:0 0 11px}
+  #webBox .fields{margin-top:11px;grid-template-columns:minmax(0,340px)}
+  #webBox .webtg{display:inline-flex;align-items:center;gap:8px;margin:0 0 9px;padding:7px 12px;
        border:1px solid var(--line);border-radius:999px;background:var(--panel-2);
        font-size:13px;color:var(--muted);cursor:pointer;
        transition:border-color .18s var(--ease),background .18s var(--ease),color .18s var(--ease)}
-  .webfield .webtg input{width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
-  .webfield .webtg:hover{border-color:var(--accent)}
-  .webfield .webtg.on{border-color:transparent;background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+  #webBox .webtg input{width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
+  #webBox .webtg:hover{border-color:var(--accent)}
+  #webBox .webtg.on{border-color:transparent;background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
   .webfield input[type=number]:disabled{opacity:.5;cursor:not-allowed}
   /* zamčené číslo účtu — přepsat ho jde až po kliknutí na tužku vedle */
   .ucetrow{display:flex;align-items:center;gap:6px}
@@ -570,6 +572,12 @@
           <button class="btn" id="btnAddNHrom">+ Externí hromadný</button>
         </div>
       </div></div>
+    </div>
+
+    <div class="panel skl" id="panWeb">
+      <button class="phead sklhd" type="button" data-skl="bWeb" aria-expanded="false">
+        <span class="pic">🌐</span><h2>Platba za web</h2><span class="sklchev">›</span></button>
+      <div class="collapse" id="bWeb"><div class="inner"><div id="webBox"></div></div></div>
     </div>
   </div>
 
@@ -1706,15 +1714,6 @@ function renderEditor(){
       +  '<input type="number" step="0.01" inputmode="decimal" id="fld_'+a.key+'" data-f="'+a.key+'"'
       +  ' value="'+(ev[a.key] ? ev[a.key] : "")+'" placeholder="0"></div>';
   });
-  h += '<div class="field webfield"><label>Platba za web ('+esc(DATA.mena)+')</label>'
-    +  '<div class="fh">Poplatek za provoz téhle stránky. Rozdělí se rovným dílem mezi účastníky '
-    +  'a odchází ven ze skupiny — stejně jako externí hromadný náklad.</div>'
-    +  '<label class="webtg'+(ev.webZapnuto ? " on" : "")+'">'
-    +    '<input type="checkbox" id="fld_webZapnuto"'+(ev.webZapnuto ? " checked" : "")+'>'
-    +    'Započítat platbu za web</label>'
-    +  '<input type="number" step="0.01" inputmode="decimal" id="fld_webCastka" data-f="webCastka"'
-    +  ' value="'+(ev.webCastka ? ev.webCastka : "")+'" placeholder="0"'
-    +  (ev.webZapnuto ? "" : " disabled")+'></div>';
   fh.innerHTML = h;
 
   /** navěsí přepočet na pole s částkami a nastavením (voláme až po vykreslení všech polí) */
@@ -1735,18 +1734,32 @@ function renderEditor(){
   }
   navesPole("evFields");
 
-  /* Platba za web — zaškrtávátko řídí, jestli je pole s částkou k dispozici. */
-  (function(){
+  /* ---- vlastní oddíl Platba za web ---- */
+  var wb = $("webBox");
+  if(wb){
+    var inf = info("web", "web");
+    wb.innerHTML =
+        '<label class="webtg'+(ev.webZapnuto ? " on" : "")+'">'
+      +   '<input type="checkbox" id="fld_webZapnuto"'+(ev.webZapnuto ? " checked" : "")+'>'
+      +   'Započítat platbu za web' + inf.btn + '</label>'
+      + inf.box
+      + '<div class="fields"><div class="field webfield">'
+      +   '<label>Částka ('+esc(DATA.mena)+')</label>'
+      +   '<div class="fh">Celá částka za web — mezi účastníky ji rozdělí aplikace sama.</div>'
+      +   '<input type="number" step="0.01" inputmode="decimal" id="fld_webCastka" data-f="webCastka"'
+      +   ' value="'+(ev.webCastka ? ev.webCastka : "")+'" placeholder="0"'
+      +   (ev.webZapnuto ? "" : " disabled")+'>'
+      + '</div></div>';
+    navesPole("webBox");
     var cb = $("fld_webZapnuto"), inp = $("fld_webCastka");
-    if(!cb || !inp) return;
     cb.onchange = function(){
       ev.webZapnuto = cb.checked;
       inp.disabled = !cb.checked;
-      var l = cb.parentNode; if(l) l.classList.toggle("on", cb.checked);
+      cb.parentNode.classList.toggle("on", cb.checked);
       if(cb.checked) inp.focus();
       prekresliObsah();
     };
-  })();
+  }
 
   /* Číslo účtu je zamčené — odemkne ho až tlačítko vedle, ať ho nikdo nepřepíše omylem.
      Po opuštění pole se zase samo zamkne. */
