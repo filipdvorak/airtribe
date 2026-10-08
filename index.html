@@ -369,17 +369,16 @@
   table.grid.matrix-edit tbody td.tducet{text-align:left;padding-left:0}
   .pcard .ucetin{font-size:12.5px;padding:8px 11px;width:100%}
   .ucetin::placeholder{color:var(--muted-2)}
-  /* platba za web — vlastní oddíl mezi Náklady a Kontrolou */
-  #webBox .hint{margin:0 0 11px}
-  #webBox .fields{margin-top:11px;grid-template-columns:minmax(0,340px)}
-  #webBox .webtg{display:inline-flex;align-items:center;gap:8px;margin:0 0 9px;padding:7px 12px;
-       border:1px solid var(--line);border-radius:999px;background:var(--panel-2);
-       font-size:13px;color:var(--muted);cursor:pointer;
-       transition:border-color .18s var(--ease),background .18s var(--ease),color .18s var(--ease)}
-  #webBox .webtg input{width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
-  #webBox .webtg:hover{border-color:var(--accent)}
-  #webBox .webtg.on{border-color:transparent;background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
-  .webfield input[type=number]:disabled{opacity:.5;cursor:not-allowed}
+  /* platba za web — vlastní oddíl mezi Náklady a Kontrolou;
+     stejné rozvržení jako jízdy a náklady, jen bez karty */
+  #webBox .jrada:first-child{margin-top:0}
+  .webamt{flex:1;display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-top:2px}
+  .webamt input{width:130px;font:inherit;font-size:14px;font-variant-numeric:tabular-nums;
+       padding:9px 11px;border-radius:11px;border:1px solid var(--line);
+       background:var(--panel-2);color:var(--ink);text-align:right}
+  .webamt input:disabled{opacity:.45;cursor:not-allowed}
+  .webmena{font-size:13px;color:var(--muted);font-weight:650}
+  .webpozn{font-size:12px;color:var(--muted-2)}
   /* zamčené číslo účtu — přepsat ho jde až po kliknutí na tužku vedle */
   .ucetrow{display:flex;align-items:center;gap:6px}
   .matrix-edit td.tducet .ucetrow{max-width:240px}
@@ -1738,17 +1737,19 @@ function renderEditor(){
   var wb = $("webBox");
   if(wb){
     var inf = info("web", "web");
+    // Stejné rozvržení jako u jízd a nákladů — popisek vlevo, ovládání vpravo, žádné karty navíc.
     wb.innerHTML =
-        '<label class="webtg'+(ev.webZapnuto ? " on" : "")+'">'
-      +   '<input type="checkbox" id="fld_webZapnuto"'+(ev.webZapnuto ? " checked" : "")+'>'
-      +   'Započítat platbu za web' + inf.btn + '</label>'
+        radaLidi("Započítat",
+          tg("Platba za web",
+             '<input type="checkbox" id="fld_webZapnuto"'+(ev.webZapnuto ? " checked" : "")+'>',
+             ev.webZapnuto) + inf.btn)
       + inf.box
-      + '<div class="fields"><div class="field webfield">'
-      +   '<label>Částka ('+esc(DATA.mena)+')</label>'
-      +   '<div class="fh">Celá částka za web — mezi účastníky ji rozdělí aplikace sama.</div>'
+      + '<div class="jrada"><span class="jlbl">Částka</span><div class="webamt">'
       +   '<input type="number" step="0.01" inputmode="decimal" id="fld_webCastka" data-f="webCastka"'
       +   ' value="'+(ev.webCastka ? ev.webCastka : "")+'" placeholder="0"'
       +   (ev.webZapnuto ? "" : " disabled")+'>'
+      +   '<span class="webmena">'+esc(DATA.mena)+'</span>'
+      +   '<span class="webpozn">rozdělí se rovným dílem mezi účastníky</span>'
       + '</div></div>';
     navesPole("webBox");
     var cb = $("fld_webZapnuto"), inp = $("fld_webCastka");
@@ -1759,6 +1760,7 @@ function renderEditor(){
       if(cb.checked) inp.focus();
       prekresliObsah();
     };
+    oznacitVse("webBox");
   }
 
   /* Číslo účtu je zamčené — odemkne ho až tlačítko vedle, ať ho nikdo nepřepíše omylem.
