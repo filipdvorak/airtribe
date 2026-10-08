@@ -369,6 +369,15 @@
   table.grid.matrix-edit tbody td.tducet{text-align:left;padding-left:0}
   .pcard .ucetin{font-size:12.5px;padding:8px 11px;width:100%}
   .ucetin::placeholder{color:var(--muted-2)}
+  /* platba za web — zaškrtávátko nad polem s částkou */
+  .webfield .webtg{display:inline-flex;align-items:center;gap:8px;margin:0 0 9px;padding:7px 12px;
+       border:1px solid var(--line);border-radius:999px;background:var(--panel-2);
+       font-size:13px;color:var(--muted);cursor:pointer;
+       transition:border-color .18s var(--ease),background .18s var(--ease),color .18s var(--ease)}
+  .webfield .webtg input{width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
+  .webfield .webtg:hover{border-color:var(--accent)}
+  .webfield .webtg.on{border-color:transparent;background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+  .webfield input[type=number]:disabled{opacity:.5;cursor:not-allowed}
   /* zamčené číslo účtu — přepsat ho jde až po kliknutí na tužku vedle */
   .ucetrow{display:flex;align-items:center;gap:6px}
   .matrix-edit td.tducet .ucetrow{max-width:240px}
@@ -765,7 +774,15 @@ var NAKLADY_TYPY = {
     vzorec:"− částka ÷ počet označených" }
 };
 
+/* Platba za web — jediná pevná položka, kterou stačí zaškrtnout a zadat částku.
+   Chová se jako externí hromadný náklad, jen se nemusí pokaždé zakládat
+   a platí ji vždycky všichni účastníci akce. */
+var WEB = { key:"web", label:"Platba za web", ikona:"🌐", ikonaText:"🌐",
+  popis:"Poplatek za provoz téhle stránky. <b>Odchází ven ze skupiny</b> a účastníci se na něj složí rovným dílem — nemusíš ho tedy pokaždé zakládat jako náklad.",
+  vzorec:"− částka ÷ počet účastníků" };
+
 var FMAP = {}; FLAGS.forEach(function(f){ FMAP[f.key] = f; });
+FMAP.web = WEB;
 Object.keys(DOPRAVA).forEach(function(k){ FMAP[k] = DOPRAVA[k]; });
 Object.keys(NAKLADY_TYPY).forEach(function(k){ FMAP["n_"+k] = NAKLADY_TYPY[k]; });
 
@@ -812,6 +829,8 @@ function normalize(d){
     if(typeof ev.nazev !== "string") ev.nazev = "";
     if(typeof ev.datum !== "string") ev.datum = "";
     AMOUNTS.forEach(function(a){ ev[a.key] = Number(ev[a.key]) || 0; });
+    ev.webZapnuto = ev.webZapnuto === true;
+    ev.webCastka  = Number(ev.webCastka) || 0;
     ev.ucastnici = ev.ucastnici || {};
 
     // Převod starších dat na jízdy a náklady.
@@ -969,6 +988,9 @@ function compute(ev, lide, pct){
   FLAGS.forEach(function(f){ c[f.key] = akt.filter(function(p){ return fl(p)[f.key]; }).length; });
 
   var nU = akt.length, nOrg = c.organizator, nNeOrg = nU - nOrg;
+  // platba za web — pevná položka, dělí se rovným dílem mezi účastníky a odchází ven
+  var webCastka  = (ev.webZapnuto && ev.webCastka > 0) ? ev.webCastka : 0;
+  var webNaOsobu = (webCastka && nU) ? webCastka / nU : 0;
   var organizatori = akt.filter(function(p){ return fl(p).organizator; });
   var bonus = nOrg > 0 ? ev.vydelek * (pct/100) : 0;
 
@@ -1047,6 +1069,11 @@ function compute(ev, lide, pct){
       }
     });
 
+    if(webNaOsobu)
+      push("web", "Podíl na platbě za web",
+           fmt(webCastka)+" ÷ "+nU+" "+sklon(nU,"účastníka","účastníky","účastníků"),
+           -webNaOsobu, "minus");
+
     if(bonus > 0){
       if(f.organizator)
         push("organizator", "Odměna organizátora",
@@ -1084,9 +1111,10 @@ function compute(ev, lide, pct){
 
   var ven = {
     doprava: venJizdy.reduce(function(a,jz){ return a + jz.castka; }, 0),
-    naklady: venNakl.reduce(function(a,nk){ return a + nk.celkem; }, 0)
+    naklady: venNakl.reduce(function(a,nk){ return a + nk.celkem; }, 0),
+    web:     nU ? webCastka : 0
   };
-  ven.celkem = ven.doprava + ven.naklady;
+  ven.celkem = ven.doprava + ven.naklady + ven.web;
 
   var uvnitr = {
     doprava: uvnJizdy.reduce(function(a,jz){ return a + jz.castka; }, 0),
@@ -1112,12 +1140,15 @@ function compute(ev, lide, pct){
     else if(nk.typ === "interni" && !nk.prijemce)
       w.push("<b>"+esc(nk.nazev)+"</b> — chybí <b>ten, kdo náklad zaplatil</b>. Stržená částka by se ztratila.");
   });
+  if(webCastka && nU === 0)
+    w.push("Je zadaná <b>platba za web</b>, ale akce nemá <b>žádného účastníka</b>, který by se na ní složil.");
   if(ev.vydelek > 0 && nU === 0)
     w.push("Akce má zadaný výdělek, ale <b>žádného účastníka</b>.");
 
   return { radky:radky, pocty:c, nU:nU, organizatori:organizatori,
            jizdy:jizdy, naklady:naklady,
            venJizdy:venJizdy, uvnJizdy:uvnJizdy, venNakl:venNakl, uvnNakl:uvnNakl,
+           web:{ castka:webCastka, naOsobu:webNaOsobu, platci:akt },
            ven:ven, uvnitr:uvnitr,
            kRozdeleni:kRozdeleni, soucet:soucet, rozdil:kRozdeleni - soucet, varovani:w };
 }
@@ -1520,6 +1551,10 @@ function renderContent(animate){
         : "dělí se: " + nk.platci.join(", ") + " · " + fmt(nk.naOsobu) + " na osobu"));
   });
 
+  if(R.web.castka && R.web.platci.length)
+    ven.push(crow("web", "Platba za web", R.web.castka,
+      "dělí se: " + R.web.platci.join(", ") + " · " + fmt(R.web.naOsobu) + " na osobu"));
+
   R.uvnJizdy.forEach(function(jz){
     // Řidič už bývá v názvu jízdy, tak ho v poznámce zmiňujeme jen u vlastního názvu.
     var vlastni = !!(jz.def.nazev || "").trim();
@@ -1671,6 +1706,15 @@ function renderEditor(){
       +  '<input type="number" step="0.01" inputmode="decimal" id="fld_'+a.key+'" data-f="'+a.key+'"'
       +  ' value="'+(ev[a.key] ? ev[a.key] : "")+'" placeholder="0"></div>';
   });
+  h += '<div class="field webfield"><label>Platba za web ('+esc(DATA.mena)+')</label>'
+    +  '<div class="fh">Poplatek za provoz téhle stránky. Rozdělí se rovným dílem mezi účastníky '
+    +  'a odchází ven ze skupiny — stejně jako externí hromadný náklad.</div>'
+    +  '<label class="webtg'+(ev.webZapnuto ? " on" : "")+'">'
+    +    '<input type="checkbox" id="fld_webZapnuto"'+(ev.webZapnuto ? " checked" : "")+'>'
+    +    'Započítat platbu za web</label>'
+    +  '<input type="number" step="0.01" inputmode="decimal" id="fld_webCastka" data-f="webCastka"'
+    +  ' value="'+(ev.webCastka ? ev.webCastka : "")+'" placeholder="0"'
+    +  (ev.webZapnuto ? "" : " disabled")+'></div>';
   fh.innerHTML = h;
 
   /** navěsí přepočet na pole s částkami a nastavením (voláme až po vykreslení všech polí) */
@@ -1690,6 +1734,19 @@ function renderEditor(){
     });
   }
   navesPole("evFields");
+
+  /* Platba za web — zaškrtávátko řídí, jestli je pole s částkou k dispozici. */
+  (function(){
+    var cb = $("fld_webZapnuto"), inp = $("fld_webCastka");
+    if(!cb || !inp) return;
+    cb.onchange = function(){
+      ev.webZapnuto = cb.checked;
+      inp.disabled = !cb.checked;
+      var l = cb.parentNode; if(l) l.classList.toggle("on", cb.checked);
+      if(cb.checked) inp.focus();
+      prekresliObsah();
+    };
+  })();
 
   /* Číslo účtu je zamčené — odemkne ho až tlačítko vedle, ať ho nikdo nepřepíše omylem.
      Po opuštění pole se zase samo zamkne. */
@@ -1997,6 +2054,8 @@ function renderAll(animate){ DATA = normalize(DATA); renderHeader(); renderTabs(
 function newEvent(src){
   var ev = { nazev: src ? nazevAkce(src)+" (kopie)" : "", datum: "", ucastnici:{} };
   AMOUNTS.forEach(function(a){ ev[a.key] = src ? src[a.key] : 0; });
+  ev.webZapnuto = src ? src.webZapnuto === true : false;
+  ev.webCastka  = src ? Number(src.webCastka) || 0 : 0;
   if(src) DATA.lide.forEach(function(p){ ev.ucastnici[p] = Object.assign({}, src.ucastnici[p]); });
   DATA.akce.push(ev); state.akce = DATA.akce.length-1; state.otevreny = null; renderAll(true);
 }
